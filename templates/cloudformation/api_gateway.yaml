@@ -1,0 +1,260 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: MinION Pipeline API Gateway
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - development
+      - staging
+      - production
+
+  DomainName:
+    Type: String
+    Description: Custom domain name for API (optional)
+    Default: ''
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.9
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+
+Resources:
+  # API Gateway
+  MinIONApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub 'minion-pipeline-api-${Environment}'
+      StageName: !Ref Environment
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: ApiKeyAuthorizer
+        Authorizers:
+          ApiKeyAuthorizer:
+            FunctionArn: !GetAtt ApiAuthorizerFunction.Arn
+      GatewayResponses:
+        DEFAULT_4xx:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+        DEFAULT_5xx:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+
+  # API Key
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Name: !Sub 'minion-api-key-${Environment}'
+      Description: API Key for MinION Pipeline
+      Enabled: true
+      StageKeys:
+        - RestApiId: !Ref MinIONApi
+          StageName: !Ref Environment
+
+  # Usage Plan
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      UsagePlanName: !Sub 'minion-usage-plan-${Environment}'
+      Description: Usage plan for MinION Pipeline API
+      ApiStages:
+        - ApiId: !Ref MinIONApi
+          Stage: !Ref Environment
+      Quota:
+        Limit: 10000
+        Period: DAY
+      Throttle:
+        BurstLimit: 100
+        RateLimit: 50
+
+  UsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref UsagePlan
+
+  # Authorizer Function
+  ApiAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'minion-api-authorizer-${Environment}'
+      Handler: index.handler
+      InlineCode: |
+        import json
+
+        def handler(event, context):
+            # Simple API key validation
+            api_key = event.get('headers', {}).get('x-api-key')
+
+            if not api_key:
+                raise Exception('Unauthorized')
+
+            # In production, validate against database or secrets manager
+            valid_keys = ['test-key-123']  # Replace with actual validation
+
+            if api_key not in valid_keys:
+                raise Exception('Unauthorized')
+
+            return {
+                'principalId': 'user',
+                'policyDocument': {
+                    'Version': '2012-10-17',
+                    'Statement': [
+                        {
+                            'Action': 'execute-api:Invoke',
+                            'Effect': 'Allow',
+                            'Resource': event['methodArn']
+                        }
+                    ]
+                }
+            }
+
+  # Lambda Functions for API endpoints
+  StartWorkflowFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'minion-api-start-workflow-${Environment}'
+      Handler: index.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MinIONApi
+            Path: /workflows
+            Method: POST
+      InlineCode: |
+        import json
+        import boto3
+        import uuid
+        from datetime import datetime
+
+        stepfunctions = boto3.client('stepfunctions')
+
+        def handler(event, context):
+            try:
+                body = json.loads(event['body'])
+                run_id = body.get('run_id', str(uuid.uuid4()))
+
+                # Start Step Functions execution
+                response = stepfunctions.start_execution(
+                    stateMachineArn=os.environ['STATE_MACHINE_ARN'],
+                    name=f'{run_id}-{datetime.now().strftime("%Y%m%d%H%M%S")}',
+                    input=json.dumps({
+                        'run_id': run_id,
+                        'bucket': body['bucket'],
+                        'input_prefix': body['input_prefix'],
+                        'config': body.get('config', {})
+                    })
+                )
+
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({
+                        'run_id': run_id,
+                        'execution_arn': response['executionArn'],
+                        'status': 'STARTED'
+                    })
+                }
+            except Exception as e:
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps({'error': str(e)})
+                }
+      Environment:
+        Variables:
+          STATE_MACHINE_ARN: !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:minion-pipeline-${Environment}'
+
+  GetWorkflowStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'minion-api-get-workflow-${Environment}'
+      CodeUri: ../../lambda/api/
+      Handler: get_workflow_status.lambda_handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MinIONApi
+            Path: /workflows/{workflow_id}
+            Method: GET
+
+  ListWorkflowsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'minion-api-list-workflows-${Environment}'
+      CodeUri: ../../lambda/api/
+      Handler: list_workflows.lambda_handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MinIONApi
+            Path: /workflows
+            Method: GET
+
+  GetPathogensFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'minion-api-get-pathogens-${Environment}'
+      CodeUri: ../../lambda/api/
+      Handler: get_pathogens.lambda_handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MinIONApi
+            Path: /pathogens/{run_id}
+            Method: GET
+
+  # Custom Domain (Optional)
+  CustomDomain:
+    Type: AWS::ApiGateway::DomainName
+    Condition: HasCustomDomain
+    Properties:
+      DomainName: !Ref DomainName
+      CertificateArn: !Sub 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/your-cert-id'
+      EndpointConfiguration:
+        Types:
+          - EDGE
+
+  BasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Condition: HasCustomDomain
+    Properties:
+      DomainName: !Ref CustomDomain
+      RestApiId: !Ref MinIONApi
+      Stage: !Ref Environment
+
+Conditions:
+  HasCustomDomain: !Not [!Equals [!Ref DomainName, '']]
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${MinIONApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}'
+
+  ApiKeyId:
+    Description: API Key ID
+    Value: !Ref ApiKey
+
+  CustomDomainUrl:
+    Condition: HasCustomDomain
+    Description: Custom domain URL
+    Value: !Sub 'https://${DomainName}'

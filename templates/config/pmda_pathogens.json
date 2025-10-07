@@ -1,0 +1,145 @@
+{
+  "version": "2024.1",
+  "total_pathogens": 91,
+  "last_updated": "2024-01-01",
+  "categories": {
+    "viruses": {
+      "count": 50,
+      "critical": ["PERV-A", "PERV-B", "PERV-C", "HEV", "JEV"],
+      "pathogens": [
+        {"code": "PERV-A", "name": "Porcine endogenous retrovirus A", "risk_level": "CRITICAL"},
+        {"code": "PERV-B", "name": "Porcine endogenous retrovirus B", "risk_level": "CRITICAL"},
+        {"code": "PERV-C", "name": "Porcine endogenous retrovirus C", "risk_level": "CRITICAL"},
+        {"code": "HEV", "name": "Hepatitis E virus", "risk_level": "HIGH"},
+        {"code": "JEV", "name": "Japanese encephalitis virus", "risk_level": "HIGH"},
+        {"code": "PRRSV", "name": "Porcine reproductive and respiratory syndrome virus", "risk_level": "MEDIUM"},
+        {"code": "PCV2", "name": "Porcine circovirus 2", "risk_level": "MEDIUM"},
+        {"code": "PCV3", "name": "Porcine circovirus 3", "risk_level": "MEDIUM"},
+        {"code": "PRV", "name": "Pseudorabies virus", "risk_level": "HIGH"},
+        {"code": "FMDV", "name": "Foot-and-mouth disease virus", "risk_level": "CRITICAL"},
+        {"code": "ASFV", "name": "African swine fever virus", "risk_level": "CRITICAL"},
+        {"code": "CSFV", "name": "Classical swine fever virus", "risk_level": "CRITICAL"},
+        {"code": "SIV", "name": "Swine influenza virus", "risk_level": "HIGH"},
+        {"code": "PPV", "name": "Porcine parvovirus", "risk_level": "MEDIUM"},
+        {"code": "EMCV", "name": "Encephalomyocarditis virus", "risk_level": "MEDIUM"},
+        {"code": "RV", "name": "Rotavirus", "risk_level": "LOW"},
+        {"code": "PEDV", "name": "Porcine epidemic diarrhea virus", "risk_level": "MEDIUM"},
+        {"code": "TGEV", "name": "Transmissible gastroenteritis virus", "risk_level": "MEDIUM"},
+        {"code": "PDCoV", "name": "Porcine deltacoronavirus", "risk_level": "MEDIUM"},
+        {"code": "PHEV", "name": "Porcine hemagglutinating encephalomyelitis virus", "risk_level": "MEDIUM"},
+        {"code": "SVV", "name": "Seneca Valley virus", "risk_level": "LOW"},
+        {"code": "PSV", "name": "Porcine sapelovirus", "risk_level": "LOW"},
+        {"code": "PTV", "name": "Porcine teschovirus", "risk_level": "LOW"},
+        {"code": "PEV", "name": "Porcine enterovirus", "risk_level": "LOW"},
+        {"code": "PAV", "name": "Porcine astrovirus", "risk_level": "LOW"}
+      ]
+    },
+    "bacteria": {
+      "count": 35,
+      "critical": ["MT", "BA"],
+      "pathogens": [
+        {"code": "SA", "name": "Staphylococcus aureus", "risk_level": "MEDIUM"},
+        {"code": "SP", "name": "Streptococcus pneumoniae", "risk_level": "MEDIUM"},
+        {"code": "SS", "name": "Streptococcus suis", "risk_level": "HIGH"},
+        {"code": "EC", "name": "Escherichia coli", "risk_level": "MEDIUM"},
+        {"code": "SE", "name": "Salmonella enterica", "risk_level": "HIGH"},
+        {"code": "CT", "name": "Clostridium tetani", "risk_level": "HIGH"},
+        {"code": "CP", "name": "Clostridium perfringens", "risk_level": "MEDIUM"},
+        {"code": "LA", "name": "Listeria monocytogenes", "risk_level": "HIGH"},
+        {"code": "BA", "name": "Bacillus anthracis", "risk_level": "CRITICAL"},
+        {"code": "BP", "name": "Bordetella pertussis", "risk_level": "MEDIUM"},
+        {"code": "FT", "name": "Francisella tularensis", "risk_level": "HIGH"},
+        {"code": "YP", "name": "Yersinia pestis", "risk_level": "HIGH"},
+        {"code": "MT", "name": "Mycobacterium tuberculosis", "risk_level": "CRITICAL"},
+        {"code": "MB", "name": "Mycobacterium bovis", "risk_level": "HIGH"},
+        {"code": "MA", "name": "Mycoplasma pneumoniae", "risk_level": "MEDIUM"},
+        {"code": "CJ", "name": "Campylobacter jejuni", "risk_level": "MEDIUM"},
+        {"code": "HP", "name": "Helicobacter pylori", "risk_level": "LOW"},
+        {"code": "BB", "name": "Borrelia burgdorferi", "risk_level": "MEDIUM"},
+        {"code": "LP", "name": "Legionella pneumophila", "risk_level": "MEDIUM"},
+        {"code": "TP", "name": "Treponema pallidum", "risk_level": "HIGH"},
+        {"code": "CS", "name": "Clostridium difficile", "risk_level": "MEDIUM"},
+        {"code": "PM", "name": "Pasteurella multocida", "risk_level": "MEDIUM"},
+        {"code": "AP", "name": "Actinobacillus pleuropneumoniae", "risk_level": "MEDIUM"},
+        {"code": "HPS", "name": "Haemophilus parasuis", "risk_level": "MEDIUM"},
+        {"code": "EP", "name": "Erysipelothrix rhusiopathiae", "risk_level": "MEDIUM"},
+        {"code": "BR", "name": "Brucella species", "risk_level": "HIGH"},
+        {"code": "LM", "name": "Lawsonia intracellularis", "risk_level": "LOW"},
+        {"code": "BB", "name": "Brachyspira species", "risk_level": "LOW"}
+      ]
+    },
+    "parasites": {
+      "count": 5,
+      "critical": [],
+      "pathogens": [
+        {"code": "TG", "name": "Toxoplasma gondii", "risk_level": "HIGH"},
+        {"code": "TC", "name": "Trypanosoma cruzi", "risk_level": "MEDIUM"},
+        {"code": "TS", "name": "Trichinella spiralis", "risk_level": "HIGH"},
+        {"code": "EC-P", "name": "Echinococcus species", "risk_level": "MEDIUM"},
+        {"code": "CP-P", "name": "Cryptosporidium parvum", "risk_level": "MEDIUM"}
+      ]
+    },
+    "fungi": {
+      "count": 5,
+      "critical": [],
+      "pathogens": [
+        {"code": "CN", "name": "Cryptococcus neoformans", "risk_level": "MEDIUM"},
+        {"code": "CA", "name": "Candida albicans", "risk_level": "LOW"},
+        {"code": "AF", "name": "Aspergillus fumigatus", "risk_level": "MEDIUM"},
+        {"code": "PJ", "name": "Pneumocystis jirovecii", "risk_level": "MEDIUM"},
+        {"code": "HI", "name": "Histoplasma capsulatum", "risk_level": "MEDIUM"}
+      ]
+    },
+    "prions": {
+      "count": 1,
+      "critical": ["PRION"],
+      "pathogens": [
+        {"code": "PRION", "name": "Transmissible spongiform encephalopathy agents", "risk_level": "CRITICAL"}
+      ]
+    }
+  },
+  "detection_methods": {
+    "PERV": ["PCR", "NGS", "RT-PCR"],
+    "viruses": ["NGS", "PCR", "ELISA"],
+    "bacteria": ["NGS", "Culture", "PCR"],
+    "parasites": ["NGS", "Microscopy", "PCR"],
+    "fungi": ["NGS", "Culture", "PCR"],
+    "prions": ["WB", "IHC", "ELISA"]
+  },
+  "reporting_requirements": {
+    "all_pathogens_tested": true,
+    "perv_specific_report": true,
+    "quantitative_results": true,
+    "detection_limits": true,
+    "quality_metrics": true,
+    "negative_controls": false,
+    "positive_controls": false
+  },
+  "action_thresholds": {
+    "PERV": {
+      "detection_threshold": 1,
+      "action": "quarantine",
+      "notification": "immediate"
+    },
+    "critical_pathogens": {
+      "detection_threshold": 1,
+      "action": "reject",
+      "notification": "immediate"
+    },
+    "high_risk": {
+      "detection_threshold": 100,
+      "action": "review",
+      "notification": "24_hours"
+    },
+    "medium_risk": {
+      "detection_threshold": 1000,
+      "action": "monitor",
+      "notification": "weekly"
+    },
+    "low_risk": {
+      "detection_threshold": 10000,
+      "action": "record",
+      "notification": "monthly"
+    }
+  }
+}

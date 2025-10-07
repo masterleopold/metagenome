@@ -1,0 +1,181 @@
+# Default MinION Pipeline Configuration
+# PMDA-compliant pathogen screening for xenotransplantation
+
+pipeline:
+  name: MinION Pathogen Screening Pipeline
+  version: 1.0.0
+  description: PMDA-compliant metagenomic analysis for donor pig screening
+
+# Phase configurations
+phases:
+  basecalling:
+    enabled: true
+    skip_duplex: false  # Use duplex for Q30 accuracy
+    min_quality: 9
+    model: dna_r10.4.1_e8.2_400bps_sup.cfg
+    device: cuda:all
+    chunk_size: 4000
+    overlap: 500
+    batch_size: 256
+
+  qc:
+    enabled: true
+    min_quality: 9
+    min_length: 100
+    max_length: 100000
+    min_pass_reads: 1000
+    quality_window: 5
+
+  host_removal:
+    enabled: true
+    reference: sus_scrofa_11.1
+    min_identity: 0.95
+    min_alignment_length: 50
+    threads: 16
+    keep_unmapped: true
+
+  pathogen_detection:
+    enabled: true
+    databases:
+      - kraken2     # Rapid taxonomic classification
+      - rvdb        # Viral database
+      - pmda        # PMDA 91 pathogens
+    confidence_threshold: 0.1
+    min_reads: 10
+    min_kmers: 100
+    threads: 16
+    report_zeros: false
+
+  quantification:
+    enabled: true
+    spike_in: PhiX174
+    spike_in_concentration: 0.01  # 1% spike-in
+    plasma_volume_ml: 10.0
+    extraction_efficiency: 0.7
+    normalization_method: spike_in
+
+  reporting:
+    enabled: true
+    formats:
+      - pdf
+      - json
+      - html
+    include_raw_data: false
+    pmda_checklist: true
+    include_plots: true
+    max_pathogens_shown: 50
+
+# PMDA compliance settings
+pmda:
+  guideline_version: "2024"
+  pathogen_count: 91
+  critical_pathogens:
+    - PERV-A
+    - PERV-B
+    - PERV-C
+    - ASFV
+    - CSFV
+    - FMDV
+  immediate_alert_pathogens:
+    - PERV-A
+    - PERV-B
+    - PERV-C
+  reporting_requirements:
+    - all_91_pathogens_tested
+    - perv_specific_analysis
+    - quantitative_results
+    - quality_metrics
+
+# Resource allocation
+resources:
+  basecalling:
+    instance_type: g4dn.xlarge
+    spot_instance: true
+    max_runtime_hours: 12
+    auto_terminate: true
+
+  qc:
+    instance_type: m5.xlarge
+    max_runtime_hours: 4
+
+  host_removal:
+    instance_type: r5.2xlarge
+    max_runtime_hours: 6
+    memory_gb: 64
+
+  pathogen_detection:
+    instance_type: r5.4xlarge
+    max_runtime_hours: 8
+    memory_gb: 128
+
+  quantification:
+    instance_type: m5.2xlarge
+    max_runtime_hours: 2
+
+  reporting:
+    instance_type: m5.xlarge
+    max_runtime_hours: 2
+
+# Quality thresholds
+quality_thresholds:
+  min_reads: 10000
+  min_mean_quality: 9
+  min_n50: 1000
+  max_host_contamination: 0.95
+  min_depletion_efficiency: 0.90
+
+# Alert settings
+alerts:
+  email_enabled: true
+  sms_enabled: false
+  slack_enabled: false
+  critical_pathogen_detection: immediate
+  qc_failure: warning
+  high_contamination: warning
+  workflow_failure: immediate
+
+# Data retention
+data_retention:
+  raw_data_days: 30
+  processed_data_days: 90
+  reports_days: 365
+  database_records_days: 730
+
+# Validation requirements
+validation:
+  require_spike_in: true
+  require_negative_control: false
+  require_positive_control: false
+  min_coverage_depth: 10
+  min_genome_coverage: 0.01
+
+# Cost controls
+cost_controls:
+  max_cost_per_run: 500  # USD
+  alert_threshold: 400
+  use_spot_instances: true
+  auto_terminate_on_complete: true
+  auto_terminate_timeout_hours: 24
+
+# Database versions
+databases:
+  kraken2:
+    version: standard_20231009
+    auto_update: false
+  rvdb:
+    version: v30.0
+    auto_update: false
+  pmda:
+    version: 2024.1
+    auto_update: true
+
+# Advanced settings
+advanced:
+  enable_de_novo_assembly: false
+  enable_variant_calling: false
+  enable_methylation_analysis: false
+  enable_structural_variant_detection: false
+  parallel_execution: true
+  max_parallel_phases: 2
+  retry_failed_phases: true
+  max_retries: 3

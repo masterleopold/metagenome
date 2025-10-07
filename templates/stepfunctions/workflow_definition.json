@@ -1,0 +1,392 @@
+{
+  "Comment": "MinION Analysis Pipeline Workflow",
+  "StartAt": "ValidateInput",
+  "States": {
+    "ValidateInput": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-pipeline-orchestrator",
+      "Parameters": {
+        "action": "validate_input",
+        "run_id.$": "$.run_id",
+        "bucket.$": "$.bucket",
+        "input_prefix.$": "$.input_prefix"
+      },
+      "ResultPath": "$.validation",
+      "Next": "CheckValidation",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "CheckValidation": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.validation.valid",
+          "BooleanEquals": true,
+          "Next": "Phase_Basecalling"
+        }
+      ],
+      "Default": "ValidationFailed"
+    },
+    "ValidationFailed": {
+      "Type": "Fail",
+      "Error": "ValidationError",
+      "Cause": "Input validation failed"
+    },
+    "Phase_Basecalling": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-trigger-basecalling",
+      "Parameters": {
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "bucket.$": "$.bucket",
+        "input_prefix.$": "$.input_prefix",
+        "output_prefix.$": "$.output_prefix",
+        "config.$": "$.config.phases.basecalling"
+      },
+      "ResultPath": "$.basecalling_result",
+      "Next": "WaitForBasecalling",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "WaitForBasecalling": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "CheckBasecalling"
+    },
+    "CheckBasecalling": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-check-phase-status",
+      "Parameters": {
+        "phase": "basecalling",
+        "instance_id.$": "$.basecalling_result.instance_id",
+        "command_id.$": "$.basecalling_result.command_id",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.basecalling_status",
+      "Next": "BasecallingComplete?"
+    },
+    "BasecallingComplete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.basecalling_status.status",
+          "StringEquals": "COMPLETED",
+          "Next": "Phase_QC"
+        },
+        {
+          "Variable": "$.basecalling_status.status",
+          "StringEquals": "FAILED",
+          "Next": "HandleError"
+        }
+      ],
+      "Default": "WaitForBasecalling"
+    },
+    "Phase_QC": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-trigger-qc",
+      "Parameters": {
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "input_path.$": "$.basecalling_status.output_path",
+        "config.$": "$.config.phases.qc"
+      },
+      "ResultPath": "$.qc_result",
+      "Next": "WaitForQC",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "WaitForQC": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "CheckQC"
+    },
+    "CheckQC": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-check-phase-status",
+      "Parameters": {
+        "phase": "qc",
+        "instance_id.$": "$.qc_result.instance_id",
+        "command_id.$": "$.qc_result.command_id",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.qc_status",
+      "Next": "QCComplete?"
+    },
+    "QCComplete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.qc_status.status",
+          "StringEquals": "COMPLETED",
+          "Next": "Phase_HostRemoval"
+        },
+        {
+          "Variable": "$.qc_status.status",
+          "StringEquals": "FAILED",
+          "Next": "HandleError"
+        }
+      ],
+      "Default": "WaitForQC"
+    },
+    "Phase_HostRemoval": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-trigger-host-removal",
+      "Parameters": {
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "input_path.$": "$.qc_status.output_path",
+        "config.$": "$.config.phases.host_removal"
+      },
+      "ResultPath": "$.host_removal_result",
+      "Next": "WaitForHostRemoval",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "WaitForHostRemoval": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "CheckHostRemoval"
+    },
+    "CheckHostRemoval": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-check-phase-status",
+      "Parameters": {
+        "phase": "host_removal",
+        "instance_id.$": "$.host_removal_result.instance_id",
+        "command_id.$": "$.host_removal_result.command_id",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.host_removal_status",
+      "Next": "HostRemovalComplete?"
+    },
+    "HostRemovalComplete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.host_removal_status.status",
+          "StringEquals": "COMPLETED",
+          "Next": "Phase_PathogenDetection"
+        },
+        {
+          "Variable": "$.host_removal_status.status",
+          "StringEquals": "FAILED",
+          "Next": "HandleError"
+        }
+      ],
+      "Default": "WaitForHostRemoval"
+    },
+    "Phase_PathogenDetection": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-trigger-pathogen-detection",
+      "Parameters": {
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "input_path.$": "$.host_removal_status.output_path",
+        "config.$": "$.config.phases.pathogen_detection"
+      },
+      "ResultPath": "$.pathogen_result",
+      "Next": "WaitForPathogen",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "WaitForPathogen": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "CheckPathogen"
+    },
+    "CheckPathogen": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-check-phase-status",
+      "Parameters": {
+        "phase": "pathogen_detection",
+        "instance_id.$": "$.pathogen_result.instance_id",
+        "command_id.$": "$.pathogen_result.command_id",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.pathogen_status",
+      "Next": "PathogenComplete?"
+    },
+    "PathogenComplete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.pathogen_status.status",
+          "StringEquals": "COMPLETED",
+          "Next": "Phase_Quantification"
+        },
+        {
+          "Variable": "$.pathogen_status.status",
+          "StringEquals": "FAILED",
+          "Next": "HandleError"
+        }
+      ],
+      "Default": "WaitForPathogen"
+    },
+    "Phase_Quantification": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-trigger-quantification",
+      "Parameters": {
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "input_path.$": "$.pathogen_status.output_path",
+        "config.$": "$.config.phases.quantification"
+      },
+      "ResultPath": "$.quantification_result",
+      "Next": "WaitForQuantification",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "WaitForQuantification": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "CheckQuantification"
+    },
+    "CheckQuantification": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-check-phase-status",
+      "Parameters": {
+        "phase": "quantification",
+        "instance_id.$": "$.quantification_result.instance_id",
+        "command_id.$": "$.quantification_result.command_id",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.quantification_status",
+      "Next": "QuantificationComplete?"
+    },
+    "QuantificationComplete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.quantification_status.status",
+          "StringEquals": "COMPLETED",
+          "Next": "Phase_Reporting"
+        },
+        {
+          "Variable": "$.quantification_status.status",
+          "StringEquals": "FAILED",
+          "Next": "HandleError"
+        }
+      ],
+      "Default": "WaitForQuantification"
+    },
+    "Phase_Reporting": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-trigger-reporting",
+      "Parameters": {
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "config.$": "$.config.phases.reporting"
+      },
+      "ResultPath": "$.reporting_result",
+      "Next": "WaitForReporting",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "WaitForReporting": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "CheckReporting"
+    },
+    "CheckReporting": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-check-phase-status",
+      "Parameters": {
+        "phase": "reporting",
+        "instance_id.$": "$.reporting_result.instance_id",
+        "command_id.$": "$.reporting_result.command_id",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.reporting_status",
+      "Next": "ReportingComplete?"
+    },
+    "ReportingComplete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.reporting_status.status",
+          "StringEquals": "COMPLETED",
+          "Next": "FinalizeWorkflow"
+        },
+        {
+          "Variable": "$.reporting_status.status",
+          "StringEquals": "FAILED",
+          "Next": "HandleError"
+        }
+      ],
+      "Default": "WaitForReporting"
+    },
+    "FinalizeWorkflow": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-state-machine-handler",
+      "Parameters": {
+        "action": "finalize_workflow",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id"
+      },
+      "ResultPath": "$.finalization",
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "HandleError": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:${AWS_REGION}:${AWS_ACCOUNT}:function:minion-alert-handler",
+      "Parameters": {
+        "alert_type": "WORKFLOW_ERROR",
+        "run_id.$": "$.run_id",
+        "workflow_id.$": "$.workflow_id",
+        "error.$": "$"
+      },
+      "ResultPath": "$.error_handled",
+      "Next": "Failed"
+    },
+    "Failed": {
+      "Type": "Fail",
+      "Error": "WorkflowFailed",
+      "Cause": "Pipeline execution failed"
+    }
+  }
+}

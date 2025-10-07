@@ -1,0 +1,256 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: MinION Pipeline Monitoring Stack
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - development
+      - staging
+      - production
+    Description: Environment name
+
+  AlertEmail:
+    Type: String
+    Description: Email address for critical alerts
+    AllowedPattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+  SNSTopicName:
+    Type: String
+    Default: minion-pipeline-alerts
+    Description: SNS topic name for alerts
+
+Resources:
+  # SNS Topics
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${SNSTopicName}-${Environment}'
+      DisplayName: MinION Pipeline Alerts
+      Subscription:
+        - Endpoint: !Ref AlertEmail
+          Protocol: email
+
+  CriticalAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${SNSTopicName}-critical-${Environment}'
+      DisplayName: MinION Critical Alerts
+      Subscription:
+        - Endpoint: !Ref AlertEmail
+          Protocol: email
+
+  # CloudWatch Alarms
+  HighErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'minion-high-error-rate-${Environment}'
+      AlarmDescription: High error rate in pipeline execution
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Dimensions:
+        - Name: FunctionName
+          Value: !Sub 'minion-pipeline-orchestrator-${Environment}'
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+
+  LongRunningWorkflowAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'minion-long-running-workflow-${Environment}'
+      AlarmDescription: Workflow running longer than expected
+      MetricName: WorkflowDuration
+      Namespace: MinION/Pipeline
+      Statistic: Maximum
+      Period: 3600
+      EvaluationPeriods: 1
+      Threshold: 43200  # 12 hours
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+
+  PERVDetectionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'minion-perv-detection-${Environment}'
+      AlarmDescription: PERV detected in sample
+      MetricName: perv_detected
+      Namespace: MinION/Analysis
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref CriticalAlertTopic
+      TreatMissingData: notBreaching
+
+  HighCostAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub 'minion-high-cost-${Environment}'
+      AlarmDescription: High EC2 costs detected
+      MetricName: EstimatedCharges
+      Namespace: AWS/Billing
+      Dimensions:
+        - Name: Currency
+          Value: USD
+      Statistic: Maximum
+      Period: 86400  # Daily
+      EvaluationPeriods: 1
+      Threshold: 500
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlertTopic
+
+  # CloudWatch Dashboard
+  PipelineDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub 'minion-pipeline-${Environment}'
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["MinION/Pipeline", "WorkflowDuration", {"stat": "Average", "label": "Avg Duration"}],
+                  [".", ".", {"stat": "Maximum", "label": "Max Duration"}]
+                ],
+                "period": 3600,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Workflow Duration",
+                "view": "timeSeries",
+                "stacked": false
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["MinION/Pipeline", "WorkflowStatus", {"stat": "Sum", "label": "Completed"}],
+                  ["AWS/Lambda", "Errors", {"stat": "Sum", "label": "Errors"}]
+                ],
+                "period": 3600,
+                "stat": "Sum",
+                "region": "${AWS::Region}",
+                "title": "Workflow Status",
+                "view": "singleValue"
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["MinION/Analysis", "basecalling_total_reads", {"stat": "Average"}],
+                  [".", "basecalling_mean_quality", {"stat": "Average", "yAxis": "right"}]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "Basecalling Metrics",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["MinION/Analysis", "pathogen_detection_pathogens_detected", {"stat": "Sum"}],
+                  [".", "pathogen_detection_pmda_pathogens", {"stat": "Sum"}],
+                  [".", "pathogen_detection_perv_detected", {"stat": "Maximum"}]
+                ],
+                "period": 3600,
+                "stat": "Sum",
+                "region": "${AWS::Region}",
+                "title": "Pathogen Detection",
+                "view": "barChart"
+              }
+            },
+            {
+              "type": "metric",
+              "properties": {
+                "metrics": [
+                  ["AWS/EC2", "CPUUtilization", {"stat": "Average"}],
+                  [".", "NetworkIn", {"stat": "Sum", "yAxis": "right"}]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "${AWS::Region}",
+                "title": "EC2 Resource Usage",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "log",
+              "properties": {
+                "query": "SOURCE '/aws/lambda/minion-pipeline-orchestrator' | fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc | limit 20",
+                "region": "${AWS::Region}",
+                "title": "Recent Errors",
+                "queryLanguage": "cwli"
+              }
+            }
+          ]
+        }
+
+  # Log Groups
+  PipelineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/minion-pipeline-${Environment}'
+      RetentionInDays: 30
+
+  AnalysisLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/ec2/minion-analysis-${Environment}'
+      RetentionInDays: 7
+
+  # CloudWatch Events Rules
+  DailyMetricsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub 'minion-daily-metrics-${Environment}'
+      Description: Collect daily metrics
+      ScheduleExpression: 'cron(0 2 * * ? *)'  # 2 AM UTC daily
+      State: ENABLED
+      Targets:
+        - Arn: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:minion-collect-metrics-${Environment}'
+          Id: DailyMetrics
+
+  OrphanedInstanceCleanupRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub 'minion-cleanup-orphaned-${Environment}'
+      Description: Clean up orphaned EC2 instances
+      ScheduleExpression: 'rate(6 hours)'
+      State: ENABLED
+      Targets:
+        - Arn: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:minion-terminate-instances-${Environment}'
+          Id: CleanupOrphaned
+          Input: '{"action": "cleanup_orphaned", "max_age_hours": 24}'
+
+Outputs:
+  AlertTopicArn:
+    Description: SNS Topic ARN for alerts
+    Value: !Ref AlertTopic
+    Export:
+      Name: !Sub '${AWS::StackName}-AlertTopicArn'
+
+  CriticalAlertTopicArn:
+    Description: SNS Topic ARN for critical alerts
+    Value: !Ref CriticalAlertTopic
+    Export:
+      Name: !Sub '${AWS::StackName}-CriticalAlertTopicArn'
+
+  DashboardURL:
+    Description: CloudWatch Dashboard URL
+    Value: !Sub 'https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=minion-pipeline-${Environment}'

@@ -1,0 +1,264 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+*.log
+.python-version
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+.classpath
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfplan
+terraform.tfvars
+*.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# AWS
+.aws/
+aws_credentials
+
+# Sensitive Data
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+.env
+.env.local
+.env.*.local
+config/secrets.yaml
+config/credentials.json
+
+# Data Files
+data/
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.fast5
+*.pod5
+*.bam
+*.sam
+*.vcf
+*.bcf
+*.fasta
+*.fa
+*.fna
+*.ffn
+*.faa
+*.frn
+*.gbk
+*.genbank
+*.gff
+*.gff3
+*.gtf
+*.bed
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+databases/
+kraken2_db/
+rvdb/
+blast_db/
+reference_genomes/
+
+# Output Files
+output/
+results/
+reports/
+*.pdf
+*.html
+*.xlsx
+*.csv
+logs/
+tmp/
+temp/
+cache/
+
+# Test Data
+tests/data/*
+!tests/data/.gitkeep
+test_output/
+test_reports/
+
+# Documentation Build
+docs/_build/
+docs/.doctrees/
+site/
+mkdocs_build/
+
+# Node.js (for any web components)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Lambda Packages
+lambda/*.zip
+lambda/packages/
+lambda/layers/
+
+# EC2 AMI Build
+packer_cache/
+packer-manifest.json
+*.box
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# MinION Specific
+minion_data/
+guppy_logs/
+dorado_logs/
+basecalling_output/
+sequencing_summary*.txt
+
+# Workflow Files
+.nextflow/
+.nextflow.log*
+work/
+.snakemake/
+.cromwell/
+*.wdl
+*.cwl
+
+# Monitoring
+prometheus_data/
+grafana_data/
+*.rrd
+
+# Backups
+backup/
+*.backup
+*.bak
+*.old
+*.orig
+
+# OS Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Custom Patterns
+/config/local/
+/scratch/
+*.tmp
+.history/
+*.pid
+*.seed
+*.pid.lock
+
+# CloudFormation
+packaged-template.yaml
+sam-deployment/
+
+# Docker (if used later)
+.docker/
+docker-compose.override.yml
+
+# Elastic File System
+.efs/
+efs_mount/
+
+# S3 Sync
+.s3_sync/
+s3_cache/
+
+# Step Functions
+step_functions_local/
+
+# LocalStack
+.localstack/
+
+# Development
+.dev/
+playground/
+sandbox/
+experiments/
+
+# CI/CD
+.github/actions/
+.gitlab/
+.circleci/
+jenkins/
+
+# Security Scanning
+.security/
+vulnerability_reports/
+dependency-check-report.html
+
+# Compliance
+pmda_reports/
+audit_logs/
+compliance_reports/
+
+# Keep empty directories
+!.gitkeep
+!*/.gitkeep

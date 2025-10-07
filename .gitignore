@@ -10,6 +10,7 @@ build/
 eggs/
 .eggs/
 lib/
+!docs-portal/src/lib/
 lib64/
 parts/
 sdist/

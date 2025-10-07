@@ -11,7 +11,8 @@ const Alert = React.forwardRef<
     ref={ref}
     role="alert"
     className={cn(
-      "relative w-full rounded-lg border p-4",
+      "relative w-full rounded-lg border p-4 flex gap-3",
+      "[&>svg]:flex-shrink-0 [&>svg]:mt-0.5",
       {
         "bg-background text-foreground": variant === "default",
         "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive":

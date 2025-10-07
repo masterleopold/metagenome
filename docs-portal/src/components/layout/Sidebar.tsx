@@ -75,7 +75,7 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed top-16 z-30 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r bg-background md:sticky md:block">
+    <aside className="fixed top-14 z-30 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 border-r bg-background md:sticky md:block">
       <div className="h-full overflow-y-auto py-6 px-4">
         <nav className="space-y-6">
           {navigation.map((section) => (

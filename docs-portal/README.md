@@ -1,27 +1,27 @@
 # MinION Pipeline Documentation Portal
 
-Modern, interactive documentation portal for the MinION Pathogen Screening Pipeline built with Next.js 15, React 19, and Untitled UI components.
+Modern, interactive documentation portal for the MinION Pathogen Screening Pipeline built with Next.js 15, React 19, and Linear-inspired design.
 
 ## Features
 
 - 📚 **Comprehensive Documentation**: Complete guides for setup, deployment, and API usage
-- 🎨 **Modern UI**: Built with Untitled UI React components and Tailwind CSS 4
+- 🎨 **Linear-Inspired Design**: Clean, professional aesthetic with #0089A7 brand color
 - 🌙 **Dark Mode**: Full dark mode support with system preference detection
 - 📱 **Responsive**: Mobile-first design that works on all devices
 - ⚡ **Fast**: Server-side rendering with Next.js 15 App Router
-- 🔍 **Search**: Fast documentation search (coming soon)
-- 💻 **Interactive Code**: Copy-to-clipboard code examples
-- ♿ **Accessible**: WCAG 2.1 AA compliant with React Aria
+- 🧭 **Sidebar Navigation**: Focused content consumption with sidebar-only navigation
+- 💻 **Code Examples**: Syntax-highlighted code blocks for easy reference
+- ♿ **Accessible**: Focus on accessibility and semantic HTML
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 15.5.4 (App Router)
 - **UI Library**: React 19
-- **Styling**: Tailwind CSS 4
-- **Components**: Untitled UI React + Radix UI
+- **Styling**: Tailwind CSS 4.1.14
+- **Components**: Custom UI components with Radix UI primitives
 - **Icons**: Lucide React
-- **Theme**: next-themes
-- **Typography**: Geist Sans & Geist Mono
+- **Theme**: next-themes for dark mode
+- **Typography**: Geist Sans & Geist Mono (via geist package)
 - **Language**: TypeScript 5.8
 
 ## Getting Started
@@ -101,53 +101,82 @@ docs-portal/
 
 ✅ **Homepage** (`/`)
 - Hero section with project overview
-- Key features showcase
+- Key features showcase with #0089A7 checkmarks
 - Quick links to documentation sections
 - Technology stack overview
+- Statistics display (91 PMDA Pathogens, 6 Pipeline Phases, etc.)
 
 ✅ **Getting Started** (`/getting-started`)
-- Prerequisites checklist
-- Installation steps
-- Infrastructure deployment guide
-- First workflow tutorial
+- Prerequisites checklist with #0089A7 icons
+- Local tools and AWS resources requirements
+- Installation steps (Git clone, Python dependencies, AWS credentials)
+- Infrastructure deployment with Terraform
+- Database setup instructions
+- First workflow execution tutorial
 
-### Planned Pages
+✅ **Overview** (`/overview`)
+- Research background and target animals
+- Three-phase workflow explanation
+- Oxford Nanopore MinION overview
+- Technical specifications
 
-🚧 **Architecture** (`/architecture`)
-- System architecture diagram
-- Component breakdown
-- Data flow visualization
-- AWS services overview
+✅ **Architecture** (`/architecture`)
+- High-level system architecture
+- Core AWS components (S3, Lambda, EC2, Step Functions, etc.)
+- Data flow sequence
+- Infrastructure as Code with Terraform
 
-🚧 **API Reference** (`/api-reference`)
-- All API endpoints
-- Request/response examples
-- Authentication guide
-- Error codes reference
+✅ **Pipeline Phases** (`/pipeline-phases`)
+- 6 sequential pipeline phases explained
+- Phase 1: Basecalling (Dorado GPU)
+- Phase 2: QC (NanoPlot/PycoQC)
+- Phase 3: Host Removal (Minimap2)
+- Phase 4: Pathogen Detection (Kraken2, BLAST, Diamond)
+- Phase 5: Quantification
+- Phase 6: Reporting
+- Duration estimates per phase
 
-🚧 **Pipeline Phases** (`/pipeline-phases`)
-- 6 pipeline phases explained
-- Tool documentation
-- Performance benchmarks
-- Best practices
+✅ **API Reference** (`/api-reference`)
+- Base URL structure
+- REST endpoints (POST /workflows, GET /workflows/{id}, etc.)
+- HTTP method badges with #0089A7 color
+- Authentication via x-api-key header
 
-🚧 **Deployment** (`/deployment`)
-- Step-by-step deployment
-- Configuration options
-- Troubleshooting guide
-- Cost optimization tips
+✅ **Deployment** (`/deployment`)
+- Deployment environments (development, staging, production)
+- AWS infrastructure components
+- Terraform deployment process
+- Post-deployment validation
+- Cost estimation by component
 
-🚧 **PMDA Compliance** (`/pmda-compliance`)
-- 91 pathogen list
-- PERV detection details
-- Validation requirements
-- Reporting formats
+✅ **PMDA Compliance** (`/pmda-compliance`)
+- Regulatory overview and requirements
+- 91 PMDA-designated pathogens list
+- PERV detection (PERV-A, B, C subtypes)
+- Analytical validation metrics
+- Quality management (ALCOA+ principles)
+- Compliance reporting formats
 
-## Component Usage
+## Design System
 
-### Untitled UI Components
+### Primary Brand Color
 
-This project uses Untitled UI React components. Key components:
+The documentation portal uses **#0089A7** (teal/cyan) as the primary brand color:
+- HSL: `192 100% 33%` (light mode)
+- HSL: `192 100% 45%` (dark mode)
+
+This color is applied consistently throughout:
+- Icons and checkmarks
+- Alert backgrounds and borders
+- HTTP method badges
+- Border highlights
+- Interactive elements
+
+### Component Usage
+
+#### UI Components
+
+This project uses custom UI components with Radix UI primitives. Key components:
 
 ```tsx
 import { Button } from "@/components/ui/Button"
@@ -193,31 +222,43 @@ import { CodeBlock } from "@/components/ui/CodeBlock"
 
 ### Theme Colors
 
-Edit `tailwind.config.ts` to customize colors:
+The color system is defined in `src/styles/globals.css` using CSS custom properties:
 
-```ts
-colors: {
-  primary: {
-    DEFAULT: "hsl(237 84% 59%)",  // Indigo
-    // ...
-  },
-  secondary: {
-    DEFAULT: "hsl(174 72% 56%)",  // Teal
-    // ...
-  },
+```css
+:root {
+  /* Primary color: #0089A7 (teal/cyan blue) */
+  --primary: 192 100% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 192 100% 40%;
+  /* ... */
+}
+
+.dark {
+  --primary: 192 100% 45%;
+  --primary-foreground: 0 0% 100%;
+  /* ... */
 }
 ```
 
 ### Navigation
 
-Edit `src/lib/utils.ts` to modify navigation structure:
+The sidebar navigation is defined in `src/components/layout/Sidebar.tsx`:
 
-```ts
-export const navigation = [
+```tsx
+const navigation = [
   {
-    title: 'Getting Started',
-    href: '/getting-started',
-    icon: 'RocketLaunch',
+    title: "Introduction",
+    items: [
+      { title: "Getting Started", href: "/getting-started", icon: RocketIcon },
+      { title: "Overview", href: "/overview", icon: BookOpenIcon },
+    ],
+  },
+  {
+    title: "Core Concepts",
+    items: [
+      { title: "Architecture", href: "/architecture", icon: LayersIcon },
+      { title: "Pipeline Phases", href: "/pipeline-phases", icon: GitBranchIcon },
+    ],
   },
   // ...
 ]

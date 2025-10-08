@@ -6,7 +6,7 @@
 **プラットフォーム**: Oxford Nanopore MinION + AWS Cloud
 **サンプル規模**: 24サンプル/年（Phase I臨床試験）
 
----
+----
 
 ## エグゼクティブサマリー
 
@@ -50,7 +50,7 @@ TAT（ターンアラウンドタイム）:
   Total: 14-64時間（通常24-36時間）
 ```
 
----
+----
 
 ## 1. システムアーキテクチャ
 
@@ -683,7 +683,7 @@ Data_Flow:
       Results: "S3 Standard（永久保存）"
 ```
 
----
+----
 
 ## 2. ソフトウェア・ツールスタック
 
@@ -873,133 +873,215 @@ Software_Stack:
   #========== Workflow Management ==========
   Workflow:
 
-    Nextflow:
-      Version: "23.04.0"
-      Language: "Groovy-based DSL"
+    AWS_Step_Functions:
+      Description: "サーバーレスワークフローオーケストレーション"
+      Language: "Amazon States Language（JSON）"
 
       Features:
-        - "AWS Batch統合"
-        - "Docker/Singularity対応"
-        - "自動リトライ"
-        - "Resume機能"
+        - "視覚的ワークフロー設計"
+        - "AWS Lambda/EC2統合"
+        - "自動リトライ・エラーハンドリング"
+        - "実行履歴・監査証跡"
+        - "並列実行サポート"
 
-      Pipeline_Structure: |
-        nextflow.config:
-          - AWS認証情報
-          - S3作業ディレクトリ
-          - Batchキュー設定
+      State_Machine_Structure:
+        States:
+          1_Trigger: "S3イベント検出"
+          2_Basecalling: "EC2起動 → Dorado実行"
+          3_QC: "Lambda → PycoQC実行"
+          4_Host_Removal: "EC2 → Minimap2実行"
+          5_Pathogen_Detection: "並列実行（Kraken2, BLAST）"
+          6_Quantification: "Lambda → 定量計算"
+          7_Report_Generation: "Lambda → レポート生成"
+          8_Notification: "SNS → 通知送信"
 
-        main.nf:
-          - Process定義（basecalling, QC, detection等）
-          - Channel定義（データフロー）
-
-      Example: |
-        process BASECALLING {
-          container 'ontresearch/dorado:latest'
-
-          input:
-          path fast5_dir
-
-          output:
-          path 'output.fastq.gz'
-
-          script:
-          """
-          dorado duplex model ${fast5_dir} | \
-            gzip > output.fastq.gz
-          """
+      Example_State: |
+        {
+          "Basecalling": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::ec2:runInstances.sync",
+            "Parameters": {
+              "ImageId": "ami-basecalling-v1.0.0",
+              "InstanceType": "g5.xlarge",
+              "UserData": "#!/bin/bash\ncd /opt/pipeline\n./run_basecalling.sh"
+            },
+            "Retry": [{
+              "ErrorEquals": ["States.TaskFailed"],
+              "MaxAttempts": 3
+            }],
+            "Next": "QC"
+          }
         }
 
-    Alternative: "Snakemake"
-      Version: "7.32.0"
-      優位性: "Pythonic、学習曲線緩やか"
+    Python_Scripts:
+      Description: "各解析フェーズのメインロジック"
+      Location: "scripts/"
+
+      Structure:
+        - "1_basecalling.py"
+        - "2_qc.py"
+        - "3_host_removal.py"
+        - "4_pathogen_detection.py"
+        - "5_quantification.py"
+        - "6_report_generation.py"
+
+      Execution:
+        Method: "EC2インスタンス上で直接実行"
+        Environment: "Conda環境"
+
+    Alternative: "AWS Batch"
+      優位性: "より複雑なジョブキュー管理"
+      現状: "Step Functions で十分対応可能"
 ```
 
-### 2.2 Dockerコンテナ戦略
+### 2.2 実行環境構成
 
 ```yaml
-Container_Strategy:
+Execution_Environment:
 
   理由:
     - "環境再現性（バリデーション要件）"
-    - "AWS Batch必須"
     - "ソフトウェアバージョン固定"
+    - "管理容易性の確保"
 
-  #========== コンテナイメージ ==========
-  Docker_Images:
+  #========== EC2カスタムAMI戦略 ==========
+  Custom_AMI_Strategy:
 
-    Base_Image:
-      Name: "minion-pathogen-base"
-      Base: "ubuntu:22.04"
+    Base_AMI:
+      Name: "Deep Learning AMI (Ubuntu 22.04)"
+      Provider: "AWS公式"
 
-      Installed:
-        - "Miniconda3"
-        - "AWS CLI"
-        - "基本ツール（curl, wget等）"
+      Pre-installed:
+        - "NVIDIA Driver"
+        - "CUDA Toolkit"
+        - "Python 3.10"
+        - "Conda"
 
-    Basecalling_Image:
-      Name: "minion-basecalling"
-      Base: "nvidia/cuda:12.0.0-base-ubuntu22.04"
+    Basecalling_AMI:
+      Name: "minion-basecalling-ami"
+      Base: "Deep Learning AMI"
 
-      Installed:
-        - "Dorado"
+      Additional_Software:
+        - "Dorado（ONT公式basecaller）"
         - "PycoQC"
+        - "AWS CLI v2"
+        - "Rclone"
 
-      Size: "~5GB"
+      Storage: "250GB EBS gp3"
 
-    Analysis_Image:
-      Name: "minion-analysis"
-      Base: "minion-pathogen-base"
+      Launch_Target: "g5.xlarge（GPU）"
 
-      Installed:
+    Analysis_AMI:
+      Name: "minion-analysis-ami"
+      Base: "Ubuntu 22.04 LTS"
+
+      Installed_Tools:
         - "Minimap2"
         - "SAMtools"
         - "Kraken2"
+        - "Bracken"
         - "BLAST+"
         - "Flye"
+        - "NanoPlot"
+        - "MultiQC"
 
-      Size: "~3GB"
+      Storage: "500GB EBS gp3"
 
-    Reporting_Image:
-      Name: "minion-reporting"
-      Base: "python:3.10-slim"
+      Launch_Target: "c6i.4xlarge（CPU）"
 
-      Installed:
-        - "Pandas, NumPy"
-        - "Matplotlib"
-        - "Jinja2"
-        - "ReportLab"
+  #========== ソフトウェア管理 ==========
+  Software_Management:
 
-      Size: "~1GB"
+    Version_Control:
+      Method: "Conda environments"
 
-  #========== レジストリ ==========
-  Container_Registry:
+      Environment_Files:
+        - "environment_basecalling.yml"
+        - "environment_analysis.yml"
+        - "environment_reporting.yml"
 
-    Primary: "Amazon ECR（Elastic Container Registry）"
-    Region: "ap-northeast-1"
+      Benefits:
+        - "バージョン固定"
+        - "再現性確保"
+        - "依存関係管理"
 
-    Repositories:
-      - "minion-basecalling"
-      - "minion-analysis"
-      - "minion-reporting"
+    Example_Environment: |
+      # environment_analysis.yml
+      name: minion-analysis
+      channels:
+        - bioconda
+        - conda-forge
+        - defaults
+      dependencies:
+        - python=3.10
+        - minimap2=2.26
+        - samtools=1.17
+        - kraken2=2.1.2
+        - bracken=2.8
+        - blast=2.14.0
+        - flye=2.9.2
 
-    Versioning: "Semantic versioning（v1.0.0等）"
+    Deployment:
+      Method: "AMI snapshot"
+      Frequency: "月次更新"
+      Versioning: "Semantic versioning（v1.0.0）"
 
-    Auto-build:
-      - "GitHub Actions連携"
-      - "Dockerfileコミット → 自動ビルド → ECRプッシュ"
+  #========== Lambda関数環境 ==========
+  Lambda_Environment:
 
-  #========== セキュリティスキャン ==========
+    Runtime: "Python 3.11"
+
+    Layer_Strategy:
+      Common_Layer:
+        Name: "minion-common-libs"
+        Contents:
+          - "boto3（AWS SDK）"
+          - "pandas"
+          - "numpy"
+          - "jinja2（レポート生成）"
+
+    Deployment:
+      Method: "ZIP upload / SAM template"
+      Source_Control: "GitHub"
+
+  #========== 環境更新管理 ==========
+  Environment_Updates:
+
+    AMI_Update_Process:
+      Step_1: "テスト環境で新AMI作成"
+      Step_2: "バリデーション実施"
+      Step_3: "本番環境適用"
+      Step_4: "旧AMI保持（3世代）"
+
+    Software_Version_Tracking:
+      Tool: "requirements.txt / environment.yml"
+      Location: "GitHub repository"
+
+      Change_Log:
+        - "バージョン変更履歴記録"
+        - "バリデーション結果紐付け"
+        - "PMDA提出用トレーサビリティ"
+
+  #========== セキュリティ管理 ==========
   Security:
 
-    Tool: "Amazon ECR Image Scanning"
+    AMI_Security:
+      - "AWS Inspector でスキャン"
+      - "Critical脆弱性検出時アラート"
+      - "週次セキュリティチェック"
 
-    Schedule: "プッシュ時 + 週次"
+    Software_Updates:
+      - "セキュリティパッチ適用"
+      - "但し、バリデーション済み環境維持"
+      - "重大脆弱性のみ即座対応"
 
-    Action: "Critical脆弱性検出 → Slack通知"
+    Access_Control:
+      - "AMI共有: アカウント内のみ"
+      - "SSM Session Manager経由アクセス"
+      - "SSH鍵不要"
 ```
 
----
+----
 
 ## 3. AWS コスト詳細分析
 
@@ -1145,11 +1227,6 @@ AWS_Cost_Breakdown:
       推奨: "1 Author（十分）"
       コスト: "$18/月"
 
-    ECR:
-      ストレージ: "10GB（イメージ）"
-      単価: "$0.10/GB/月"
-      コスト: "$1.00/月"
-
   #========== 月額総コスト ==========
   Monthly_Total:
 
@@ -1159,9 +1236,8 @@ AWS_Cost_Breakdown:
       RDS: "$72.84"
       CloudWatch: "$3.80"
       QuickSight: "$18.00"
-      ECR: "$1.00"
       SNS: "$0.01"
-      Total: "$121.46/月"
+      Total: "$120.46/月"
 
     最適化構成（推奨）:
       S3: "$3.26"
@@ -1169,16 +1245,15 @@ AWS_Cost_Breakdown:
       RDS_停止時削減: "$15.11"
       CloudWatch: "$3.80"
       QuickSight: "$18.00"
-      ECR: "$1.00"
       SNS: "$0.01"
-      Total: "$48.65/月"
+      Total: "$47.65/月"
 
   年間コスト:
-    最適化構成: "$48.65 × 12 = $583.80/年"
-    円換算（$1=150円）: "87,570円/年"
+    最適化構成: "$47.65 × 12 = $571.80/年"
+    円換算（$1=150円）: "85,770円/年"
 
   Per_sample_cost:
-    AWS費用: "87,570円 ÷ 24 = 3,649円/サンプル"
+    AWS費用: "85,770円 ÷ 24 = 3,574円/サンプル"
 
   #========== オンプレGPU PCとの比較 ==========
   vs_OnPremise_GPU:
@@ -1190,9 +1265,9 @@ AWS_Cost_Breakdown:
       Total: "180,000円/年"
 
     AWS構成:
-      費用: "87,570円/年"
+      費用: "85,770円/年"
 
-    削減額: "92,430円/年（51%削減）"
+    削減額: "94,230円/年（52%削減）"
 
     利点:
       ✓ "初期投資不要"
@@ -1307,17 +1382,17 @@ Cost_Optimization:
   Total_Optimization:
 
     Phase_I初期:
-      基本構成: "$48.65/月"
+      基本構成: "$47.65/月"
 
     Phase_I最適化後:
       QuickSight削減: "-$18"
-      最終: "$30.65/月"
-      年間: "$367.80/年 = 55,170円"
+      最終: "$29.65/月"
+      年間: "$355.80/年 = 53,370円"
 
-    Per_sample: "2,299円/サンプル"
+    Per_sample: "2,224円/サンプル"
 ```
 
----
+----
 
 ## 4. セキュリティ・コンプライアンス
 
@@ -1568,7 +1643,7 @@ Disaster_Recovery:
       通知: "SNS → Email/Slack"
 ```
 
----
+----
 
 ## 5. 実装ロードマップ
 
@@ -1620,10 +1695,10 @@ Implementation_Roadmap:
         □ "初期データ投入"
 
     Week_4:
-      Containers:
-        □ "ECRリポジトリ作成"
-        □ "Dockerfile作成（basecalling, analysis, reporting）"
-        □ "イメージビルド・プッシュ"
+      Custom_AMI:
+        □ "カスタムAMI構築（basecalling用）"
+        □ "カスタムAMI構築（analysis用）"
+        □ "Conda環境セットアップ・スナップショット"
 
     Week_5-6:
       Reference_Data:
@@ -1637,22 +1712,17 @@ Implementation_Roadmap:
   Phase_2_Pipeline_Development:
 
     Week_7-8:
-      Nextflow_Development:
-        □ "nextflow.config作成"
-        □ "main.nf作成"
-        □ "Process定義（全7ステップ）"
-        □ "Channel設計"
+      Pipeline_Development:
+        □ "Pythonスクリプト作成（全6フェーズ）"
+        □ "AWS Lambda関数実装"
+        □ "EC2起動スクリプト作成"
+        □ "S3データハンドリング実装"
 
       Local_Testing:
         □ "模擬データで検証"
-        □ "各Processの動作確認"
+        □ "各スクリプトの動作確認"
 
     Week_9:
-      AWS_Batch_Setup:
-        □ "Compute Environment作成"
-        □ "Job Queue作成"
-        □ "Job Definition作成"
-
       Step_Functions:
         □ "State Machine定義"
         □ "エラーハンドリング設定"
@@ -1754,9 +1824,9 @@ Training_Plan:
       - "PERV解析"
 
     Week_3:
-      - "AWS基礎（EC2, S3, Batch）"
-      - "Nextflow DSL"
-      - "Dockerコンテナ"
+      - "AWS基礎（EC2, S3, Step Functions）"
+      - "Python自動化スクリプト"
+      - "Conda環境管理"
 
     Week_4:
       - "パイプライン改良"
@@ -1775,7 +1845,7 @@ Training_Plan:
       - "規制動向アップデート"
 ```
 
----
+----
 
 ## 6. トラブルシューティング
 
@@ -1860,7 +1930,7 @@ Troubleshooting_Guide:
         3: "Nextflow resume使用"
 ```
 
----
+----
 
 ## 7. 結論とNext Steps
 
@@ -1888,17 +1958,17 @@ AWS利点:
   Total TAT: 14-64時間（通常24-36時間）
 
 コスト:
-  月額: $30.65（最適化後）= 4,598円/月
-  年額: 55,170円/年（24サンプル）
-  Per sample: 2,299円/サンプル
+  月額: $29.65（最適化後）= 4,448円/月
+  年額: 53,370円/年（24サンプル）
+  Per sample: 2,224円/サンプル
 
   vs. オンプレGPU:
-    削減額: 92,430円/年（51%削減）
+    削減額: 94,230円/年（52%削減）
 
   Total system cost（MinION + AWS）:
     初期: 8,400,000円（MinION本体等）+ 0円（AWS）
-    年間: 18,552,000円（試薬等）+ 55,170円（AWS）
-    Per sample: 773,000円
+    年間: 18,552,000円（試薬等）+ 53,370円（AWS）
+    Per sample: 771,000円
 
 【推奨度】⭐⭐⭐⭐⭐（最高）
 
@@ -1947,7 +2017,7 @@ Immediate_Actions:
     □ "バリデーション開始"
 ```
 
----
+----
 
 **文書バージョン**: 1.0
 **作成日**: 2025年10月8日

@@ -18,14 +18,31 @@ This pipeline provides comprehensive pathogen detection for 91 PMDA-designated p
 
 ## System Architecture
 
+**Implementation**: Containerless serverless architecture using Lambda functions to orchestrate EC2 instances with custom AMIs.
+
 ```
-MinION Sequencer → S3 Upload → Lambda Orchestration → EC2 Processing → Reports
-                                        ↓
-                              Step Functions Workflow
-                                        ↓
-                    [Basecalling → QC → Host Removal → Pathogen Detection →
-                     Quantification → Report Generation]
+MinION Sequencer → S3 Upload → Lambda Orchestrator → Step Functions
+                                                            ↓
+                                      Lambda triggers EC2 instances per phase
+                                                            ↓
+                    [Phase 1: GPU EC2 Basecalling (g4dn.xlarge) →
+                     Phase 2: QC (t3.large) →
+                     Phase 3: Host Removal (r5.4xlarge) →
+                     Phase 4: Pathogen Detection (4x parallel EC2) →
+                     Phase 5: Quantification (t3.large) →
+                     Phase 6: Report Generation (t3.large)]
+                                                            ↓
+                                      EC2 auto-terminates after completion
+                                                            ↓
+                                            Reports stored in S3
 ```
+
+**Key Features**:
+- No Docker containers - uses custom AMIs with pre-installed analysis tools
+- Lambda functions orchestrate EC2 lifecycle (launch, monitor, terminate)
+- EFS for shared reference databases (Kraken2, BLAST, PERV DB)
+- Spot Instances for 70% cost savings
+- Each EC2 instance runs UserData scripts and auto-terminates
 
 ## Requirements
 
@@ -38,7 +55,7 @@ MinION Sequencer → S3 Upload → Lambda Orchestration → EC2 Processing → R
 - Python 3.9+
 - Terraform 1.0+
 - AWS CLI configured
-- Docker (optional)
+- **Note**: No Docker required - uses custom AMIs with pre-installed tools
 
 ### AWS Services
 - S3 for data storage

@@ -6,7 +6,7 @@
 **対象**: 異種移植用ドナーブタ（Yucatan miniature pig, 3KO-7TG-59PERV）
 **サンプル**: 血漿由来 cfDNA/cfRNA
 
----
+----
 
 ## エグゼクティブサマリー
 
@@ -42,7 +42,7 @@ Deep NGS Metagenomics (100%) + Computational Validation
 
 **結論**: NGS単独戦略により**30-60%のコスト削減** + **変異対応の自動化**
 
----
+----
 
 ## 1. PCR排除の技術的根拠
 
@@ -153,7 +153,7 @@ PCRの定量問題:
 └─ 論文発表・知的財産化
 ```
 
----
+----
 
 ## 2. NGS単独戦略の詳細設計
 
@@ -597,7 +597,7 @@ PHASE_4_Optimization:
 | **3c** | NextSeq (内製48検体) | 3,125円 | **24,500円** | 3-4日 |
 | **4** | NextSeq (最適化) | 2,000円 | **20,000円** | 2-3日 |
 
----
+----
 
 ## 3. バイオインフォマティクスパイプライン（PCRフリー版）
 
@@ -1609,7 +1609,7 @@ DATABASE_MAINTENANCE:
       - FAIL: "Investigate issues, rollback if needed"
 ```
 
----
+----
 
 ## 4. コスト最適化シミュレーション（NGS単独）
 
@@ -1977,7 +1977,7 @@ Year 3-5:  Phase 2継続 or Phase 3検討
           【不可】→ Phase 2維持（共同利用継続）
 ```
 
----
+----
 
 ## 5. 推奨実装戦略（最終版）
 
@@ -2178,7 +2178,7 @@ Priority 2:
    Mitigation: マイルストーンゲート、外部専門家レビュー
 ```
 
----
+----
 
 ## 6. 結論
 
@@ -2274,7 +2274,7 @@ Approve Phase 4: ○ オプション
 □ パイロット実験計画finalize
 ```
 
----
+----
 
 **Document Version**: 2.0 (PCR Minimal Strategy)
 **Created**: 2025-10-08

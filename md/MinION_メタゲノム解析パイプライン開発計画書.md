@@ -1,11 +1,13 @@
 # MinIONメタゲノム解析パイプライン開発計画書
 
+**【実装方式】本システムはDockerコンテナを使用せず、Lambda関数によるEC2インスタンス起動とカスタムAMIによる解析を実装します。**
+
 ## 1. エグゼクティブサマリー
 
 ### 1.1 プロジェクト概要
 - **目的**: 異種移植用ドナーブタのPMDA指定91病原体を検出するメタゲノム解析システム構築
-- **技術基盤**: Oxford Nanopore MinION Mk1D + AWS クラウド（Docker不使用）
-- **実装方式**: Lambda + EC2オンデマンド方式
+- **技術基盤**: Oxford Nanopore MinION Mk1D + AWS クラウド（Dockerコンテナ不使用）
+- **実装方式**: Lambda + EC2カスタムAMI（コンテナレス・サーバーレスアーキテクチャ）
 - **開発期間**: 28-36日（約1.5ヶ月）
 - **総ファイル数**: 68ファイル
 
@@ -22,7 +24,7 @@
 - **コスト**: 約2,100-2,400円/サンプル（AWS利用料）
 - **スケーラビリティ**: 年間24-100サンプル対応可能
 
----
+----
 
 ## 2. システムアーキテクチャ
 
@@ -86,10 +88,12 @@ graph TB
 | **シーケンシング** | MinION Mk1D | R10.4.1 フローセル、Duplex mode |
 | **データ転送** | AWS CLI/Rclone | 100Mbps以上推奨 |
 | **ストレージ** | AWS S3 | 3バケット（raw-data, analysis, scripts） |
-| **コンピューティング** | AWS EC2 | G5.xlarge (GPU), C6i/R6i (CPU) |
-| **オーケストレーション** | AWS Lambda | Python 3.11、10関数 |
+| **コンピューティング** | AWS EC2 | g4dn.xlarge (GPU), r5/c5 (CPU)、カスタムAMI |
+| **オーケストレーション** | AWS Lambda | Python 3.11、16関数（フェーズ制御） |
+| **ワークフロー管理** | AWS Step Functions | 状態管理、エラーハンドリング |
 | **データベース** | RDS PostgreSQL | db.t3.medium、100GB |
-| **参照データ** | AWS EFS | PMDA 91病原体DB、Sus scrofa genome |
+| **参照データ** | AWS EFS | PMDA 91病原体DB、Sus scrofa genome（マウント共有） |
+| **インスタンス管理** | SSM（Systems Manager） | EC2アクセス、コマンド実行 |
 | **モニタリング** | CloudWatch, SNS | ログ、メトリクス、アラート |
 | **可視化** | QuickSight, Grafana | ダッシュボード |
 | **IaC** | Terraform | v1.5+ |
@@ -109,7 +113,7 @@ graph TB
 
 3. Lambda Orchestrator:
    Trigger: S3 event notification
-   Action: EC2起動、ワークフロー制御
+   Action: Step Functions起動、ワークフローID生成、EC2インスタンス起動
 
 4. Phase 1-6 Pipeline:
    Phase 1: Basecalling (6-8時間, GPU)
@@ -125,7 +129,7 @@ graph TB
    - SNS: 完了通知
 ```
 
----
+----
 
 ## 3. 開発計画詳細
 
@@ -170,11 +174,11 @@ minion-metagenomics-pipeline/
 │   ├── phase5_quantification/ # (5ファイル)
 │   └── phase6_reports/        # (4ファイル)
 │
-├── lambda/                     # Lambda関数（10ファイル）
-│   ├── orchestrator/          # (3ファイル)
-│   ├── phase_triggers/        # (7ファイル)
-│   ├── validators/            # (3ファイル)
-│   └── metadata/              # (3ファイル)
+├── lambda/                     # Lambda関数（16ファイル）
+│   ├── orchestrator/          # (3ファイル) - S3トリガー、ワークフロー開始
+│   ├── phases/                # (7ファイル) - 各フェーズEC2起動
+│   ├── validators/            # (3ファイル) - 入力検証、QC判定
+│   └── metadata/              # (3ファイル) - RDS更新、通知
 │
 ├── ec2_runner/                 # EC2制御（10ファイル）
 │   ├── ec2_manager.py
@@ -196,13 +200,13 @@ minion-metagenomics-pipeline/
 | **Phase 1** | Terraform IaC構築 | 12 | 3-4日 | - |
 | **Phase 2** | EC2セットアップスクリプト | 9 | 2-3日 | Phase 1 |
 | **Phase 3** | 解析スクリプト実装 | 24 | 8-10日 | Phase 2 |
-| **Phase 4** | Lambda関数実装 | 10 | 3-4日 | Phase 1 |
-| **Phase 5** | EC2制御ライブラリ | 10 | 2-3日 | Phase 4 |
+| **Phase 4** | Lambda関数実装 | 16 | 3-4日 | Phase 1 |
+| **Phase 5** | EC2制御・UserDataテンプレート | 10 | 2-3日 | Phase 4 |
 | **Phase 6** | UI/運用ツール | 14 | 4-5日 | Phase 5 |
 | **Phase 7** | テスト・ドキュメント | 9 | 3-4日 | Phase 6 |
 | **合計** | - | **68** | **28-36日** | - |
 
----
+----
 
 ## 4. 技術仕様詳細
 
@@ -214,7 +218,8 @@ minion-metagenomics-pipeline/
 入力: FAST5 raw signal files (30-50GB)
 出力: FASTQ.gz (5-10GB) + sequencing_summary.txt
 処理時間: 6-8時間
-インスタンス: G5.xlarge (NVIDIA A10G GPU)
+インスタンス: g4dn.xlarge (NVIDIA T4 GPU、16GB VRAM)
+起動方法: Lambda関数がEC2インスタンスをSpot方式で起動
 ```
 
 #### 4.1.2 主要パラメータ
@@ -241,7 +246,8 @@ Dorado設定:
 入力: FASTQ + sequencing_summary.txt
 出力: QC HTML report + metrics.json
 処理時間: 30分
-インスタンス: C6i.xlarge
+インスタンス: t3.large（汎用、コスト最適化）
+起動方法: Lambda関数がPhase 1完了検知後に起動
 ```
 
 #### 4.2.2 QCツール
@@ -257,7 +263,8 @@ Dorado設定:
 入力: QC passed FASTQ
 出力: Non-host FASTQ (期待5%残存)
 処理時間: 1-2時間
-インスタンス: C6i.4xlarge
+インスタンス: r5.4xlarge（メモリ最適、128GB RAM）
+参照データ: EFSマウント（/mnt/efs/host_genome/）
 ```
 
 #### 4.3.2 処理ステップ
@@ -272,8 +279,9 @@ Dorado設定:
 目的: 高速病原体スクリーニング
 処理時間: 10-20分
 精度: 95-98%（種レベル）
-データベース: PMDA 91病原体カスタムDB（25GB）
-インスタンス: R6i.xlarge（メモリ最適化）
+データベース: PMDA 91病原体カスタムDB（25GB）、EFSマウント
+インスタンス: r5.xlarge（メモリ最適化、32GB RAM）
+並列実行: Lambda関数が4つのEC2を並列起動
 ```
 
 #### 4.4.2 Method B: BLAST確認
@@ -281,7 +289,8 @@ Dorado設定:
 目的: 高精度確認
 処理時間: 30-60分
 閾値: E-value ≤1e-10, Identity ≥95%
-インスタンス: C6i.8xlarge
+インスタンス: c5.4xlarge（16 vCPU、32GB RAM）
+データベース: EFSマウント（/mnt/efs/blast_db/）
 ```
 
 #### 4.4.3 Method C: De novo Assembly
@@ -289,7 +298,7 @@ Dorado設定:
 目的: 未知病原体検出
 処理時間: 2-4時間
 ツール: Flye (metagenomic mode)
-インスタンス: C6i.8xlarge
+インスタンス: c5.8xlarge（32 vCPU、64GB RAM）
 ```
 
 #### 4.4.4 Method D: PERV特異的解析
@@ -301,7 +310,8 @@ Dorado設定:
 - Full-length genome (8-9kb)検出
 - 組換え体検出
 - 系統樹作成
-インスタンス: C6i.xlarge
+インスタンス: t3.xlarge（汎用、4 vCPU、16GB RAM）
+参照データ: EFSマウント（/mnt/efs/perv_db/）
 ```
 
 ### 4.5 Phase 5: Quantification
@@ -312,7 +322,8 @@ Dorado設定:
 入力: Phase 4結果統合
 出力: copies/mL定量値
 処理時間: 30分
-インスタンス: C6i.xlarge
+インスタンス: t3.large（汎用、コスト最適）
+データ集約: 4並列結果をLambdaで集約後、EC2で定量計算
 ```
 
 #### 4.5.2 定量手法
@@ -328,7 +339,8 @@ Dorado設定:
 目的: PMDA提出用レポート生成
 出力形式: PDF, HTML
 処理時間: 30分
-インスタンス: C6i.xlarge
+インスタンス: t3.large（汎用）
+最終処理: S3へアップロード後、SNS通知、EC2自己終了
 ```
 
 #### 4.6.2 レポート内容
@@ -338,7 +350,7 @@ Dorado設定:
 - PERV解析結果
 - 監査証跡
 
----
+----
 
 ## 5. 主要コンポーネント実装詳細
 
@@ -368,28 +380,49 @@ Dorado設定:
 
 #### 5.2.1 Orchestrator Lambda
 ```python
+# lambda/orchestrator/start_workflow.py
 責務:
-- S3イベント受信
-- Run ID生成
-- Phase 1 EC2起動
+- S3イベント受信（FAST5アップロード検知）
+- Run ID生成（RUN-YYYY-MM-DD-XXX形式）
+- Step Functions実行開始
 - RDSワークフロー登録
+実行時間: 3-5秒
 ```
 
-#### 5.2.2 Phase Trigger Lambdas（6個）
+#### 5.2.2 Phase Trigger Lambdas（7個）
 ```python
+# lambda/phases/trigger_basecalling.py
+# lambda/phases/trigger_qc.py
+# lambda/phases/trigger_host_removal.py
+# lambda/phases/trigger_pathogen_detection.py (4並列起動)
+# lambda/phases/trigger_quantification.py
+# lambda/phases/trigger_report.py
+# lambda/phases/cleanup.py
+
 責務:
-- 前フェーズ完了検知
-- QC基準チェック
-- 次フェーズEC2起動
-- エラーハンドリング
+- 前フェーズ完了検知（S3 + RDS状態確認）
+- QC基準チェック（Phase 2のみ）
+- EC2インスタンス起動（run_instances API）
+- UserDataスクリプト注入
+- Spot Instance Request（コスト削減）
+- 12時間自動終了タイマー設定
+- エラーハンドリング（3回リトライ）
+実行時間: 5-10秒/フェーズ
 ```
 
 #### 5.2.3 Utility Lambdas
 ```python
-- Input Validator: FAST5ファイル検証
-- QC Checker: 品質基準判定
-- Metadata Updater: RDS更新
-- Notifier: SNS通知送信
+# lambda/validators/validate_fast5.py
+- Input Validator: FAST5ファイル検証（形式、サイズ、完全性）
+
+# lambda/validators/check_qc.py
+- QC Checker: 品質基準判定（Q30、Read N50、Total bases）
+
+# lambda/metadata/update_status.py
+- Metadata Updater: RDS更新（workflow_executions、audit_logs）
+
+# lambda/metadata/send_notification.py
+- Notifier: SNS通知送信（開始、完了、エラー、PERV検出）
 ```
 
 ### 5.3 EC2 UserData Templates（Phase 5）
@@ -399,26 +432,49 @@ Dorado設定:
 #!/bin/bash
 set -euo pipefail
 
-# ログ設定
+# CloudWatch Logsへストリーミング
 exec > >(tee /var/log/minion-phase.log)
 exec 2>&1
 
-# 変数受け取り
-RUN_ID={{RUN_ID}}
-INPUT_S3={{INPUT_S3}}
-OUTPUT_S3={{OUTPUT_S3}}
+# Lambda関数から渡される環境変数
+export RUN_ID='{{RUN_ID}}'
+export S3_INPUT='s3://{{BUCKET}}/{{INPUT_PREFIX}}'
+export S3_OUTPUT='s3://{{BUCKET}}/{{OUTPUT_PREFIX}}'
+export PHASE='{{PHASE}}'
 
-# スクリプトダウンロード
-aws s3 cp s3://minion-scripts/phase/ /opt/
+# EFSマウント（参照データベース）
+mount -t efs {{EFS_DNS}}:/{{EFS_PATH}} /mnt/efs
 
-# 実行
-/opt/run_phase.sh $RUN_ID $INPUT_S3 $OUTPUT_S3
+# 作業ディレクトリ作成
+mkdir -p /mnt/analysis/$RUN_ID
+cd /mnt/analysis/$RUN_ID
 
-# 完了後自己終了
+# S3から解析スクリプトダウンロード（カスタムAMIに事前配置済み）
+# /opt/minion/scripts/phase${PHASE}_*/
+
+# 解析実行
+/opt/minion/scripts/phase${PHASE}_*/run_analysis.sh \
+  -i "$S3_INPUT" \
+  -o "$S3_OUTPUT" \
+  -r "$RUN_ID"
+
+# 結果をS3へアップロード
+aws s3 sync /mnt/analysis/$RUN_ID/output/ "$S3_OUTPUT"
+
+# クリーンアップ
+rm -rf /mnt/analysis/$RUN_ID
+
+# SNS通知
+aws sns publish \
+  --topic-arn {{SNS_TOPIC}} \
+  --subject "Phase ${PHASE} Complete - $RUN_ID" \
+  --message "Phase ${PHASE} completed successfully for run $RUN_ID"
+
+# EC2自己終了（完了後、コスト削減）
 shutdown -h now
 ```
 
----
+----
 
 ## 6. データベース設計
 
@@ -492,7 +548,7 @@ CREATE TABLE audit_logs (
 );
 ```
 
----
+----
 
 ## 7. 運用・保守計画
 
@@ -554,7 +610,7 @@ EFS:
 - AWS Backup: 日次、30日保持
 ```
 
----
+----
 
 ## 8. コスト見積もり
 
@@ -571,29 +627,34 @@ EFS:
 
 | AWS サービス | 使用量 | 月額（円） |
 |-------------|--------|-----------|
-| EC2（オンデマンド） | 40時間/月 | ¥6,000 |
+| EC2（Spot Instance） | 40時間/月（70%削減） | ¥1,800 |
 | S3 | 500GB | ¥1,500 |
 | RDS | db.t3.medium | ¥5,000 |
 | EFS | 50GB | ¥2,000 |
-| Lambda | 1,000実行/月 | ¥100 |
+| Lambda | 16関数、1,000実行/月 | ¥0（無料枠内） |
+| Step Functions | 4,000状態遷移/月 | ¥100 |
 | データ転送 | 100GB/月 | ¥1,000 |
-| **合計** | - | **¥15,600** |
+| **合計** | - | **¥11,400** |
 
 ### 8.3 サンプルあたりコスト
 
 ```yaml
-標準モード（18時間）:
+オンデマンドEC2モード（18時間）:
 - EC2費用: ¥2,100
 - S3費用: ¥100
-- その他: ¥200
-- 合計: ¥2,400/サンプル
+- Lambda: ¥0（無料枠）
+- その他: ¥100
+- 合計: ¥2,300/サンプル
 
-Spot Instance利用時:
-- 70%削減可能
-- 合計: ¥720/サンプル
+Spot Instance利用時（推奨）:
+- EC2費用: ¥630（70%削減）
+- S3費用: ¥100
+- Lambda: ¥0（無料枠）
+- その他: ¥100
+- 合計: ¥830/サンプル
 ```
 
----
+----
 
 ## 9. リスク管理
 
@@ -603,7 +664,8 @@ Spot Instance利用時:
 |--------|--------|----------|------|
 | Basecalling精度不足 | 高 | 低 | Duplex mode使用、Q30基準 |
 | PERV検出漏れ | 高 | 中 | DNA+RNA両ライブラリ実施 |
-| EC2起動失敗 | 中 | 低 | リトライ機構、代替AZ |
+| Spot Instance中断 | 中 | 中 | チェックポイント保存、オンデマンドフォールバック |
+| EC2起動失敗 | 中 | 低 | Lambda自動リトライ（3回）、代替AZ |
 | データベース更新遅延 | 中 | 中 | 自動更新スクリプト |
 
 ### 9.2 運用リスク
@@ -615,7 +677,7 @@ Spot Instance利用時:
 | コスト超過 | 中 | 中 | Budget Alert設定 |
 | 規制変更 | 高 | 低 | 定期的な規制動向確認 |
 
----
+----
 
 ## 10. 品質保証
 
@@ -686,7 +748,7 @@ Available（利用可能性）:
 - 監査対応即座可能
 ```
 
----
+----
 
 ## 11. プロジェクトマイルストーン
 
@@ -743,14 +805,14 @@ gantt
 - [ ] Phase 6: Reports（4個）
 
 #### Lambda Functions（16ファイル）
-- [ ] Orchestrator（3個）
-- [ ] Phase Triggers（7個）
-- [ ] Validators（3個）
-- [ ] Metadata/Notify（3個）
+- [ ] Orchestrator（3個） - S3トリガー、Step Functions起動
+- [ ] Phase Triggers（7個） - EC2起動制御
+- [ ] Validators（3個） - 入力検証、QC判定
+- [ ] Metadata/Notify（3個） - RDS更新、SNS通知
 
 #### EC2 Runner（10ファイル）
-- [ ] EC2 Manager（1個）
-- [ ] UserData Templates（9個）
+- [ ] EC2 Manager（1個） - インスタンス制御ライブラリ
+- [ ] UserData Templates（9個） - フェーズ別起動スクリプト
 
 #### UI/Operations（14ファイル）
 - [ ] Templates（3個）
@@ -762,7 +824,7 @@ gantt
 - [ ] Integration Tests（1個）
 - [ ] Documentation（4個）
 
----
+----
 
 ## 12. 成功基準
 
@@ -805,29 +867,31 @@ gantt
 - トレーニング期間: <1週間
 ```
 
----
+----
 
 ## 13. 次のステップ
 
 ### 13.1 即座実行項目（Week 1）
-1. AWS アカウント準備
-2. 開発環境セットアップ
-3. Terraform実行によるインフラ構築
-4. EC2 AMI作成開始
+1. AWS アカウント準備（ap-northeast-1リージョン）
+2. 開発環境セットアップ（Python 3.11、Terraform v1.5+）
+3. Terraform実行によるインフラ構築（VPC、S3、RDS、EFS、Lambda）
+4. カスタムAMI作成開始（Basecalling用GPU AMI、Analysis用CPU AMI）
 
 ### 13.2 短期実行項目（Week 2-4）
-1. 解析スクリプト実装
-2. Lambda関数デプロイ
-3. 統合テスト実施
-4. ドキュメント整備
+1. 解析スクリプト実装（24ファイル、6フェーズ）
+2. Lambda関数デプロイ（16関数、Step Functions定義）
+3. UserDataテンプレート作成（9種類、フェーズ別）
+4. 統合テスト実施（End-to-End、FAST5→レポート）
+5. ドキュメント整備（運用マニュアル、SOP）
 
 ### 13.3 中期実行項目（Week 5-6）
-1. バリデーション実施
-2. 性能チューニング
-3. 運用トレーニング
-4. 本番環境移行
+1. バリデーション実施（LOD、再現性、精度）
+2. 性能チューニング（EC2インスタンスタイプ最適化、Spot配分）
+3. コスト最適化（Spot Instance活用、自動終了確認）
+4. 運用トレーニング（オペレータ教育、SOP習得）
+5. 本番環境移行（Prod環境デプロイ、監視設定）
 
----
+----
 
 ## 14. 付録
 
@@ -869,15 +933,16 @@ AWS サポート:
   Response: <1時間（Critical）
 ```
 
----
+----
 
 **文書情報**
-- バージョン: 1.0
+- バージョン: 2.0
 - 作成日: 2025年1月8日
-- 最終更新: 2025年1月8日
-- ステータス: ドラフト
+- 最終更新: 2025年10月8日
+- ステータス: 実装方針確定版
 
 **改訂履歴**
 | バージョン | 日付 | 変更内容 | 作成者 |
 |-----------|------|---------|---------|
 | 1.0 | 2025-01-08 | 初版作成 | - |
+| 2.0 | 2025-10-08 | Docker不使用、Lambda+EC2カスタムAMI方式に変更 | - |

@@ -12,7 +12,7 @@
 > Lambda関数がカスタムAMI（事前構築済みソフトウェア）からEC2インスタンスを直接起動します。
 > これにより、Dockerオーバーヘッドを回避し、デバッグとメンテナンスを簡素化しています。
 
----
+----
 
 ## エグゼクティブサマリー
 
@@ -71,7 +71,7 @@
 | **定量** | Custom Python scripts | コピー数算出 |
 | **レポート** | Jinja2, Matplotlib, ReportLab | PDF/HTML生成 |
 
----
+----
 
 ## 第1章: パイプライン全体アーキテクチャ
 
@@ -267,7 +267,7 @@ Phase 7: 通知・アーカイブ
 - スポットインスタンス利用で60-70%削減可能
 - ストレージ費用（S3）: 約$0.50/サンプル/月
 
----
+----
 
 ## 第2章: Phase 1 - Basecalling詳細仕様
 
@@ -697,7 +697,7 @@ Spot Instance利用:
   判定: Phase I後期から検討
 ```
 
----
+----
 
 ## 第3章: Phase 2 - Quality Control詳細仕様
 
@@ -1025,7 +1025,7 @@ Step 4: 決定の記録
   - ALCOA+準拠の監査証跡
 ```
 
----
+----
 
 ## 第4章: Phase 3 - Host Genome Removal詳細仕様
 
@@ -1347,7 +1347,7 @@ Issue 3: Minimap2がメモリ不足でクラッシュ
        minimap2 -I 16G ...
 ```
 
----
+----
 
 ## 第5章: Phase 4 - Pathogen Detection詳細仕様
 
@@ -2249,7 +2249,7 @@ exit 0
 
 **PERV（Porcine Endogenous Retrovirus）は異種移植における最重要病原体**であり、PMDA指定の特別管理微生物です。本セクションでは、MinION長鎖readの最大の強みを活かしたPERV包括的解析戦略を提示します。
 
----
+----
 
 #### 5.6.1 PERV解析の特殊性とMinION長鎖readの優位性
 
@@ -2269,7 +2269,7 @@ exit 0
 3. **アイソフォーム解析**: 完全長mRNA転写産物の取得
 4. **コピー数推定**: ユニークな挿入部位の同定
 
----
+----
 
 #### 5.6.2 PERV解析フロー
 
@@ -2311,7 +2311,7 @@ graph TD
     style O fill:#f0e1ff
 ```
 
----
+----
 
 #### 5.6.3 Lambda関数によるEC2起動（PERV解析）
 
@@ -2394,7 +2394,7 @@ graph TD
 }
 ```
 
----
+----
 
 #### 5.6.4 PERV参照データベース構築
 
@@ -2494,7 +2494,7 @@ ls -lh ${PERV_DB_DIR}/annotation/
 ls -lh ${PERV_DB_DIR}/phylogeny/
 ```
 
----
+----
 
 #### 5.6.5 PERV包括的解析実装スクリプト
 
@@ -2819,7 +2819,7 @@ echo "[$(date)] ===== PERV Analysis completed ====="
 exit 0
 ```
 
----
+----
 
 #### 5.6.6 PERV解析の期待される出力
 
@@ -2874,13 +2874,13 @@ exit 0
 }
 ```
 
----
+----
 
 **第5章完了**: Method A（Kraken2）, B（BLAST）, C（De novo）, D（PERV特異的）の4つの包括的病原体検出戦略が実装されました。
 
 次章からは、検出された病原体の定量解析、レポート生成、AWS統合へと進みます。
 
----
+----
 
 ## 第6章: Phase 5 - 定量解析と絶対コピー数算出
 
@@ -2900,7 +2900,7 @@ PMDA規制対応においては、病原体の**単なる検出（陽性/陰性�
 - しかし、**相対的な存在量比較は可能**
 - **Spike-in control（外部標準）** を用いることで絶対定量も実現可能
 
----
+----
 
 ### 6.2 定量解析フロー
 
@@ -2931,7 +2931,7 @@ graph TD
     style L fill:#f0e1ff
 ```
 
----
+----
 
 ### 6.3 Lambda関数によるEC2起動（定量解析）
 
@@ -2992,7 +2992,7 @@ graph TD
 }
 ```
 
----
+----
 
 ### 6.4 定量解析実装スクリプト
 
@@ -3340,7 +3340,7 @@ echo "[$(date)] ===== Quantification Pipeline completed ====="
 exit 0
 ```
 
----
+----
 
 ### 6.5 定量解析の期待される出力
 
@@ -3429,7 +3429,7 @@ Streptococcus suis,1307,320,160000.0,213.33,12800.0,Kraken2/Bracken
 Porcine Endogenous Retrovirus (PERV),N/A,N/A,N/A,N/A,714.29,PERV-specific pipeline
 ```
 
----
+----
 
 ### 6.6 RDSデータベーススキーマ（PostgreSQL）
 
@@ -3473,13 +3473,13 @@ CREATE INDEX idx_pathogen_name ON pathogen_quantification(pathogen_name);
 CREATE INDEX idx_analysis_timestamp ON quantification_results(analysis_timestamp);
 ```
 
----
+----
 
 **第6章完了**: 相対定量（TPM/RPM）、絶対定量（spike-in control）、PERV定量の統合パイプラインが実装されました。
 
 次章では、これらの結果を統合したPMDA提出用レポート生成を実装します。
 
----
+----
 
 ## 第7章: Phase 6 - レポート生成とPMDA提出パッケージ
 
@@ -3500,7 +3500,7 @@ CREATE INDEX idx_analysis_timestamp ON quantification_results(analysis_timestamp
 - **CSV/Excel**: データ解析用、統計処理対応
 - **HTML**: Web表示、インタラクティブレポート
 
----
+----
 
 ### 7.2 レポート生成フロー
 
@@ -3547,7 +3547,7 @@ graph TD
     style H fill:#f0e1ff
 ```
 
----
+----
 
 ### 7.3 Lambda関数によるレポート生成
 
@@ -3613,7 +3613,7 @@ graph TD
 }
 ```
 
----
+----
 
 ### 7.4 レポート生成実装スクリプト
 
@@ -4150,7 +4150,7 @@ echo "[$(date)] ===== Report Generation completed ====="
 exit 0
 ```
 
----
+----
 
 ### 7.5 レポート出力例
 
@@ -4168,7 +4168,7 @@ s3://bucket/run123/reports/
     └── absolute_quantification.png               # 絶対定量結果
 ```
 
----
+----
 
 ### 7.6 RDSレポート管理テーブル
 
@@ -4190,13 +4190,13 @@ CREATE INDEX idx_reports_run_id ON reports(run_id);
 CREATE INDEX idx_reports_type ON reports(report_type);
 ```
 
----
+----
 
 **第7章完了**: PMDA提出用統合PDFレポート、HTMLインタラクティブレポート、病原体チェックリスト、可視化図表の生成パイプラインが実装されました。
 
 次章では、Phase 1-7の全工程を統合制御するAWS Step Functionsワークフローを構築します。
 
----
+----
 
 ## 第8章: AWS Step Functions統合ワークフロー
 
@@ -4218,7 +4218,7 @@ CREATE INDEX idx_reports_type ON reports(report_type);
 - 自動的なリトライ・エラーハンドリング
 - CloudWatch統合によるログ・メトリクス
 
----
+----
 
 ### 8.2 ワークフロー全体構成
 
@@ -4259,7 +4259,7 @@ graph TD
     style J fill:#f0e1ff
 ```
 
----
+----
 
 ### 8.3 AWS Step Functions ステートマシン定義
 
@@ -4635,7 +4635,7 @@ graph TD
 }
 ```
 
----
+----
 
 ### 8.4 Lambda関数実装
 
@@ -4715,7 +4715,7 @@ def lambda_handler(event, context):
     }
 ```
 
----
+----
 
 #### 8.4.2 Basecalling QCチェックLambda
 
@@ -4791,7 +4791,7 @@ def lambda_handler(event, context):
     }
 ```
 
----
+----
 
 #### 8.4.3 メタデータ更新Lambda
 
@@ -4854,7 +4854,7 @@ def lambda_handler(event, context):
     }
 ```
 
----
+----
 
 ### 8.5 ワークフロー起動方法
 
@@ -4917,7 +4917,7 @@ def lambda_handler(event, context):
     }
 ```
 
----
+----
 
 #### 8.5.2 手動起動（AWS CLI）
 
@@ -4933,7 +4933,7 @@ aws stepfunctions start-execution \
     }'
 ```
 
----
+----
 
 ### 8.6 RDSワークフロー管理テーブル
 
@@ -4968,7 +4968,7 @@ CREATE INDEX idx_workflow_status ON workflow_executions(status);
 CREATE INDEX idx_phase_run_id ON phase_timestamps(run_id);
 ```
 
----
+----
 
 ### 8.7 コスト見積とTAT（Turnaround Time）
 
@@ -4995,7 +4995,7 @@ CREATE INDEX idx_phase_run_id ON phase_timestamps(run_id);
 - サンプルあたりTAT: 12-20時間（変わらず）
 - スループット: 4サンプル/日（最大）
 
----
+----
 
 ### 8.8 モニタリングとアラート
 
@@ -5042,13 +5042,13 @@ aws cloudwatch put-metric-alarm \
     --alarm-actions arn:aws:sns:ap-northeast-1:123456789012:MinION-Alerts
 ```
 
----
+----
 
 **第8章完了**: AWS Step Functionsによる全7フェーズの統合ワークフロー、Lambda関数、自動起動、RDS管理、コスト・TAT見積が実装されました。
 
 次章では、QuickSight/Grafanaダッシュボードとリアルタイム可視化を構築します。
 
----
+----
 
 ## 第9章: ダッシュボードとリアルタイム可視化
 
@@ -5067,7 +5067,7 @@ aws cloudwatch put-metric-alarm \
 - **Grafana**: オープンソース、高度カスタマイズ、豊富なプラグイン
 - **本実装**: 両方を構築（QuickSight for 経営層、Grafana for 技術者）
 
----
+----
 
 ### 9.2 ダッシュボード全体構成
 
@@ -5100,7 +5100,7 @@ graph TD
     style H fill:#f0e1ff
 ```
 
----
+----
 
 ### 9.3 AWS QuickSight ダッシュボード
 
@@ -5172,7 +5172,7 @@ GROUP BY DATE_TRUNC('month', w.started_at)
 ORDER BY month DESC;
 ```
 
----
+----
 
 #### 9.3.2 QuickSight ダッシュボードレイアウト
 
@@ -5223,7 +5223,7 @@ aws quicksight create-data-set \
     --import-mode SPICE
 ```
 
----
+----
 
 ### 9.4 Grafana ダッシュボード
 
@@ -5289,7 +5289,7 @@ aws quicksight create-data-set \
 }
 ```
 
----
+----
 
 #### 9.4.2 Grafana ダッシュボード定義（JSON）
 
@@ -5474,7 +5474,7 @@ aws quicksight create-data-set \
 }
 ```
 
----
+----
 
 ### 9.5 リアルタイム通知システム
 
@@ -5577,7 +5577,7 @@ Run ID: {run_id}
 }
 ```
 
----
+----
 
 ### 9.6 Slack/Teams 統合
 
@@ -5669,7 +5669,7 @@ def lambda_handler(event, context):
     return {'statusCode': 200}
 ```
 
----
+----
 
 ### 9.7 モバイル対応（QuickSight Mobile）
 
@@ -5706,7 +5706,7 @@ aws quicksight create-dashboard \
 - タップでドリルダウン
 - オフライン時はキャッシュデータ表示
 
----
+----
 
 ### 9.8 データ更新頻度とパフォーマンス
 
@@ -5739,7 +5739,7 @@ def lambda_handler(event, context):
 - QuickSight: 1時間ごとに更新
 - Grafana: リアルタイム（直接RDS接続）
 
----
+----
 
 ### 9.9 ダッシュボードアクセス制御
 
@@ -5779,13 +5779,13 @@ def lambda_handler(event, context):
 - Researcher: 閲覧のみ
 - Executive: サマリーダッシュボードのみ
 
----
+----
 
 **第9章完了**: AWS QuickSightとGrafanaによる包括的ダッシュボード、リアルタイム通知、Slack統合、モバイル対応が実装されました。
 
 次章（最終章）では、運用ガイド、トラブルシューティング、バリデーション手順を構築します。
 
----
+----
 
 ## 第10章: 運用ガイドとトラブルシューティング
 
@@ -5798,7 +5798,7 @@ def lambda_handler(event, context):
 4. **メンテナンス**: データベース、参照ゲノム、ソフトウェア更新
 5. **災害復旧**: バックアップとリストア手順
 
----
+----
 
 ### 10.2 日常運用フロー
 
@@ -5858,7 +5858,7 @@ aws cloudwatch describe-alarms \
 echo "===== チェック完了 ====="
 ```
 
----
+----
 
 #### 10.2.2 標準解析実行手順
 
@@ -5935,7 +5935,7 @@ psql -h minion-metadata.xxxx.ap-northeast-1.rds.amazonaws.com \
          ORDER BY copies_per_ml DESC LIMIT 20;"
 ```
 
----
+----
 
 ### 10.3 トラブルシューティング
 
@@ -5966,7 +5966,7 @@ jq '.total_reads, .mean_qscore, .n50, .total_bases_gb' \
     basecalling_summary.json
 ```
 
----
+----
 
 **問題2: 宿主DNA除去率が低い（<90%）**
 
@@ -5990,7 +5990,7 @@ aws s3 cp s3://minion-analysis-bucket/run_20251008_001/phase3/host_removal_summa
     jq '{input_reads, host_reads, non_host_reads, depletion_rate}'
 ```
 
----
+----
 
 **問題3: Kraken2が病原体を検出しない**
 
@@ -6017,7 +6017,7 @@ aws s3 cp s3://minion-analysis-bucket/run_20251008_001/phase4/kraken2/kraken2_re
 awk '$4=="U" {print $1}' kraken2_report.txt
 ```
 
----
+----
 
 **問題4: PERV検出感度が低い**
 
@@ -6041,7 +6041,7 @@ aws s3 cp s3://minion-analysis-bucket/run_20251008_001/phase4/perv/perv_results.
     jq '{perv_detected, perv_read_count, full_length_reads, typing}'
 ```
 
----
+----
 
 **問題5: Step Functions実行失敗**
 
@@ -6078,7 +6078,7 @@ aws logs get-log-events \
 - **Permission Denied**: IAM Roleの権限確認（S3, RDS, EFS）
 - **Resource Unavailable**: Spot Instance中断の場合、On-Demandに切り替え
 
----
+----
 
 ### 10.4 バリデーションプロトコル
 
@@ -6119,7 +6119,7 @@ psql -h minion-metadata.xxxx.ap-northeast-1.rds.amazonaws.com \
 - 50 copies/mL: 3/3検出（100%）
 - 25 copies/mL: 2/3以上検出（≥67%）
 
----
+----
 
 #### 10.4.2 再現性検証
 
@@ -6177,7 +6177,7 @@ EOF
 - CV < 25%（日間変動）
 - CV < 30%（オペレータ間変動）
 
----
+----
 
 #### 10.4.3 特異性検証
 
@@ -6208,7 +6208,7 @@ psql -h minion-metadata.xxxx.ap-northeast-1.rds.amazonaws.com \
 **合格基準**:
 - 偽陽性率 < 1%（30回中0-1回までの検出許容）
 
----
+----
 
 ### 10.5 定期メンテナンス
 
@@ -6278,7 +6278,7 @@ psql -h minion-metadata.xxxx.ap-northeast-1.rds.amazonaws.com \
          AND started_at > NOW() - INTERVAL '30 days';"
 ```
 
----
+----
 
 #### 10.5.2 年次メンテナンス
 
@@ -6319,7 +6319,7 @@ aws ce get-cost-and-usage \
 # Spot Instance使用率の確認と最適化
 ```
 
----
+----
 
 ### 10.6 災害復旧（DR）計画
 
@@ -6360,7 +6360,7 @@ aws s3 cp /backup/stepfunctions_definition_$(date +%Y%m%d).json \
     s3://minion-config-backup/stepfunctions/
 ```
 
----
+----
 
 #### 10.6.2 災害復旧手順
 
@@ -6420,7 +6420,7 @@ aws stepfunctions create-state-machine \
     --region ap-northeast-3
 ```
 
----
+----
 
 ### 10.7 PMDA監査対応
 
@@ -6484,7 +6484,7 @@ tar -czf ${AUDIT_DIR}.tar.gz ${AUDIT_DIR}
 echo "監査資料アーカイブ: ${AUDIT_DIR}.tar.gz"
 ```
 
----
+----
 
 ### 10.8 FAQ（よくある質問）
 
@@ -6492,19 +6492,19 @@ echo "監査資料アーカイブ: ${AUDIT_DIR}.tar.gz"
 
 A: Spot Instance使用時で$0.70-1.20、On-Demand使用時で$1.80-3.01です（第8章参照）。
 
----
+----
 
 **Q2: 解析のTAT（Turnaround Time）はどれくらいですか？**
 
 A: 12-20時間です。内訳は、Basecalling 6-8時間、QC 15-30分、Host removal 1-2時間、病原体検出 2-4時間（並列）、定量・レポート 20-30分です。
 
----
+----
 
 **Q3: 複数サンプルを同時に処理できますか？**
 
 A: はい。AWS Batchの並列処理により、最大4サンプルを同時処理可能です（リソース制限による）。
 
----
+----
 
 **Q4: PERVが検出された場合、どう対応すべきですか？**
 
@@ -6515,25 +6515,25 @@ A:
 4. 高コピー数（>1000 copies/mL）の場合、当該ドナーの除外を検討
 5. PMDA報告資料を準備
 
----
+----
 
 **Q5: データ保存期間はどれくらいですか？**
 
 A: FAST5生データ5年、メタデータ永久、PDFレポート永久です（第10.6.1参照）。
 
----
+----
 
 **Q6: システムのアップデートはどのように行いますか？**
 
 A: 月次でデータベース更新、年次でソフトウェアバージョン更新を実施します。重要な変更は事前にテスト環境で検証します。
 
----
+----
 
 **Q7: 他の病原体（PMDA 91以外）も検出できますか？**
 
 A: はい。De novo assemblyにより、データベースにない新規・未知病原体も検出可能です。
 
----
+----
 
 ### 10.9 連絡先とサポート
 
@@ -6546,7 +6546,7 @@ A: はい。De novo assemblyにより、データベースにない新規・未�
 - システム障害: [電話番号]
 - PERV検出緊急対応: [電話番号]
 
----
+----
 
 ## 結語
 
@@ -6570,12 +6570,12 @@ A: はい。De novo assemblyにより、データベースにない新規・未�
 3. PMDA事前相談
 4. Phase I臨床試験での実運用開始
 
----
+----
 
 **ドキュメントバージョン**: 1.0
 **最終更新**: 2025年10月8日
 **総ページ数**: 約200ページ相当
 **承認者**: [署名欄]
 
----
+----
 

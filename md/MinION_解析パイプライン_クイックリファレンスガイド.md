@@ -1,11 +1,12 @@
 # MinIONメタゲノム解析パイプライン クイックリファレンスガイド
 
 **作成日**: 2025年10月8日
-**バージョン**: 1.0
+**バージョン**: 2.0
 **対象**: PMDA指定91病原体スクリーニングシステム運用者
 **プラットフォーム**: Oxford Nanopore MinION Mk1D + AWS Cloud
+**実装方式**: Lambda + EC2カスタムAMI（Dockerコンテナ不使用）
 
----
+----
 
 ## 📚 ドキュメント構成
 
@@ -21,7 +22,7 @@
 | `MinION_Protocol_00_目次とマスタードキュメント.md` | プロトコル全体概要 |
 | `MinION_Protocol_01-10_*.md` | サンプル調製からシーケンシングまでの詳細手順 |
 
----
+----
 
 ## 🚀 クイックスタート（3ステップ）
 
@@ -65,39 +66,48 @@ aws stepfunctions start-execution \
 aws s3 cp s3://minion-metagenomics-bucket/reports/RUN_ID/ ./reports/ --recursive
 ```
 
----
+----
 
 ## 📊 システムアーキテクチャ概要
+
+**実装方式**: Lambda関数がEC2インスタンス（カスタムAMI）を各フェーズで起動する、コンテナレス・サーバーレスアーキテクチャ
 
 ```mermaid
 graph LR
     A[MinION Mk1D] -->|FAST5アップロード| B[S3 Bucket]
-    B --> C[Step Functions]
-    C --> D[Phase 1: Basecalling<br>Dorado Duplex]
-    D --> E[Phase 2: QC<br>PycoQC]
-    E --> F[Phase 3: Host除去<br>Minimap2]
-    F --> G[Phase 4: 病原体検出<br>4並列メソッド]
-    G --> H[Phase 5: 定量化]
-    H --> I[Phase 6: レポート生成]
-    I --> J[RDS PostgreSQL]
-    J --> K[QuickSight/Grafana]
+    B -->|S3イベント| C[Lambda Orchestrator]
+    C --> D[Step Functions]
+    D -->|Lambda起動| E[Phase 1 EC2: GPU Basecalling<br>g4dn.xlarge]
+    E --> F[Phase 2 EC2: QC<br>t3.large]
+    F --> G[Phase 3 EC2: Host除去<br>r5.4xlarge]
+    G --> H[Phase 4 EC2×4: 病原体検出<br>並列実行]
+    H --> I[Phase 5 EC2: 定量化<br>t3.large]
+    I --> J[Phase 6 EC2: レポート生成<br>t3.large]
+    J --> K[RDS PostgreSQL]
+    K --> L[QuickSight/Grafana]
 
-    style D fill:#e1f5ff
-    style G fill:#ffe1e1
-    style I fill:#e1ffe1
-    style K fill:#f0e1ff
+    style E fill:#e1f5ff
+    style H fill:#ffe1e1
+    style J fill:#e1ffe1
+    style L fill:#f0e1ff
 ```
 
-### 7つの解析フェーズ
-1. **Phase 1 - Basecalling**: FAST5 → FASTQ変換（Duplex mode, Q30精度）
-2. **Phase 2 - QC**: PycoQC/NanoPlot品質評価
-3. **Phase 3 - Host除去**: Sus scrofa ゲノム除去（95-98%除去率）
-4. **Phase 4 - 病原体検出**: 4並列メソッド（Kraken2/BLAST/De novo/PERV）
-5. **Phase 5 - 定量化**: TPM/RPM計算、コピー数定量
-6. **Phase 6 - レポート生成**: PDF/HTMLレポート出力
-7. **Phase 7 - メタデータ管理**: RDS PostgreSQLへの結果登録
+### 7つの解析フェーズ（各フェーズでLambdaがEC2を起動）
+1. **Phase 1 - Basecalling**: GPU EC2（g4dn.xlarge）でFAST5 → FASTQ変換（Duplex mode, Q30精度）
+2. **Phase 2 - QC**: CPU EC2（t3.large）でPycoQC/NanoPlot品質評価
+3. **Phase 3 - Host除去**: メモリ最適化EC2（r5.4xlarge）でSus scrofa ゲノム除去（95-98%除去率）
+4. **Phase 4 - 病原体検出**: 4並列EC2起動（Kraken2/BLAST/De novo/PERV）
+5. **Phase 5 - 定量化**: CPU EC2でTPM/RPM計算、コピー数定量
+6. **Phase 6 - レポート生成**: CPU EC2でPDF/HTMLレポート出力
+7. **Phase 7 - メタデータ管理**: LambdaがRDS PostgreSQLへの結果登録
 
----
+**特徴**:
+- 各フェーズ完了後、EC2は自動終了（コスト最適化）
+- Spot Instanceで70%コスト削減
+- EFS経由で参照データベース（Kraken2/BLAST/PERV DB）を共有
+- 全処理がサーバーレス＋オンデマンドEC2で実行（Dockerコンテナ不使用）
+
+----
 
 ## 🧬 病原体検出4メソッド（Phase 4詳細）
 
@@ -125,7 +135,7 @@ graph LR
 - **用途**: PERV-A/B/C型別、組換え体検出、系統解析
 - **出力**: `perv_typing.txt`, `perv_phylogenetic_tree.nwk`
 
----
+----
 
 ## ⏱️ タイムライン・コスト
 
@@ -162,7 +172,7 @@ graph LR
 
 ※ S3ストレージ・RDS・データ転送費は別途（月額約$50-100）
 
----
+----
 
 ## 📋 重要QC基準
 
@@ -189,7 +199,7 @@ graph LR
 | BLAST Coverage | ≥80% | 100bp以上アライメント |
 | 検出下限（LOD） | 50-100 copies/mL | Spike-in control検証 |
 
----
+----
 
 ## 🚨 アラート設定
 
@@ -207,7 +217,7 @@ graph LR
 - **データベース更新遅延**: 30日以上未更新
 - **ディスク使用率**: >80%
 
----
+----
 
 ## 🔧 トラブルシューティング（Top 5）
 
@@ -262,15 +272,22 @@ makeblastdb -in PERV_A_complete.fasta -dbtype nucl
 ### 4. Step Functions タイムアウト
 **原因**:
 - De novoアセンブリが長時間実行（>4時間）
-- インスタンスサイズ不足
+- EC2インスタンスサイズ不足
 
 **対策**:
 ```json
 // Step Functions定義でタイムアウト延長
 "TimeoutSeconds": 21600,  // 6時間に延長
+```
 
-// またはインスタンスサイズアップ
-"InstanceType": "c6i.32xlarge"  // 128 vCPU
+```python
+# Lambda関数でEC2インスタンスタイプをアップグレード
+# lambda/phases/trigger_pathogen_detection.py
+response = ec2.run_instances(
+    ImageId=AMI_ID,
+    InstanceType='c5.24xlarge',  # 96 vCPUにアップグレード
+    ...
+)
 ```
 
 ### 5. ダッシュボードにデータが表示されない
@@ -292,7 +309,7 @@ aws quicksight create-ingestion \
     --ingestion-id manual-$(date +%s)
 ```
 
----
+----
 
 ## 📊 ダッシュボードアクセス
 
@@ -316,7 +333,7 @@ aws quicksight create-ingestion \
   3. Pathogen Detection Details（病原体詳細）
 - **更新頻度**: 30秒ごと
 
----
+----
 
 ## 📁 出力ファイル構成
 
@@ -370,7 +387,7 @@ s3://minion-metagenomics-bucket/
          └─ perv_phylogeny.png
 ```
 
----
+----
 
 ## 🔐 PMDA監査対応
 
@@ -398,7 +415,7 @@ python scripts/generate_audit_trail.py --run-id RUN_ID --output audit_trail.pdf
 - ✅ **Enduring**: 5年S3保存（Glacier Deep Archive）
 - ✅ **Available**: 監査時即座ダウンロード可能
 
----
+----
 
 ## 📞 サポート連絡先
 
@@ -431,7 +448,7 @@ python scripts/generate_audit_trail.py --run-id RUN_ID --output audit_trail.pdf
    PMDA報告準備（24時間以内）
    ```
 
----
+----
 
 ## 🎯 次のステップ
 
@@ -455,7 +472,7 @@ python scripts/generate_audit_trail.py --run-id RUN_ID --output audit_trail.pdf
 2. ✅ 完全仕様書 Chapter 10.3 詳細診断手順実施
 3. ✅ 解決しない場合: サポート連絡先に連絡
 
----
+----
 
 ## 📖 関連ドキュメント索引
 
@@ -480,15 +497,16 @@ python scripts/generate_audit_trail.py --run-id RUN_ID --output audit_trail.pdf
 - `MinION単独臨床試験システム_PMDA適合性評価.md`
 - 完全仕様書 Chapter 9: QC基準と合否判定
 
----
+----
 
 **改訂履歴**
 
 | バージョン | 日付 | 改訂内容 | 承認者 |
 |----------|------|---------|--------|
 | 1.0 | 2025-10-08 | 初版作成 | - |
+| 2.0 | 2025-10-08 | Lambda+EC2カスタムAMI方式に更新（Docker不使用） | - |
 
----
+----
 
 **本ドキュメントの使用方法**
 

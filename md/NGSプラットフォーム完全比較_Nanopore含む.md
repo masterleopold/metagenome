@@ -5,7 +5,7 @@
 **比較対象**: MiSeq, NextSeq 2000, NovaSeq 6000, MinION, GridION, PromethION
 **用途**: PMDA指定91病原体スクリーニング（異種移植用ドナーブタ）
 
----
+----
 
 ## エグゼクティブサマリー
 
@@ -48,7 +48,7 @@ Technology_Comparison:
 vs. MiSeq単独: 15M円（+3M円でリスク大幅低減）
 ```
 
----
+----
 
 ## 1. Oxford Nanopore Technologies 詳細分析
 
@@ -291,7 +291,7 @@ MinION_Metagenomics_Performance:
     評価: "✓✓ 独自の強み、Illuminaにない機能"
 ```
 
----
+----
 
 ## 2. Illumina vs Nanopore 詳細比較
 
@@ -480,7 +480,7 @@ Cost_Comparison_24_samples_per_year:
     - "但し、定量精度・再現性ではMiSeq優位"
 ```
 
----
+----
 
 ## 3. ハイブリッド戦略: MiSeq + MinION
 
@@ -708,7 +708,7 @@ Use_Case_Scenarios:
     MinION使用: "リスク分散として価値大"
 ```
 
----
+----
 
 ## 4. 総合評価とシナリオ別推奨
 
@@ -831,7 +831,7 @@ Scenario_Based_Recommendations:
     最終推奨: "MiSeq + MinIONから開始、Phase III時にNextSeq判断"
 ```
 
----
+----
 
 ## 5. 最終推奨と実装計画
 
@@ -996,7 +996,7 @@ Staff_Requirements:
   Total_staff: "3-4名（兼任含む）"
 ```
 
----
+----
 
 ## 6. リスク分析と対策
 
@@ -1076,7 +1076,7 @@ Platform_Specific_Risks:
     デュアル: "リスク大幅低減、コスト増は許容範囲"
 ```
 
----
+----
 
 ## 7. 結論とアクションアイテム
 
@@ -1197,7 +1197,7 @@ Budget_Constrained_Scenario:
     理由: "最速でフル機能獲得"
 ```
 
----
+----
 
 ## 8. 技術的補足情報
 
@@ -1327,7 +1327,7 @@ MinION_Library_Prep:
     通常: "Ligation kit"
 ```
 
----
+----
 
 **最終推奨**: **MiSeq + MinION デュアルプラットフォーム**
 
@@ -1337,7 +1337,7 @@ MinION_Library_Prep:
 
 **今週のアクション**: デュアルプラットフォーム戦略の承認依頼、MiSeq見積取得開始。
 
----
+----
 
 **文書バージョン**: 1.0
 **作成日**: 2025-10-08

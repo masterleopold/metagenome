@@ -53,12 +53,21 @@ Core regulatory requirement. Full list in `md/厚労省異種移植指針_91病�
 - Custom database at `/mnt/efs/databases/pmda/2024.1/`
 
 ### Pipeline Architecture (6 Phases)
-1. **Basecalling** - FAST5→FASTQ (Dorado, GPU-accelerated)
-2. **QC** - Quality assessment (NanoPlot/PycoQC)
-3. **Host Removal** - Sus scrofa depletion (Minimap2)
-4. **Pathogen Detection** - Multi-database screening
-5. **Quantification** - Abundance calculation
-6. **Reporting** - PMDA-compliant reports
+**Implementation**: Lambda functions orchestrate EC2 instances (custom AMIs) for each phase. **No Docker containers used**.
+
+1. **Basecalling** - FAST5→FASTQ (Dorado, GPU g4dn.xlarge)
+2. **QC** - Quality assessment (NanoPlot/PycoQC, t3.large)
+3. **Host Removal** - Sus scrofa depletion (Minimap2, r5.4xlarge)
+4. **Pathogen Detection** - Multi-database screening (4 parallel EC2 instances)
+5. **Quantification** - Abundance calculation (t3.large)
+6. **Reporting** - PMDA-compliant reports (t3.large)
+
+**Key Architecture Decisions**:
+- Lambda functions trigger EC2 instances with UserData scripts
+- Custom AMIs pre-installed with analysis tools
+- EFS for shared reference databases (Kraken2, BLAST, PERV)
+- EC2 instances auto-terminate after completion
+- Spot Instances for 70% cost savings
 
 ## Key Files & Directories
 
@@ -137,6 +146,7 @@ pipeline:
 
 ## Recently Updated
 
+- 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker)
 - 2025-10-08: **CLAUDE.md optimized** - Reduced from 47KB to 5.3KB (88.5% reduction)
 - 2025-10-08: Documentation portal with Linear-inspired design (#0089A7)
 - 2025-10-08: Light mode accessibility improvements (WCAG AAA)

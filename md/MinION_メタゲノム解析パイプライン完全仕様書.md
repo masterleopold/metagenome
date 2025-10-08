@@ -1,11 +1,16 @@
 # MinION Mk1D メタゲノム解析パイプライン完全仕様書
 ## PMDA指定91病原体スクリーニング・AWS実装版
 
-**作成日**: 2025年10月8日
-**バージョン**: 2.0
+**作成日**: 2025年10月8日（最終更新: 2025年10月8日）
+**バージョン**: 2.1
 **対象システム**: Oxford Nanopore MinION Mk1D + AWS Cloud
 **規制基準**: PMDA異種移植指針、厚労省別添2（91病原体）
 **サンプル規模**: 24サンプル/年（Phase I臨床試験）
+**実装方針**: Lambda + EC2カスタムAMI（**Docker不使用**）
+
+> **重要**: 本パイプラインは**コンテナ化を使用しない**実装です。
+> Lambda関数がカスタムAMI（事前構築済みソフトウェア）からEC2インスタンスを直接起動します。
+> これにより、Dockerオーバーヘッドを回避し、デバッグとメンテナンスを簡素化しています。
 
 ---
 
@@ -54,8 +59,9 @@
 | **コンピューティング** | EC2 (G5.xlarge GPU) | Basecalling |
 | **コンピューティング** | EC2 (C6i.4xlarge CPU) | 病原体検出・定量 |
 | **ワークフロー** | AWS Step Functions | パイプライン制御 |
-| **並列処理** | AWS Batch | スケーラブル解析 |
+| **オーケストレーション** | AWS Lambda (16 functions) | EC2起動・監視・終了 |
 | **データベース** | RDS PostgreSQL | メタデータ・結果保存 |
+| **参照DB** | EFS | Kraken2, BLAST, Host genome |
 | **可視化** | QuickSight / Grafana | ダッシュボード |
 | **Basecalling** | Dorado v0.5+ | Duplex mode, Q30 |
 | **QC** | PycoQC, NanoPlot, MultiQC | 品質評価 |
@@ -68,6 +74,28 @@
 ---
 
 ## 第1章: パイプライン全体アーキテクチャ
+
+### 1.0 実装アプローチ
+
+本パイプラインは**コンテナレス・アーキテクチャ**を採用しています：
+
+**選択した実装方式**:
+- ✅ **Lambda関数オーケストレーション**: 各フェーズでEC2インスタンスを起動・監視・終了
+- ✅ **カスタムAMI**: 事前ビルドされたAMI（Deep Learning AMI、Amazon Linux 2023）
+- ✅ **直接EC2起動**: UserDataスクリプトで環境設定、解析実行
+- ✅ **EFS共有ストレージ**: 参照データベース（Kraken2, BLAST, Host genome）
+
+**採用しない方式**:
+- ❌ **Docker/コンテナ**: オーバーヘッド、複雑性、デバッグの困難さを回避
+- ❌ **AWS Batch**: 直接Lambda + EC2の方がシンプルで制御しやすい
+- ❌ **Nextflow/Snakemake**: Pythonスクリプト + Step Functionsで十分
+
+**利点**:
+1. **シンプル**: Dockerfileメンテナンス不要、AMIは四半期ごと更新のみ
+2. **高速起動**: コンテナpullなし、2-3分でインスタンス起動
+3. **デバッグ容易**: SSMでインスタンス接続、ログ直接確認
+4. **コスト効率**: コンテナレイヤーなし、リソース最適化
+5. **透明性**: 全スクリプトがAMI内の`/opt/minion/scripts/`に配置
 
 ### 1.1 システム構成図
 
@@ -288,68 +316,92 @@ Duplex sequencing:
   - フローセル: 2倍必要（同じデータ量得るため）
 ```
 
-### 2.3 AWS Batch Job定義
+### 2.3 Lambda関数によるEC2起動設定
 
-```json
-{
-  "jobDefinitionName": "minion-basecalling-duplex",
-  "type": "container",
-  "containerProperties": {
-    "image": "YOUR_ECR_REPO/minion-basecalling:v2.0",
-    "vcpus": 4,
-    "memory": 16384,
-    "resourceRequirements": [
-      {
-        "type": "GPU",
-        "value": "1"
-      }
-    ],
-    "command": [
-      "/opt/scripts/basecall_duplex.sh",
-      "Ref::run_id",
-      "Ref::input_s3_path",
-      "Ref::output_s3_path"
-    ],
-    "environment": [
-      {
-        "name": "DORADO_MODEL",
-        "value": "dna_r10.4.1_e8.2_400bps_sup@v4.3.0"
-      },
-      {
-        "name": "DUPLEX_MODE",
-        "value": "true"
-      },
-      {
-        "name": "MIN_QSCORE",
-        "value": "10"
-      }
-    ],
-    "mountPoints": [
-      {
-        "sourceVolume": "dorado_models",
-        "containerPath": "/opt/dorado/models",
-        "readOnly": true
-      }
-    ],
-    "volumes": [
-      {
-        "name": "dorado_models",
-        "host": {
-          "sourcePath": "/mnt/efs/dorado_models"
-        }
-      }
-    ],
-    "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/MinION-Batch-Execution-Role",
-    "jobRoleArn": "arn:aws:iam::ACCOUNT_ID:role/MinION-Batch-Job-Role"
-  },
-  "timeout": {
-    "attemptDurationSeconds": 43200
-  },
-  "retryStrategy": {
-    "attempts": 2
-  }
-}
+```python
+# lambda/phases/trigger_basecalling.py
+# Lambda function to launch EC2 instance for basecalling
+
+import boto3
+import os
+
+ec2 = boto3.client('ec2')
+
+def lambda_handler(event, context):
+    """Launch GPU EC2 instance for basecalling with Dorado"""
+
+    run_id = event['run_id']
+    input_s3_path = event['input_s3_path']
+    output_s3_path = event['output_s3_path']
+
+    # User data script to execute on instance startup
+    user_data = f"""#!/bin/bash
+set -euo pipefail
+
+# Environment variables
+export RUN_ID='{run_id}'
+export INPUT_S3='{input_s3_path}'
+export OUTPUT_S3='{output_s3_path}'
+export DORADO_MODEL='dna_r10.4.1_e8.2_400bps_sup@v4.3.0'
+export DUPLEX_MODE='true'
+export MIN_QSCORE='10'
+
+# Mount EFS for Dorado models
+mount -t efs {os.environ['EFS_DNS']}:/dorado_models /mnt/dorado_models
+
+# Execute basecalling script (pre-installed in AMI)
+/opt/minion/scripts/phase1_basecalling/basecall_duplex.sh
+
+# Auto-terminate after 12 hours
+echo "sudo shutdown -h now" | at now + 12 hours
+"""
+
+    # Launch EC2 instance using custom AMI
+    response = ec2.run_instances(
+        ImageId=os.environ['BASECALLING_AMI_ID'],  # Custom Deep Learning AMI
+        InstanceType='g4dn.xlarge',  # GPU instance
+        MinCount=1,
+        MaxCount=1,
+        UserData=user_data,
+        IamInstanceProfile={'Name': 'MinION-EC2-Role'},
+        SecurityGroupIds=[os.environ['SECURITY_GROUP_ID']],
+        SubnetId=os.environ['SUBNET_ID'],
+        BlockDeviceMappings=[
+            {
+                'DeviceName': '/dev/xvda',
+                'Ebs': {
+                    'VolumeSize': 200,
+                    'VolumeType': 'gp3',
+                    'DeleteOnTermination': True
+                }
+            }
+        ],
+        TagSpecifications=[
+            {
+                'ResourceType': 'instance',
+                'Tags': [
+                    {'Key': 'Name', 'Value': f'basecalling-{run_id}'},
+                    {'Key': 'Phase', 'Value': 'basecalling'},
+                    {'Key': 'RunID', 'Value': run_id}
+                ]
+            }
+        ]
+    )
+
+    instance_id = response['Instances'][0]['InstanceId']
+
+    return {
+        'instance_id': instance_id,
+        'phase': 'basecalling',
+        'run_id': run_id
+    }
 ```
+
+**カスタムAMI構成**:
+- ベース: Deep Learning AMI GPU PyTorch (Amazon Linux 2023)
+- 事前インストール: Dorado 0.5.0+, PycoQC, AWS CLI
+- スクリプト: `/opt/minion/scripts/phase1_basecalling/`
+- EFS マウント: Doradoモデル (`/mnt/dorado_models`)
 
 ### 2.4 Basecalling実行スクリプト
 
@@ -624,7 +676,7 @@ GPU選択:
 
 並列化戦略:
   複数サンプル同時処理:
-    Method: AWS Batch Job Array
+    Method: Lambda起動EC2インスタンス
     並列度: 最大10サンプル同時
     制約: GPU数（コスト）
     実装:
@@ -640,7 +692,7 @@ Spot Instance利用:
   削減率: 60-70% off
   リスク: 中断可能性 5-10%
   対策:
-    - AWS Batch自動リトライ
+    - Step Functions自動リトライ
     - Checkpointから再開（Doradoサポート予定）
   判定: Phase I後期から検討
 ```
@@ -661,9 +713,12 @@ Spot Instance利用:
 
 **処理環境**: AWS EC2 C6i.xlarge（4 vCPU, 8GB RAM）
 
-### 3.2 AWS Batch Job定義
+### 3.2 Lambda関数によるEC2起動（QC）
+
+> **注**: 以下のJSON定義は参考情報です。実際の実装はLambda関数によるEC2直接起動を使用します。
 
 ```json
+# 【参考】AWS Batch形式の定義（実装では使用しない）
 {
   "jobDefinitionName": "minion-qc-analysis",
   "type": "container",
@@ -1037,9 +1092,12 @@ Step 4: 決定の記録
   - 定期的に参照ゲノム更新（年1回推奨）
 ```
 
-### 4.3 AWS Batch Job定義
+### 4.3 Lambda関数によるEC2起動（Host Removal）
+
+> **注**: 以下のJSON定義は参考情報です。実際の実装はLambda関数によるEC2直接起動を使用します。
 
 ```json
+# 【参考】AWS Batch形式の定義（実装では使用しない）
 {
   "jobDefinitionName": "minion-host-removal",
   "type": "container",
@@ -1457,9 +1515,12 @@ echo "[$(date)] BLAST database build completed!"
 
 ### 5.3 Method A - Kraken2/Bracken解析
 
-#### 5.3.1 AWS Batch Job定義
+#### 5.3.1 Lambda関数によるEC2起動（Kraken2）
+
+> **注**: 以下のJSON定義は参考情報です。実際の実装はLambda関数によるEC2直接起動を使用します。
 
 ```json
+# 【参考】AWS Batch形式の定義（実装では使用しない）
 {
   "jobDefinitionName": "minion-kraken2-classification",
   "type": "container",
@@ -1686,9 +1747,12 @@ exit 0
 
 ### 5.4 Method B - BLAST高精度確認
 
-#### 5.4.1 AWS Batch Job定義
+#### 5.4.1 Lambda関数によるEC2起動（BLAST）
+
+> **注**: 以下のJSON定義は参考情報です。実際の実装はLambda関数によるEC2直接起動を使用します。
 
 ```json
+# 【参考】AWS Batch形式の定義（実装では使用しない）
 {
   "jobDefinitionName": "minion-blast-confirmation",
   "type": "container",
@@ -1910,9 +1974,12 @@ exit 0
 
 ### 5.5 Method C - De novo Assembly（未知病原体検出）
 
-#### 5.5.1 AWS Batch Job定義
+#### 5.5.1 Lambda関数によるEC2起動（Assembly）
+
+> **注**: 以下のJSON定義は参考情報です。実際の実装はLambda関数によるEC2直接起動を使用します。
 
 ```json
+# 【参考】AWS Batch形式の定義（実装では使用しない）
 {
   "jobDefinitionName": "minion-denovo-assembly",
   "type": "container",
@@ -2246,7 +2313,7 @@ graph TD
 
 ---
 
-#### 5.6.3 AWS Batch ジョブ定義 - PERV解析
+#### 5.6.3 Lambda関数によるEC2起動（PERV解析）
 
 **ジョブ名**: `minion-perv-analysis`
 
@@ -2866,7 +2933,7 @@ graph TD
 
 ---
 
-### 6.3 AWS Batch ジョブ定義 - 定量解析
+### 6.3 Lambda関数によるEC2起動（定量解析）
 
 **ジョブ名**: `minion-quantification`
 
@@ -3482,7 +3549,7 @@ graph TD
 
 ---
 
-### 7.3 AWS Batch ジョブ定義 - レポート生成
+### 7.3 Lambda関数によるレポート生成
 
 **ジョブ名**: `minion-report-generation`
 
@@ -3940,7 +4007,7 @@ html_content = f"""
     <title>MinION病原体解析レポート - {data['run_id']}</title>
     <style>
         body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background: #f5f5f5; }}
-        .container {{ max-width: 1200px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
+        .content {{ max-width: 1200px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
         h1 {{ color: #1f4788; border-bottom: 3px solid #1f4788; padding-bottom: 10px; }}
         h2 {{ color: #2e5c8a; margin-top: 30px; }}
         .metric {{ display: inline-block; margin: 15px; padding: 20px; background: #e8f4f8; border-radius: 8px; }}
@@ -3956,7 +4023,7 @@ html_content = f"""
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="content">
         <h1>異種移植用ドナーブタ 病原体メタゲノム解析レポート</h1>
         <p><strong>Run ID:</strong> {data['run_id']}</p>
         <p><strong>解析日時:</strong> {data['analysis_timestamp']}</p>
@@ -4146,7 +4213,7 @@ CREATE INDEX idx_reports_type ON reports(report_type);
 
 **Step Functionsの利点**:
 - サーバーレス（インフラ管理不要）
-- AWS Batchとのネイティブ統合
+- AWS Step Functionsとのネイティブ統合
 - JSONベースの状態定義（Amazon States Language）
 - 自動的なリトライ・エラーハンドリング
 - CloudWatch統合によるログ・メトリクス
@@ -5171,13 +5238,13 @@ aws quicksight create-data-set \
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "containerDefinitions": [
+  "taskDefinitions": [
     {
       "name": "grafana",
       "image": "grafana/grafana:latest",
       "portMappings": [
         {
-          "containerPort": 3000,
+          "port": 3000,
           "protocol": "tcp"
         }
       ],
@@ -5746,8 +5813,8 @@ def lambda_handler(event, context):
 echo "===== MinION解析システム 日次チェック ====="
 echo "実施日時: $(date)"
 
-# 1. AWS Batchキュー状態確認
-echo "1. AWS Batchキュー状態確認..."
+# 1. Step Functions実行状態確認
+echo "1. Step Functions実行状態確認..."
 aws batch describe-job-queues \
     --job-queues minion-gpu-queue minion-cpu-queue \
     --query 'jobQueues[*].[jobQueueName, state, status]' \

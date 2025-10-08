@@ -99,6 +99,14 @@ docs/
 3. **Size Monitoring** - Alert if CLAUDE.md exceeds 10KB
 4. **Link Validation** - Verify all documentation links work
 
+## Related Documentation
+
+- [CLAUDE.md](../CLAUDE.md) - Optimized quick reference (143 lines)
+- [Session Log](./claude-sessions/2025-10-08-claude-md-optimization.md) - Detailed session documentation
+- [Development Workflow](./development/WORKFLOW_GUIDE.md) - Extracted workflow guide
+- [Coding Standards](./development/CODING_STANDARDS.md) - Extracted code conventions
+- [Session Index](./claude-sessions/README.md) - All development sessions
+
 ## Implementation Date
 
 Optimized on: 2025-10-08

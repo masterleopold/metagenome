@@ -24,6 +24,11 @@ This directory contains detailed logs of development sessions with Claude Code. 
    - WCAG AAA compliance implementation
    - Theme-aware color system optimization
 
+5. [CLAUDE.md Optimization for Performance](./2025-10-08-claude-md-optimization.md)
+   - Reduced CLAUDE.md from 47KB to 5.3KB (88.5% reduction)
+   - Extracted session history and development workflows
+   - Created organized documentation structure
+
 ## How to Use These Sessions
 
 Each session log contains:

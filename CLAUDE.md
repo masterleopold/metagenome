@@ -146,7 +146,7 @@ pipeline:
 
 ## Recently Updated
 
-- 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker)
+- 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker) [`0a7eb04`](https://github.com/masterleopold/metagenome/commit/0a7eb049d1006595253573076bb01dd2d0979885)
 - 2025-10-08: **CLAUDE.md optimized** - Reduced from 47KB to 5.3KB (88.5% reduction)
 - 2025-10-08: Documentation portal with Linear-inspired design (#0089A7)
 - 2025-10-08: Light mode accessibility improvements (WCAG AAA)

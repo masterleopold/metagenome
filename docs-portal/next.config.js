@@ -15,7 +15,9 @@ const nextConfig = {
       },
     ],
   },
-  typedRoutes: true,
+  experimental: {
+    typedRoutes: true,
+  },
 }
 
 module.exports = nextConfig

@@ -7,11 +7,11 @@ import { CheckCircleIcon, AlertTriangleIcon, TerminalIcon, ServerIcon } from "lu
 
 export default function GettingStartedPage() {
   return (
-    <div className="container flex-1">
-      <div className="flex gap-6">
+    <div className="flex-1">
+      <div className="container mx-auto flex gap-6 px-4">
         <Sidebar />
         <main className="flex-1 py-6 px-4 md:px-6 lg:px-8">
-          <div className="max-w-4xl">
+          <div className="max-w-4xl mx-auto">
             <div className="mb-8">
               <Badge variant="secondary" className="mb-4">Introduction</Badge>
               <h1 className="text-4xl font-bold mb-4">Getting Started</h1>
@@ -20,17 +20,12 @@ export default function GettingStartedPage() {
               </p>
             </div>
 
-            <Alert className="mb-8" style={{
-              backgroundColor: 'hsl(var(--primary) / 0.1)',
-              borderColor: 'hsl(var(--primary) / 0.3)'
-            }}>
-              <CheckCircleIcon className="h-4 w-4" style={{ color: 'hsl(var(--primary))' }} />
-              <div>
-                <AlertTitle>Prerequisites Checklist</AlertTitle>
-                <AlertDescription>
-                  Make sure you have all required tools and access before starting.
-                </AlertDescription>
-              </div>
+            <Alert variant="success" className="mb-8">
+              <CheckCircleIcon className="h-4 w-4" />
+              <AlertTitle>Prerequisites Checklist</AlertTitle>
+              <AlertDescription>
+                Make sure you have all required tools and access before starting.
+              </AlertDescription>
             </Alert>
 
             <section className="mb-12">
@@ -46,28 +41,28 @@ export default function GettingStartedPage() {
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>AWS CLI 2.0+</strong>
                           <p className="text-sm text-muted-foreground">Command line interface for AWS</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>Terraform 1.0+</strong>
                           <p className="text-sm text-muted-foreground">Infrastructure as Code tool</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>Python 3.9+</strong>
                           <p className="text-sm text-muted-foreground">Programming language runtime</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>Git</strong>
                           <p className="text-sm text-muted-foreground">Version control system</p>
@@ -86,21 +81,21 @@ export default function GettingStartedPage() {
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>AWS Account</strong>
                           <p className="text-sm text-muted-foreground">With admin/PowerUser access</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>Service Quotas</strong>
                           <p className="text-sm text-muted-foreground">GPU instances, Lambda concurrency</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 mt-0.5" style={{ color: 'hsl(var(--primary))' }} />
+                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
                         <div>
                           <strong>Region</strong>
                           <p className="text-sm text-muted-foreground">Recommended: ap-northeast-1</p>
@@ -119,8 +114,8 @@ export default function GettingStartedPage() {
                 <div>
                   <h3 className="text-lg font-medium mb-3">1. Clone the Repository</h3>
                   <CodeBlock
-                    code={`git clone https://github.com/your-org/minion-pipeline.git
-cd minion-pipeline`}
+                    code={`git clone https://github.com/masterleopold/metagenome.git
+cd metagenome`}
                     language="bash"
                   />
                 </div>
@@ -162,12 +157,10 @@ export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output tex
 
               <Alert variant="warning" className="mb-6">
                 <AlertTriangleIcon className="h-4 w-4" />
-                <div>
-                  <AlertTitle>Cost Warning</AlertTitle>
-                  <AlertDescription>
-                    Deploying this infrastructure will incur AWS charges. Review the cost estimation in the deployment guide.
-                  </AlertDescription>
-                </div>
+                <AlertTitle>Cost Warning</AlertTitle>
+                <AlertDescription>
+                  Deploying this infrastructure will incur AWS charges. Review the cost estimation in the deployment guide.
+                </AlertDescription>
               </Alert>
 
               <div className="space-y-6">
@@ -242,19 +235,16 @@ terraform output -json > outputs.json`}
                   language="bash"
                 />
 
-                <Card style={{
-                  backgroundColor: 'hsl(var(--primary) / 0.1)',
-                  borderColor: 'hsl(var(--primary) / 0.3)'
-                }}>
+                <Card className="bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800">
                   <CardHeader>
-                    <CheckCircleIcon className="h-8 w-8 mb-2" style={{ color: 'hsl(var(--primary))' }} />
-                    <CardTitle>Deployment Successful</CardTitle>
+                    <CheckCircleIcon className="h-8 w-8 text-green-600 mb-2" />
+                    <CardTitle className="text-green-900 dark:text-green-300">Deployment Successful</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="mb-4" style={{ color: 'hsl(var(--foreground))' }}>
+                    <p className="text-green-800 dark:text-green-200 mb-4">
                       If all checks pass, your MinION pipeline is ready to use!
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-green-700 dark:text-green-300">
                       Next steps: Run your first workflow or explore the API documentation.
                     </p>
                   </CardContent>

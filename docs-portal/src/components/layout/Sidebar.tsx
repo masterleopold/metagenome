@@ -19,12 +19,12 @@ const navigation = [
     items: [
       {
         title: "Getting Started",
-        href: "/getting-started" as const,
+        href: "/getting-started",
         icon: RocketIcon,
       },
       {
         title: "Overview",
-        href: "/overview" as const,
+        href: "/overview",
         icon: BookOpenIcon,
       },
     ],
@@ -34,12 +34,12 @@ const navigation = [
     items: [
       {
         title: "Architecture",
-        href: "/architecture" as const,
+        href: "/architecture",
         icon: LayersIcon,
       },
       {
         title: "Pipeline Phases",
-        href: "/pipeline-phases" as const,
+        href: "/pipeline-phases",
         icon: GitBranchIcon,
       },
     ],
@@ -49,12 +49,12 @@ const navigation = [
     items: [
       {
         title: "API Reference",
-        href: "/api-reference" as const,
+        href: "/api-reference",
         icon: Code2Icon,
       },
       {
         title: "Deployment",
-        href: "/deployment" as const,
+        href: "/deployment",
         icon: CloudIcon,
       },
     ],
@@ -64,7 +64,7 @@ const navigation = [
     items: [
       {
         title: "PMDA Guidelines",
-        href: "/pmda-compliance" as const,
+        href: "/pmda-compliance",
         icon: ShieldCheckIcon,
       },
     ],
@@ -75,12 +75,12 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed top-14 z-30 hidden h-[calc(100vh-3.5rem)] w-64 shrink-0 border-r bg-background md:sticky md:block">
-      <div className="h-full overflow-y-auto py-6 px-4">
+    <aside className="fixed top-16 z-30 hidden h-[calc(100vh-4rem)] w-64 shrink-0 border-r bg-background md:sticky md:block">
+      <div className="h-full overflow-y-auto py-8 px-4">
         <nav className="space-y-6">
           {navigation.map((section) => (
             <div key={section.title}>
-              <h4 className="mb-2 px-3 text-sm font-semibold text-foreground/60 uppercase tracking-wider">
+              <h4 className="mb-2 px-3 text-xs font-semibold text-foreground/60 uppercase tracking-wider">
                 {section.title}
               </h4>
               <div className="space-y-1">

@@ -11,8 +11,7 @@ const Alert = React.forwardRef<
     ref={ref}
     role="alert"
     className={cn(
-      "relative w-full rounded-lg border p-4 flex gap-3",
-      "[&>svg]:flex-shrink-0 [&>svg]:mt-0.5",
+      "relative w-full rounded-lg border p-4",
       {
         "bg-background text-foreground": variant === "default",
         "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive":
@@ -35,7 +34,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
-    className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+    className={cn("my-4 font-medium leading-none tracking-tight", className)}
     {...props}
   />
 ))

@@ -118,7 +118,7 @@ pipeline:
 - `異種移植用ドナーブタの病原体検査体制構築計画書.md` - Master construction plan
 - `専門家向け詳細報告書：異種移植用ドナーブタにおける病原体メタゲノム解析体制の構築.md` - Expert report
 - `NGS中心型病原体検査システム_最適化戦略v2.md` - NGS optimization strategy
-- `MinION_Protocol_00_目次とマスタードキュメント.md` - Lab protocol index (10 protocols)
+- `MinION_Protocol_00_目次とマスタードキュメント.md` - Lab protocol master index (10 protocols + 3 appendices)
 
 ## Critical Warnings
 
@@ -146,10 +146,13 @@ pipeline:
 
 ## Recently Updated
 
+- 2025-10-08: **MinION Protocol Appendices Complete** - Added 3 missing appendices to lab protocols
+  - Appendix A: Reagents & Equipment List (¥21.5M initial investment)
+  - Appendix B: Time & Cost Estimates (¥127k/sample, 4-year ROI)
+  - Appendix C: Troubleshooting Guide (25 common issues)
 - 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker) [`0a7eb04`](https://github.com/masterleopold/metagenome/commit/0a7eb049d1006595253573076bb01dd2d0979885)
 - 2025-10-08: **CLAUDE.md optimized** - Reduced from 47KB to 5.3KB (88.5% reduction)
 - 2025-10-08: Documentation portal with Linear-inspired design (#0089A7)
-- 2025-10-08: Light mode accessibility improvements (WCAG AAA)
 - 2025-10-08: Vercel deployment configuration with typed routes
 
 For complete historical changes, see [Session History](docs/claude-sessions/README.md).

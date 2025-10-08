@@ -14,11 +14,11 @@ const Alert = React.forwardRef<
       "relative w-full rounded-lg border p-4",
       {
         "bg-background text-foreground": variant === "default",
-        "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive":
+        "border-red-300 bg-red-50 text-red-950 dark:bg-destructive/10 dark:border-destructive dark:text-red-200 [&>svg]:text-red-800 dark:[&>svg]:text-red-300":
           variant === "destructive",
-        "border-amber-500/50 bg-amber-50 text-amber-900 dark:bg-amber-900/10 dark:text-amber-300":
+        "border-amber-300 bg-amber-50 text-amber-950 dark:bg-amber-900/10 dark:border-amber-800 dark:text-amber-200 [&>svg]:text-amber-800 dark:[&>svg]:text-amber-300":
           variant === "warning",
-        "border-green-500/50 bg-green-50 text-green-900 dark:bg-green-900/10 dark:text-green-300":
+        "border-primary/30 bg-primary/5 text-primary dark:bg-primary/10 dark:text-primary [&>svg]:text-primary":
           variant === "success",
       },
       className

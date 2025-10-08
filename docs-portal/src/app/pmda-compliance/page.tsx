@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 
 const pathogenCategories = [
-  { name: "Viruses", count: 50, detected: 5, color: "text-red-600", bgColor: "bg-red-50 dark:bg-red-900/10" },
-  { name: "Bacteria", count: 35, detected: 2, color: "text-blue-600", bgColor: "bg-blue-50 dark:bg-blue-900/10" },
-  { name: "Parasites", count: 5, detected: 0, color: "text-green-600", bgColor: "bg-green-50 dark:bg-green-900/10" },
-  { name: "Fungi", count: 5, detected: 0, color: "text-purple-600", bgColor: "bg-purple-50 dark:bg-purple-900/10" },
-  { name: "Prions", count: 1, detected: 0, color: "text-orange-600", bgColor: "bg-orange-50 dark:bg-orange-900/10" },
+  { name: "Viruses", count: 50, detected: 5, color: "text-destructive dark:text-red-400", bgColor: "bg-red-50 dark:bg-destructive/10" },
+  { name: "Bacteria", count: 35, detected: 2, color: "text-primary", bgColor: "bg-primary/10" },
+  { name: "Parasites", count: 5, detected: 0, color: "text-primary", bgColor: "bg-primary/10" },
+  { name: "Fungi", count: 5, detected: 0, color: "text-secondary", bgColor: "bg-secondary/10" },
+  { name: "Prions", count: 1, detected: 0, color: "text-secondary", bgColor: "bg-secondary/10" },
 ];
 
 const criticalPathogens = [
@@ -152,7 +152,7 @@ export default function PMDACompliancePage() {
                       <div key={pathogen.code} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-200 dark:border-red-800">
                         <div className="flex items-center gap-3">
                           {pathogen.code.startsWith('PERV') && (
-                            <VibrateIcon className="h-5 w-5 text-red-600" />
+                            <VibrateIcon className="h-5 w-5 text-red-700 dark:text-red-400" />
                           )}
                           <div>
                             <div className="font-semibold">{pathogen.code}</div>
@@ -191,25 +191,25 @@ export default function PMDACompliancePage() {
                     <h4 className="font-semibold mb-2">Detection Strategy</h4>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Targeted primers:</strong> PERV-specific PCR primers for env gene
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>NGS screening:</strong> Metagenomic reads aligned to PERV reference sequences
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Typing:</strong> Differentiation between PERV-A, PERV-B, and PERV-C subtypes
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Quantification:</strong> Copy number per mL plasma with 95% confidence intervals
                         </div>
@@ -263,15 +263,15 @@ export default function PMDACompliancePage() {
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Detected</div>
-                        <div className="text-2xl font-bold text-amber-600">5</div>
+                        <div className="text-2xl font-bold text-secondary">5</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Not Detected</div>
-                        <div className="text-2xl font-bold text-green-600">86</div>
+                        <div className="text-2xl font-bold text-primary">86</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground mb-1">Critical Detected</div>
-                        <div className="text-2xl font-bold text-green-600">0</div>
+                        <div className="text-2xl font-bold text-primary">0</div>
                       </div>
                     </div>
                   </div>
@@ -291,7 +291,7 @@ export default function PMDACompliancePage() {
                     <h4 className="font-semibold mb-3">Detected Pathogens (Non-Critical)</h4>
                     <div className="space-y-2">
                       {detectedExample.map((pathogen) => (
-                        <div key={pathogen.code} className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/10 rounded border border-amber-200 dark:border-amber-800">
+                        <div key={pathogen.code} className="flex items-center justify-between p-3 bg-secondary/5 dark:bg-secondary/10 rounded border border-secondary/30">
                           <div>
                             <div className="font-semibold">{pathogen.code} - {pathogen.name}</div>
                             <div className="text-sm text-muted-foreground">
@@ -365,25 +365,25 @@ export default function PMDACompliancePage() {
                   <CardContent>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Limit of Detection (LOD):</strong> Documented for each pathogen
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Reproducibility:</strong> CV &lt;20% across replicates
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Specificity:</strong> No cross-reactivity with host genome
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Linearity:</strong> R² &gt; 0.90 for quantification
                         </div>
@@ -399,25 +399,25 @@ export default function PMDACompliancePage() {
                   <CardContent>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Positive Control:</strong> Spiked pathogen standards
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Negative Control:</strong> Pathogen-free plasma
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Spike-in Control:</strong> PhiX174 for normalization
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <div>
                           <strong>Data Integrity:</strong> ALCOA+ principles
                         </div>

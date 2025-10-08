@@ -41,25 +41,25 @@ export default function DeploymentPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CloudIcon className="h-8 w-8 text-blue-600 mb-2" />
+                    <CloudIcon className="h-8 w-8 text-primary mb-2" />
                     <CardTitle>AWS Account</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Active AWS account with admin/PowerUser access</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>AWS CLI 2.0+ installed and configured</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Region: ap-northeast-1 (Tokyo) recommended</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Service quotas verified for GPU instances</span>
                       </li>
                     </ul>
@@ -68,25 +68,25 @@ export default function DeploymentPage() {
 
                 <Card>
                   <CardHeader>
-                    <ServerIcon className="h-8 w-8 text-orange-600 mb-2" />
+                    <ServerIcon className="h-8 w-8 text-secondary mb-2" />
                     <CardTitle>Local Environment</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Terraform 1.0+ installed</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Python 3.9+ with pip</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Git for repository access</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                         <span>Docker (optional, for local testing)</span>
                       </li>
                     </ul>
@@ -247,7 +247,7 @@ export ANALYSIS_AMI_ID=ami-yyyyyyyyy`}
 
               <Card>
                 <CardHeader>
-                  <DatabaseIcon className="h-8 w-8 text-green-600 mb-2" />
+                  <DatabaseIcon className="h-8 w-8 text-primary mb-2" />
                   <CardTitle>Install Databases on EFS</CardTitle>
                   <CardDescription>Kraken2, RVDB, BLAST, PMDA databases</CardDescription>
                 </CardHeader>

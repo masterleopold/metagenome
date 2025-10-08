@@ -52,7 +52,7 @@ export default function OverviewPage() {
 
                 <Card>
                   <CardHeader>
-                    <CloudIcon className="h-8 w-8 text-blue-600 mb-2" />
+                    <CloudIcon className="h-8 w-8 text-primary mb-2" />
                     <CardTitle>Cloud-Native</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">
@@ -62,7 +62,7 @@ export default function OverviewPage() {
 
                 <Card>
                   <CardHeader>
-                    <ZapIcon className="h-8 w-8 text-amber-600 mb-2" />
+                    <ZapIcon className="h-8 w-8 text-secondary mb-2" />
                     <CardTitle>Real-time Analysis</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ export default function OverviewPage() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center gap-3">
-                      <CheckCircleIcon className="h-6 w-6 text-green-600" />
+                      <CheckCircleIcon className="h-6 w-6 text-primary" />
                       <CardTitle>Q30+ Accuracy</CardTitle>
                     </div>
                   </CardHeader>

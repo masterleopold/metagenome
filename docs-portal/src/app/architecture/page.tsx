@@ -39,67 +39,67 @@ export default function ArchitecturePage() {
             <section className="mb-12">
               <h2 className="text-2xl font-semibold mb-6">High-Level Architecture</h2>
 
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-8 mb-6 border">
+              <div className="bg-muted/50 rounded-xl p-8 mb-6 border">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <div className="w-32 bg-primary/10 border-2 border-primary rounded-lg p-3 text-center">
-                      <div className="text-sm font-semibold">MinION</div>
+                      <div className="text-sm font-semibold text-foreground">MinION</div>
                       <div className="text-xs text-muted-foreground">Sequencer</div>
                     </div>
                     <div className="flex-1 border-t-2 border-dashed border-primary"></div>
-                    <div className="w-32 bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500 rounded-lg p-3 text-center">
-                      <div className="text-sm font-semibold">S3</div>
+                    <div className="w-32 bg-primary/10 border-2 border-primary rounded-lg p-3 text-center">
+                      <div className="text-sm font-semibold text-foreground">S3</div>
                       <div className="text-xs text-muted-foreground">Upload</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="w-full bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500 rounded-lg p-3 text-center">
-                      <div className="text-sm font-semibold">Lambda Orchestration</div>
+                    <div className="w-full bg-secondary/10 border-2 border-secondary rounded-lg p-3 text-center">
+                      <div className="text-sm font-semibold text-foreground">Lambda Orchestration</div>
                       <div className="text-xs text-muted-foreground">Event-driven workflow management</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="w-full bg-green-100 dark:bg-green-900/30 border-2 border-green-500 rounded-lg p-3 text-center">
-                      <div className="text-sm font-semibold">Step Functions Workflow</div>
+                    <div className="w-full bg-primary/10 border-2 border-primary rounded-lg p-3 text-center">
+                      <div className="text-sm font-semibold text-foreground">Step Functions Workflow</div>
                       <div className="text-xs text-muted-foreground">6-phase analysis pipeline</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-orange-100 dark:bg-orange-900/30 border border-orange-500 rounded p-2 text-center text-xs">
-                      <div className="font-semibold">Basecalling</div>
+                    <div className="bg-accent border border-border rounded p-2 text-center text-xs">
+                      <div className="font-semibold text-foreground">Basecalling</div>
                       <div className="text-[10px] text-muted-foreground">GPU EC2</div>
                     </div>
-                    <div className="bg-orange-100 dark:bg-orange-900/30 border border-orange-500 rounded p-2 text-center text-xs">
-                      <div className="font-semibold">QC</div>
+                    <div className="bg-accent border border-border rounded p-2 text-center text-xs">
+                      <div className="font-semibold text-foreground">QC</div>
                       <div className="text-[10px] text-muted-foreground">EC2</div>
                     </div>
-                    <div className="bg-orange-100 dark:bg-orange-900/30 border border-orange-500 rounded p-2 text-center text-xs">
-                      <div className="font-semibold">Host Removal</div>
+                    <div className="bg-accent border border-border rounded p-2 text-center text-xs">
+                      <div className="font-semibold text-foreground">Host Removal</div>
                       <div className="text-[10px] text-muted-foreground">EC2</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-orange-100 dark:bg-orange-900/30 border border-orange-500 rounded p-2 text-center text-xs">
-                      <div className="font-semibold">Pathogen Detection</div>
+                    <div className="bg-accent border border-border rounded p-2 text-center text-xs">
+                      <div className="font-semibold text-foreground">Pathogen Detection</div>
                       <div className="text-[10px] text-muted-foreground">High-mem EC2</div>
                     </div>
-                    <div className="bg-orange-100 dark:bg-orange-900/30 border border-orange-500 rounded p-2 text-center text-xs">
-                      <div className="font-semibold">Quantification</div>
+                    <div className="bg-accent border border-border rounded p-2 text-center text-xs">
+                      <div className="font-semibold text-foreground">Quantification</div>
                       <div className="text-[10px] text-muted-foreground">EC2</div>
                     </div>
-                    <div className="bg-orange-100 dark:bg-orange-900/30 border border-orange-500 rounded p-2 text-center text-xs">
-                      <div className="font-semibold">Reporting</div>
+                    <div className="bg-accent border border-border rounded p-2 text-center text-xs">
+                      <div className="font-semibold text-foreground">Reporting</div>
                       <div className="text-[10px] text-muted-foreground">EC2</div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="flex-1 bg-secondary/10 border-2 border-secondary rounded-lg p-3 text-center">
-                      <div className="text-sm font-semibold">Reports</div>
+                      <div className="text-sm font-semibold text-foreground">Reports</div>
                       <div className="text-xs text-muted-foreground">PDF, JSON, HTML</div>
                     </div>
                   </div>
@@ -117,7 +117,7 @@ export default function ArchitecturePage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CloudIcon className="h-8 w-8 text-blue-600 mb-2" />
+                    <CloudIcon className="h-8 w-8 text-primary mb-2" />
                     <CardTitle>Compute</CardTitle>
                     <CardDescription>Scalable processing power</CardDescription>
                   </CardHeader>
@@ -145,7 +145,7 @@ export default function ArchitecturePage() {
 
                 <Card>
                   <CardHeader>
-                    <DatabaseIcon className="h-8 w-8 text-green-600 mb-2" />
+                    <DatabaseIcon className="h-8 w-8 text-primary mb-2" />
                     <CardTitle>Storage</CardTitle>
                     <CardDescription>Data persistence and databases</CardDescription>
                   </CardHeader>
@@ -193,7 +193,7 @@ export default function ArchitecturePage() {
 
                 <Card>
                   <CardHeader>
-                    <ServerIcon className="h-8 w-8 text-orange-600 mb-2" />
+                    <ServerIcon className="h-8 w-8 text-secondary mb-2" />
                     <CardTitle>Monitoring</CardTitle>
                     <CardDescription>Observability and logging</CardDescription>
                   </CardHeader>
@@ -272,7 +272,7 @@ export default function ArchitecturePage() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center gap-3">
-                      <ZapIcon className="h-6 w-6 text-orange-600" />
+                      <ZapIcon className="h-6 w-6 text-secondary" />
                       <div>
                         <CardTitle>EC2 Instances</CardTitle>
                         <CardDescription>On-demand compute for analysis phases</CardDescription>
@@ -312,7 +312,7 @@ export default function ArchitecturePage() {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center gap-3">
-                      <ShieldIcon className="h-6 w-6 text-green-600" />
+                      <ShieldIcon className="h-6 w-6 text-primary" />
                       <div>
                         <CardTitle>Security & IAM</CardTitle>
                         <CardDescription>Access control and data protection</CardDescription>
@@ -322,31 +322,31 @@ export default function ArchitecturePage() {
                   <CardContent>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
+                        <span className="text-primary mt-1">✓</span>
                         <div>
                           <strong>VPC Isolation:</strong> Private subnets for EC2 instances
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
+                        <span className="text-primary mt-1">✓</span>
                         <div>
                           <strong>IAM Roles:</strong> Least-privilege access for Lambda and EC2
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
+                        <span className="text-primary mt-1">✓</span>
                         <div>
                           <strong>S3 Encryption:</strong> Server-side encryption (SSE-S3)
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
+                        <span className="text-primary mt-1">✓</span>
                         <div>
                           <strong>RDS Encryption:</strong> At-rest encryption with KMS
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
+                        <span className="text-primary mt-1">✓</span>
                         <div>
                           <strong>API Gateway:</strong> API key authentication
                         </div>

@@ -15,11 +15,11 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
             variant === "default",
           "border-transparent bg-secondary/20 text-secondary":
             variant === "secondary",
-          "border-transparent bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300":
+          "border-transparent bg-primary/10 text-primary dark:bg-primary/20":
             variant === "success",
-          "border-transparent bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300":
+          "border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/30 dark:text-amber-300":
             variant === "warning",
-          "border-transparent bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300":
+          "border-transparent bg-red-100 text-red-900 dark:bg-red-900/30 dark:text-red-300":
             variant === "error",
           "text-foreground": variant === "outline",
         },

@@ -41,28 +41,28 @@ export default function GettingStartedPage() {
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>AWS CLI 2.0+</strong>
                           <p className="text-sm text-muted-foreground">Command line interface for AWS</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>Terraform 1.0+</strong>
                           <p className="text-sm text-muted-foreground">Infrastructure as Code tool</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>Python 3.9+</strong>
                           <p className="text-sm text-muted-foreground">Programming language runtime</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>Git</strong>
                           <p className="text-sm text-muted-foreground">Version control system</p>
@@ -81,21 +81,21 @@ export default function GettingStartedPage() {
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>AWS Account</strong>
                           <p className="text-sm text-muted-foreground">With admin/PowerUser access</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>Service Quotas</strong>
                           <p className="text-sm text-muted-foreground">GPU instances, Lambda concurrency</p>
                         </div>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600 mt-0.5" />
+                        <CheckCircleIcon className="h-5 w-5 text-primary mt-0.5" />
                         <div>
                           <strong>Region</strong>
                           <p className="text-sm text-muted-foreground">Recommended: ap-northeast-1</p>
@@ -235,16 +235,16 @@ terraform output -json > outputs.json`}
                   language="bash"
                 />
 
-                <Card className="bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800">
+                <Card className="bg-primary/5 dark:bg-primary/10 border-primary/30 dark:border-primary/50">
                   <CardHeader>
-                    <CheckCircleIcon className="h-8 w-8 text-green-600 mb-2" />
-                    <CardTitle className="text-green-900 dark:text-green-300">Deployment Successful</CardTitle>
+                    <CheckCircleIcon className="h-8 w-8 text-primary mb-2" />
+                    <CardTitle className="text-primary">Deployment Successful</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-green-800 dark:text-green-200 mb-4">
+                    <p className="text-foreground mb-4">
                       If all checks pass, your MinION pipeline is ready to use!
                     </p>
-                    <p className="text-sm text-green-700 dark:text-green-300">
+                    <p className="text-sm text-muted-foreground">
                       Next steps: Run your first workflow or explore the API documentation.
                     </p>
                   </CardContent>

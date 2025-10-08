@@ -111,33 +111,37 @@ docs-portal/
 - Infrastructure deployment guide
 - First workflow tutorial
 
-### Planned Pages
+✅ **Overview** (`/overview`)
+- Research background and context
+- Sample processing workflow
+- Regulatory framework
+- Technical approach
 
-🚧 **Architecture** (`/architecture`)
+✅ **Architecture** (`/architecture`)
 - System architecture diagram
 - Component breakdown
 - Data flow visualization
 - AWS services overview
 
-🚧 **API Reference** (`/api-reference`)
-- All API endpoints
-- Request/response examples
-- Authentication guide
-- Error codes reference
-
-🚧 **Pipeline Phases** (`/pipeline-phases`)
+✅ **Pipeline Phases** (`/pipeline-phases`)
 - 6 pipeline phases explained
 - Tool documentation
 - Performance benchmarks
 - Best practices
 
-🚧 **Deployment** (`/deployment`)
+✅ **API Reference** (`/api-reference`)
+- All API endpoints
+- Request/response examples
+- Authentication guide
+- Error codes reference
+
+✅ **Deployment** (`/deployment`)
 - Step-by-step deployment
 - Configuration options
 - Troubleshooting guide
 - Cost optimization tips
 
-🚧 **PMDA Compliance** (`/pmda-compliance`)
+✅ **PMDA Compliance** (`/pmda-compliance`)
 - 91 pathogen list
 - PERV detection details
 - Validation requirements
@@ -193,34 +197,30 @@ import { CodeBlock } from "@/components/ui/CodeBlock"
 
 ### Theme Colors
 
-Edit `tailwind.config.ts` to customize colors:
+The portal uses `#0089A7` (HSL: 192 100% 33%) as the primary brand color. Edit `src/styles/globals.css` to customize:
 
-```ts
-colors: {
-  primary: {
-    DEFAULT: "hsl(237 84% 59%)",  // Indigo
-    // ...
-  },
-  secondary: {
-    DEFAULT: "hsl(174 72% 56%)",  // Teal
-    // ...
-  },
+```css
+@theme {
+  --color-primary: #0089A7;
+  --color-secondary: oklch(0.65 0.15 180);
 }
 ```
 
 ### Navigation
 
-Edit `src/lib/utils.ts` to modify navigation structure:
+Edit navigation in `src/components/layout/Sidebar.tsx` and `src/components/layout/Header.tsx`:
+
+**Important**: When using Next.js `typedRoutes`, all href values must be const-asserted:
 
 ```ts
-export const navigation = [
+const navigation = [
   {
     title: 'Getting Started',
-    href: '/getting-started',
-    icon: 'RocketLaunch',
+    href: '/getting-started' as const,  // Required for typed routes
+    icon: RocketIcon,
   },
   // ...
-]
+] as const  // Required for typed routes
 ```
 
 ## Deployment
@@ -230,6 +230,12 @@ export const navigation = [
 1. Push your code to GitHub
 2. Import project in Vercel
 3. Deploy with zero configuration
+
+**Note**: The project is configured for Vercel deployment with:
+- Next.js 15.5.4 with App Router
+- TypeScript typed routes enabled (`typedRoutes: true`)
+- Automatic static page optimization
+- Edge runtime support
 
 ### Docker
 

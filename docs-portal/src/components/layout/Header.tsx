@@ -14,11 +14,11 @@ export function Header() {
   const { theme, setTheme } = useTheme()
 
   const navigation = [
-    { name: "Docs", href: "/getting-started" },
-    { name: "API", href: "/api-reference" },
-    { name: "Architecture", href: "/architecture" },
-    { name: "Pipeline", href: "/pipeline-phases" },
-  ]
+    { name: "Docs", href: "/getting-started" as const },
+    { name: "API", href: "/api-reference" as const },
+    { name: "Architecture", href: "/architecture" as const },
+    { name: "Pipeline", href: "/pipeline-phases" as const },
+  ] as const
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

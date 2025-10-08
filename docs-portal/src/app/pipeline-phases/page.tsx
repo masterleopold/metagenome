@@ -378,7 +378,7 @@ bash perv_analysis.sh \\
 
                   <div>
                     <h4 className="font-semibold mb-2">PERV Critical Detection</h4>
-                    <Alert variant="error">
+                    <Alert variant="destructive">
                       <AlertTitle>Critical Alert Trigger</AlertTitle>
                       <AlertDescription>
                         Any PERV detection (PERV-A, PERV-B, PERV-C) triggers immediate SNS notification to alert recipients. This is the highest priority pathogen for xenotransplantation safety.

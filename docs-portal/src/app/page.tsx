@@ -58,22 +58,22 @@ const quickLinks = [
   {
     title: "Getting Started",
     description: "Set up your development environment and run your first workflow",
-    href: "/getting-started",
+    href: "/getting-started" as const,
     icon: ZapIcon,
   },
   {
     title: "Architecture",
     description: "Understand the system architecture and component interactions",
-    href: "/architecture",
+    href: "/architecture" as const,
     icon: ServerIcon,
   },
   {
     title: "API Reference",
     description: "Complete API documentation with request/response examples",
-    href: "/api-reference",
+    href: "/api-reference" as const,
     icon: DatabaseIcon,
   },
-];
+] as const;
 
 const stats = [
   { label: "PMDA Pathogens", value: "91" },

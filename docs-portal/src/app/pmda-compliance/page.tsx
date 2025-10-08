@@ -133,7 +133,7 @@ export default function PMDACompliancePage() {
             <section className="mb-12">
               <h2 className="text-2xl font-semibold mb-6">Critical Pathogens</h2>
 
-              <Alert variant="error" className="mb-6">
+              <Alert variant="destructive" className="mb-6">
                 <AlertTriangleIcon className="h-4 w-4" />
                 <AlertTitle>Immediate Alert Pathogens</AlertTitle>
                 <AlertDescription>
@@ -181,7 +181,7 @@ export default function PMDACompliancePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Alert variant="error">
+                  <Alert variant="destructive">
                     <AlertDescription>
                       PERV is the highest priority pathogen. Any detection of PERV-A, PERV-B, or PERV-C results in immediate rejection of the donor pig and triggering of quarantine protocols.
                     </AlertDescription>

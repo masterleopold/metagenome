@@ -19,12 +19,12 @@ const navigation = [
     items: [
       {
         title: "Getting Started",
-        href: "/getting-started",
+        href: "/getting-started" as const,
         icon: RocketIcon,
       },
       {
         title: "Overview",
-        href: "/overview",
+        href: "/overview" as const,
         icon: BookOpenIcon,
       },
     ],
@@ -34,12 +34,12 @@ const navigation = [
     items: [
       {
         title: "Architecture",
-        href: "/architecture",
+        href: "/architecture" as const,
         icon: LayersIcon,
       },
       {
         title: "Pipeline Phases",
-        href: "/pipeline-phases",
+        href: "/pipeline-phases" as const,
         icon: GitBranchIcon,
       },
     ],
@@ -49,12 +49,12 @@ const navigation = [
     items: [
       {
         title: "API Reference",
-        href: "/api-reference",
+        href: "/api-reference" as const,
         icon: Code2Icon,
       },
       {
         title: "Deployment",
-        href: "/deployment",
+        href: "/deployment" as const,
         icon: CloudIcon,
       },
     ],
@@ -64,12 +64,12 @@ const navigation = [
     items: [
       {
         title: "PMDA Guidelines",
-        href: "/pmda-compliance",
+        href: "/pmda-compliance" as const,
         icon: ShieldCheckIcon,
       },
     ],
   },
-]
+] as const
 
 export function Sidebar() {
   const pathname = usePathname()

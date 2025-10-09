@@ -146,13 +146,18 @@ pipeline:
 
 ## Recently Updated
 
+- 2025-10-09: **NGS vs Traditional Methods Cost Analysis** - Created comprehensive cost-benefit analysis document
+  - `NGS全量解析vs従来法ハイブリッド戦略_コスト・手間分析.md` - Compares 3 strategies for PMDA 91-pathogen screening
+  - Pattern A (NGS all 91): ¥162,574/sample, 20h hands-on, 3-5 days turnaround
+  - Pattern B (Hybrid NGS+Traditional): ¥449,574/sample, 72h hands-on, 7-10 days (2.8× cost increase)
+  - Pattern C (Traditional only): ¥315,000/sample, regulatory non-compliant
+  - Analysis covers wet lab, sequencing, bioinformatics, labor costs, and PMDA compliance
+  - NGS-only approach demonstrates superior cost efficiency, faster turnaround, and full regulatory compliance
 - 2025-10-08: **MinION Protocol Appendices Complete** - Added 3 missing appendices to lab protocols
   - Appendix A: Reagents & Equipment List (¥21.5M initial investment)
   - Appendix B: Time & Cost Estimates (¥127k/sample, 4-year ROI)
   - Appendix C: Troubleshooting Guide (25 common issues)
 - 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker) [`0a7eb04`](https://github.com/masterleopold/metagenome/commit/0a7eb049d1006595253573076bb01dd2d0979885)
 - 2025-10-08: **CLAUDE.md optimized** - Reduced from 47KB to 5.3KB (88.5% reduction)
-- 2025-10-08: Documentation portal with Linear-inspired design (#0089A7)
-- 2025-10-08: Vercel deployment configuration with typed routes
 
 For complete historical changes, see [Session History](docs/claude-sessions/README.md).

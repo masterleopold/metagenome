@@ -12,7 +12,10 @@ class TestPMDACompliance(unittest.TestCase):
 
     def setUp(self):
         """Set up test environment."""
-        self.pmda_pathogens_file = Path('../templates/config/pmda_pathogens.json')
+        # Use absolute path relative to this test file
+        test_dir = Path(__file__).parent
+        repo_root = test_dir.parent
+        self.pmda_pathogens_file = repo_root / 'templates' / 'config' / 'pmda_pathogens.json'
         self.pmda_data = None
 
         if self.pmda_pathogens_file.exists():
@@ -187,8 +190,10 @@ class TestPMDACompliance(unittest.TestCase):
     def test_workflow_configuration_compliance(self):
         """Test workflow configuration meets PMDA requirements."""
 
-        # Load default pipeline configuration
-        config_file = Path('../templates/config/default_pipeline.yaml')
+        # Load default pipeline configuration using absolute path
+        test_dir = Path(__file__).parent
+        repo_root = test_dir.parent
+        config_file = repo_root / 'templates' / 'config' / 'default_pipeline.yaml'
 
         if config_file.exists():
             import yaml
@@ -204,15 +209,17 @@ class TestPMDACompliance(unittest.TestCase):
             self.assertIn('PERV-B', pmda_config['critical_pathogens'])
             self.assertIn('PERV-C', pmda_config['critical_pathogens'])
 
-            # Check reporting requirements
+            # Check reporting requirements (list format in YAML)
             reporting_req = pmda_config['reporting_requirements']
-            self.assertTrue(reporting_req['all_91_pathogens_tested'])
-            self.assertTrue(reporting_req['perv_specific_analysis'])
+            self.assertIn('all_91_pathogens_tested', reporting_req)
+            self.assertIn('perv_specific_analysis', reporting_req)
 
     def test_quality_thresholds(self):
         """Test quality thresholds meet PMDA standards."""
 
-        config_file = Path('../templates/config/default_pipeline.yaml')
+        test_dir = Path(__file__).parent
+        repo_root = test_dir.parent
+        config_file = repo_root / 'templates' / 'config' / 'default_pipeline.yaml'
 
         if config_file.exists():
             import yaml
@@ -229,7 +236,9 @@ class TestPMDACompliance(unittest.TestCase):
     def test_alert_configuration(self):
         """Test alert configuration for critical findings."""
 
-        config_file = Path('../templates/config/default_pipeline.yaml')
+        test_dir = Path(__file__).parent
+        repo_root = test_dir.parent
+        config_file = repo_root / 'templates' / 'config' / 'default_pipeline.yaml'
 
         if config_file.exists():
             import yaml

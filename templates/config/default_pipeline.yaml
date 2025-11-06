@@ -23,7 +23,7 @@ phases:
     min_quality: 9
     min_length: 100
     max_length: 100000
-    min_pass_reads: 1000
+    min_pass_reads: 1000  # Minimum total reads passing QC filters
     quality_window: 5
 
   host_removal:
@@ -41,7 +41,7 @@ phases:
       - rvdb        # Viral database
       - pmda        # PMDA 91 pathogens
     confidence_threshold: 0.1
-    min_reads: 10
+    min_reads: 10  # Minimum reads per pathogen for detection reporting
     min_kmers: 100
     threads: 16
     report_zeros: false
@@ -116,9 +116,10 @@ resources:
     instance_type: m5.xlarge
     max_runtime_hours: 2
 
-# Quality thresholds
+# Quality thresholds for workflow acceptance
+# NOTE: This min_reads is for total workflow minimum (different from QC phase min_pass_reads)
 quality_thresholds:
-  min_reads: 10000
+  min_reads: 10000  # Minimum total reads for workflow to proceed
   min_mean_quality: 9
   min_n50: 1000
   max_host_contamination: 0.95

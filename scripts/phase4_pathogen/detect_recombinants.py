@@ -13,7 +13,15 @@ from collections import defaultdict
 def detect_recombination(bam_file: Path) -> dict:
     """Detect potential PERV recombination events."""
 
-    bam = pysam.AlignmentFile(str(bam_file), "rb")
+    # Validate BAM file exists and is readable
+    if not bam_file.exists():
+        raise FileNotFoundError(f"BAM file not found: {bam_file}")
+
+    try:
+        bam = pysam.AlignmentFile(str(bam_file), "rb")
+    except Exception as e:
+        raise RuntimeError(f"Failed to open BAM file {bam_file}: {e}")
+
     chimeric_reads = []
     split_alignments = defaultdict(list)
 

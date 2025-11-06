@@ -6,14 +6,16 @@ Validates quality control metrics against PMDA thresholds
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 import psycopg2
 import boto3
 
 # PMDA QC thresholds
+# Note: Aligned with default_pipeline.yaml quality_thresholds.min_reads
 QC_THRESHOLDS = {
-    'min_reads': 100000,
+    'min_reads': 10000,  # Changed from 100000 to match pipeline config
     'min_mean_qscore': 9.0,
     'min_median_qscore': 8.0,
     'min_n50': 200,
@@ -84,7 +86,7 @@ def main():
     parser.add_argument('--db-host')
     parser.add_argument('--db-name', default='minion_metadata')
     parser.add_argument('--db-user', default='minion_user')
-    parser.add_argument('--db-password')
+    # SECURITY: No longer accept password via CLI - use environment variable instead
 
     args = parser.parse_args()
 
@@ -94,13 +96,19 @@ def main():
     qc_pass, failures = check_qc_metrics(args.summary)
 
     if args.db_host:
-        db_config = {
-            'host': args.db_host,
-            'database': args.db_name,
-            'user': args.db_user,
-            'password': args.db_password
-        }
-        update_database(args.run_id, qc_pass, summary.get('metrics', {}), db_config)
+        # Get password from environment variable for security
+        db_password = os.environ.get('DB_PASSWORD')
+
+        if not db_password:
+            print("WARNING: DB_PASSWORD environment variable not set. Skipping database update.", file=sys.stderr)
+        else:
+            db_config = {
+                'host': args.db_host,
+                'database': args.db_name,
+                'user': args.db_user,
+                'password': db_password
+            }
+            update_database(args.run_id, qc_pass, summary.get('metrics', {}), db_config)
 
     if not qc_pass:
         print("QC FAILED:", file=sys.stderr)

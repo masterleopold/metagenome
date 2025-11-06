@@ -173,7 +173,7 @@ cat > reports/analysis_complete.json << EOF
     "run_id": "$RUN_ID",
     "status": "COMPLETED",
     "timestamp": "$(date -Iseconds)",
-    "reports_generated": {formats},
+    "reports_generated": {json.dumps(formats)},
     "pmda_compliance": true
 }}
 EOF
@@ -202,7 +202,7 @@ echo "Report generation completed for run $RUN_ID"
         InstanceIds=[instance_id],
         DocumentName='AWS-RunShellScript',
         Parameters={
-            'commands': [command.format(formats=json.dumps(formats))],
+            'commands': [command],
             'executionTimeout': ['7200']  # 2 hours
         }
     )

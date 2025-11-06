@@ -62,7 +62,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 def launch_pathogen_instance(run_id: str, bucket: str,
                             input_prefix: str, output_prefix: str) -> str:
-    """Launch high-memory EC2 instance."""
+    """Launch high-memory EC2 instance with spot/on-demand fallback."""
 
     user_data = f"""#!/bin/bash
 # Mount EFS for databases
@@ -84,16 +84,14 @@ echo "Pathogen detection instance started for run $RUN_ID" | logger
 echo "sudo shutdown -h +480" | at now + 8 hours
 """
 
-    response = ec2.run_instances(
-        ImageId=ANALYSIS_AMI,
-        InstanceType=INSTANCE_TYPE,
-        MinCount=1,
-        MaxCount=1,
-        SubnetId=SUBNET_ID,
-        SecurityGroupIds=[SECURITY_GROUP],
-        IamInstanceProfile={'Name': 'MinIONEC2Role'},
-        UserData=user_data,
-        BlockDeviceMappings=[
+    instance_config = {
+        'ImageId': ANALYSIS_AMI,
+        'InstanceType': INSTANCE_TYPE,
+        'SubnetId': SUBNET_ID,
+        'SecurityGroupIds': [SECURITY_GROUP],
+        'IamInstanceProfile': {'Name': os.environ.get('EC2_IAM_ROLE', 'MinIONEC2Role')},
+        'UserData': user_data,
+        'BlockDeviceMappings': [
             {
                 'DeviceName': '/dev/xvda',
                 'Ebs': {
@@ -104,7 +102,7 @@ echo "sudo shutdown -h +480" | at now + 8 hours
                 }
             }
         ],
-        TagSpecifications=[
+        'TagSpecifications': [
             {
                 'ResourceType': 'instance',
                 'Tags': [
@@ -114,9 +112,61 @@ echo "sudo shutdown -h +480" | at now + 8 hours
                 ]
             }
         ]
+    }
+
+    # Try spot instance first for cost savings
+    use_spot = os.environ.get('USE_SPOT_INSTANCES', 'true').lower() == 'true'
+
+    if use_spot:
+        try:
+            print(f"Attempting to launch spot instance for pathogen detection - {run_id}")
+            response = ec2.request_spot_instances(
+                InstanceCount=1,
+                Type='one-time',
+                LaunchSpecification=instance_config
+            )
+
+            spot_request_id = response['SpotInstanceRequests'][0]['SpotInstanceRequestId']
+
+            # Wait for spot request fulfillment with timeout
+            waiter = ec2.get_waiter('spot_instance_request_fulfilled')
+            waiter.wait(
+                SpotInstanceRequestIds=[spot_request_id],
+                WaiterConfig={'Delay': 15, 'MaxAttempts': 20}  # 5 minute timeout
+            )
+
+            # Get instance ID
+            spot_response = ec2.describe_spot_instance_requests(
+                SpotInstanceRequestIds=[spot_request_id]
+            )
+
+            instance_id = spot_response['SpotInstanceRequests'][0]['InstanceId']
+            print(f"Spot instance launched successfully: {instance_id}")
+
+            return instance_id
+
+        except Exception as e:
+            print(f"Spot instance request failed: {str(e)}")
+            print(f"Falling back to on-demand instance for {run_id}")
+
+            # Cancel spot request if it exists
+            try:
+                ec2.cancel_spot_instance_requests(SpotInstanceRequestIds=[spot_request_id])
+            except:
+                pass
+
+    # Launch on-demand instance (fallback or if spot disabled)
+    print(f"Launching on-demand instance for pathogen detection - {run_id}")
+    response = ec2.run_instances(
+        MinCount=1,
+        MaxCount=1,
+        **instance_config
     )
 
-    return response['Instances'][0]['InstanceId']
+    instance_id = response['Instances'][0]['InstanceId']
+    print(f"On-demand instance launched: {instance_id}")
+
+    return instance_id
 
 def execute_pathogen_detection(instance_id: str, run_id: str, bucket: str,
                               input_prefix: str, output_prefix: str,

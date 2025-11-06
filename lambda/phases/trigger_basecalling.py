@@ -68,7 +68,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 def launch_basecalling_instance(run_id: str, bucket: str, input_prefix: str,
                                output_prefix: str, skip_duplex: bool) -> str:
-    """Launch GPU instance for basecalling."""
+    """Launch GPU instance for basecalling with spot/on-demand fallback."""
 
     user_data = f"""#!/bin/bash
 # Set environment
@@ -84,56 +84,89 @@ echo "Basecalling instance started for run $RUN_ID" | logger
 echo "sudo shutdown -h +720" | at now + 12 hours
 """
 
-    # Use spot instance for cost savings
-    response = ec2.request_spot_instances(
-        InstanceCount=1,
-        Type='one-time',
-        LaunchSpecification={
-            'ImageId': BASECALLING_AMI,
-            'InstanceType': INSTANCE_TYPE,
-            'SubnetId': SUBNET_ID,
-            'SecurityGroupIds': [SECURITY_GROUP],
-            'IamInstanceProfile': {
-                'Name': 'MinIONEC2Role'
-            },
-            'UserData': user_data,
-            'BlockDeviceMappings': [
-                {
-                    'DeviceName': '/dev/xvda',
-                    'Ebs': {
-                        'VolumeSize': 500,
-                        'VolumeType': 'gp3',
-                        'DeleteOnTermination': True
-                    }
+    instance_config = {
+        'ImageId': BASECALLING_AMI,
+        'InstanceType': INSTANCE_TYPE,
+        'SubnetId': SUBNET_ID,
+        'SecurityGroupIds': [SECURITY_GROUP],
+        'IamInstanceProfile': {
+            'Name': os.environ.get('EC2_IAM_ROLE', 'MinIONEC2Role')
+        },
+        'UserData': user_data,
+        'BlockDeviceMappings': [
+            {
+                'DeviceName': '/dev/xvda',
+                'Ebs': {
+                    'VolumeSize': 500,
+                    'VolumeType': 'gp3',
+                    'DeleteOnTermination': True
                 }
-            ],
-            'TagSpecifications': [
-                {
-                    'ResourceType': 'instance',
-                    'Tags': [
-                        {'Key': 'Name', 'Value': f'basecalling-{run_id}'},
-                        {'Key': 'RunID', 'Value': run_id},
-                        {'Key': 'Phase', 'Value': 'basecalling'},
-                        {'Key': 'AutoTerminate', 'Value': 'true'}
-                    ]
-                }
-            ]
-        }
+            }
+        ],
+        'TagSpecifications': [
+            {
+                'ResourceType': 'instance',
+                'Tags': [
+                    {'Key': 'Name', 'Value': f'basecalling-{run_id}'},
+                    {'Key': 'RunID', 'Value': run_id},
+                    {'Key': 'Phase', 'Value': 'basecalling'},
+                    {'Key': 'AutoTerminate', 'Value': 'true'}
+                ]
+            }
+        ]
+    }
+
+    # Try spot instance first for cost savings
+    use_spot = os.environ.get('USE_SPOT_INSTANCES', 'true').lower() == 'true'
+
+    if use_spot:
+        try:
+            print(f"Attempting to launch spot instance for {run_id}")
+            response = ec2.request_spot_instances(
+                InstanceCount=1,
+                Type='one-time',
+                LaunchSpecification=instance_config
+            )
+
+            spot_request_id = response['SpotInstanceRequests'][0]['SpotInstanceRequestId']
+
+            # Wait for spot request fulfillment with timeout
+            waiter = ec2.get_waiter('spot_instance_request_fulfilled')
+            waiter.wait(
+                SpotInstanceRequestIds=[spot_request_id],
+                WaiterConfig={'Delay': 15, 'MaxAttempts': 20}  # 5 minute timeout
+            )
+
+            # Get instance ID
+            spot_response = ec2.describe_spot_instance_requests(
+                SpotInstanceRequestIds=[spot_request_id]
+            )
+
+            instance_id = spot_response['SpotInstanceRequests'][0]['InstanceId']
+            print(f"Spot instance launched successfully: {instance_id}")
+
+            return instance_id
+
+        except Exception as e:
+            print(f"Spot instance request failed: {str(e)}")
+            print(f"Falling back to on-demand instance for {run_id}")
+
+            # Cancel spot request if it exists
+            try:
+                ec2.cancel_spot_instance_requests(SpotInstanceRequestIds=[spot_request_id])
+            except:
+                pass
+
+    # Launch on-demand instance (fallback or if spot disabled)
+    print(f"Launching on-demand instance for {run_id}")
+    response = ec2.run_instances(
+        MinCount=1,
+        MaxCount=1,
+        **instance_config
     )
 
-    # Get instance ID from spot request
-    spot_request_id = response['SpotInstanceRequests'][0]['SpotInstanceRequestId']
-
-    # Wait for spot request fulfillment
-    waiter = ec2.get_waiter('spot_instance_request_fulfilled')
-    waiter.wait(SpotInstanceRequestIds=[spot_request_id])
-
-    # Get instance ID
-    spot_response = ec2.describe_spot_instance_requests(
-        SpotInstanceRequestIds=[spot_request_id]
-    )
-
-    instance_id = spot_response['SpotInstanceRequests'][0]['InstanceId']
+    instance_id = response['Instances'][0]['InstanceId']
+    print(f"On-demand instance launched: {instance_id}")
 
     return instance_id
 

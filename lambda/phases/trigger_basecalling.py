@@ -19,8 +19,35 @@ SUBNET_ID = os.environ['SUBNET_ID']
 SECURITY_GROUP = os.environ['SECURITY_GROUP_ID']
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    """
-    Launch EC2 instance for basecalling and trigger analysis.
+    """Lambda handler for Phase 1: FAST5/POD5 basecalling to FASTQ.
+
+    Orchestrates GPU-accelerated nanopore basecalling using Dorado on EC2.
+    Launches spot/on-demand GPU instance, waits for it to be ready, then
+    executes basecalling script via AWS Systems Manager.
+
+    Args:
+        event: Lambda event dict containing:
+            - run_id (str): Unique run identifier
+            - workflow_id (int): Step Functions execution ID
+            - bucket (str): S3 bucket name
+            - input_prefix (str): Path to FAST5/POD5 files
+            - output_prefix (str): Path for output FASTQ files
+            - config (dict, optional): Pipeline config with skip_duplex flag
+
+        context: Lambda context object (unused)
+
+    Returns:
+        Dict with execution details:
+            - phase: "basecalling"
+            - status: "RUNNING"
+            - instance_id: EC2 instance ID
+            - command_id: SSM command ID for monitoring
+            - run_id: Run identifier
+            - workflow_id: Workflow ID
+
+    Raises:
+        KeyError: If required event parameters missing
+        botocore.exceptions.ClientError: If EC2 or SSM operations fail
     """
 
     run_id = event['run_id']
@@ -68,7 +95,29 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 def launch_basecalling_instance(run_id: str, bucket: str, input_prefix: str,
                                output_prefix: str, skip_duplex: bool) -> str:
-    """Launch GPU instance for basecalling with spot/on-demand fallback."""
+    """Launch GPU instance for basecalling with spot/on-demand fallback.
+
+    Attempts to launch a spot instance first for cost savings (70% cheaper).
+    If spot request fails or times out after 5 minutes, automatically falls
+    back to on-demand instance to ensure pipeline continues.
+
+    Args:
+        run_id: Unique identifier for this sequencing run (e.g., "RUN-2024-001")
+        bucket: S3 bucket name containing input FAST5/POD5 files
+        input_prefix: S3 prefix path to input files (e.g., "runs/RUN-2024-001/fast5/")
+        output_prefix: S3 prefix path for output FASTQ files
+        skip_duplex: If True, skip duplex basecalling (faster but lower accuracy)
+
+    Returns:
+        str: EC2 instance ID of the launched basecalling instance
+
+    Raises:
+        botocore.exceptions.ClientError: If both spot and on-demand instance launches fail
+
+    Note:
+        Instance auto-terminates after 12 hours to prevent runaway costs.
+        Uses g4dn.xlarge GPU instances for Dorado basecalling.
+    """
 
     user_data = f"""#!/bin/bash
 # Set environment

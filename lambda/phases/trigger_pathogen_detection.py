@@ -20,8 +20,41 @@ EFS_ID = os.environ['EFS_ID']
 SNS_TOPIC = os.environ['SNS_TOPIC_ARN']
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    """
-    Launch EC2 instance for pathogen detection.
+    """Lambda handler for Phase 4: Multi-database pathogen detection.
+
+    Orchestrates pathogen screening using Kraken2, BLAST (RVDB), and targeted
+    PMDA database searches. Critical for identifying all 91 PMDA-designated
+    pathogens and PERV sequences. Launches high-memory EC2 instance with EFS
+    mount for database access.
+
+    Args:
+        event: Lambda event dict containing:
+            - run_id (str): Unique run identifier
+            - workflow_id (int): Step Functions execution ID
+            - input_path (str): S3 path to host-depleted FASTQ files
+            - config (dict, optional): Config with databases list
+              Default databases: ['kraken2', 'rvdb', 'pmda']
+
+        context: Lambda context object (unused)
+
+    Returns:
+        Dict with execution details:
+            - phase: "pathogen_detection"
+            - status: "RUNNING"
+            - instance_id: EC2 instance ID
+            - command_id: SSM command ID
+            - run_id: Run identifier
+            - workflow_id: Workflow ID
+            - output_path: S3 path to results
+
+    Raises:
+        KeyError: If required event parameters missing
+        ValueError: If input_path format invalid
+        botocore.exceptions.ClientError: If AWS operations fail
+
+    Note:
+        Automatically triggers SNS alert if PERV detected.
+        Uses r5.4xlarge (128GB RAM) for Kraken2 database.
     """
 
     run_id = event['run_id']
@@ -62,7 +95,29 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 def launch_pathogen_instance(run_id: str, bucket: str,
                             input_prefix: str, output_prefix: str) -> str:
-    """Launch high-memory EC2 instance with spot/on-demand fallback."""
+    """Launch high-memory EC2 instance for pathogen detection with spot/on-demand fallback.
+
+    Mounts EFS for access to reference databases (Kraken2, BLAST, PMDA).
+    Attempts spot instance first (70% cost savings), falls back to on-demand
+    if unavailable after 5-minute timeout.
+
+    Args:
+        run_id: Unique identifier for this sequencing run (e.g., "RUN-2024-001")
+        bucket: S3 bucket containing input FASTQ files (post-host-depletion)
+        input_prefix: S3 prefix to filtered reads
+        output_prefix: S3 prefix for pathogen detection results
+
+    Returns:
+        str: EC2 instance ID of the launched pathogen detection instance
+
+    Raises:
+        botocore.exceptions.ClientError: If both spot and on-demand launches fail
+
+    Note:
+        Uses r5.4xlarge (128GB RAM) for Kraken2 database loading.
+        Auto-terminates after 8 hours to prevent runaway costs.
+        Critical for PERV and PMDA 91-pathogen screening.
+    """
 
     user_data = f"""#!/bin/bash
 # Mount EFS for databases
@@ -171,7 +226,36 @@ echo "sudo shutdown -h +480" | at now + 8 hours
 def execute_pathogen_detection(instance_id: str, run_id: str, bucket: str,
                               input_prefix: str, output_prefix: str,
                               databases: List[str]) -> Dict:
-    """Execute pathogen detection on EC2 instance."""
+    """Execute pathogen detection analysis on EC2 instance via SSM.
+
+    Builds and runs shell commands for selected databases (Kraken2, BLAST,
+    PMDA targeted search) plus mandatory PERV analysis. Downloads filtered
+    reads from S3, runs analyses, aggregates results, and uploads to S3.
+
+    Args:
+        instance_id: EC2 instance ID to execute commands on
+        run_id: Unique run identifier for naming/tracking
+        bucket: S3 bucket name
+        input_prefix: S3 prefix to host-filtered FASTQ files
+        output_prefix: S3 prefix for output results
+        databases: List of databases to search. Options:
+            - 'kraken2': Taxonomic classification
+            - 'rvdb': BLAST viral database search
+            - 'pmda': Targeted 91-pathogen search
+            Note: PERV analysis always runs regardless of this list
+
+    Returns:
+        Dict: SSM send_command API response containing Command object
+            with CommandId for monitoring execution
+
+    Raises:
+        botocore.exceptions.ClientError: If SSM command fails to send
+
+    Note:
+        Automatically publishes SNS alert if PERV detected.
+        Command timeout: 8 hours.
+        Instance auto-cleans up work directory after upload.
+    """
 
     # Build database commands
     db_commands = []
@@ -212,7 +296,7 @@ def execute_pathogen_detection(instance_id: str, run_id: str, bucket: str,
 """)
 
     # Always run PERV analysis (critical for xenotransplantation)
-    db_commands.append("""
+    db_commands.append(f"""
 # PERV-specific analysis
 /opt/minion/scripts/phase4_pathogen/perv_analysis.sh \\
     -i filtered/ \\
@@ -267,7 +351,7 @@ rm -rf "$WORK_DIR"
         InstanceIds=[instance_id],
         DocumentName='AWS-RunShellScript',
         Parameters={
-            'commands': [command.format(SNS_TOPIC=SNS_TOPIC)],
+            'commands': [command],
             'executionTimeout': ['28800']  # 8 hours
         }
     )

@@ -209,10 +209,10 @@ class TestPMDACompliance(unittest.TestCase):
             self.assertIn('PERV-B', pmda_config['critical_pathogens'])
             self.assertIn('PERV-C', pmda_config['critical_pathogens'])
 
-            # Check reporting requirements
+            # Check reporting requirements (list format in YAML)
             reporting_req = pmda_config['reporting_requirements']
-            self.assertTrue(reporting_req['all_91_pathogens_tested'])
-            self.assertTrue(reporting_req['perv_specific_analysis'])
+            self.assertIn('all_91_pathogens_tested', reporting_req)
+            self.assertIn('perv_specific_analysis', reporting_req)
 
     def test_quality_thresholds(self):
         """Test quality thresholds meet PMDA standards."""

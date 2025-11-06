@@ -4,8 +4,8 @@
   "last_updated": "2024-01-01",
   "categories": {
     "viruses": {
-      "count": 50,
-      "critical": ["PERV-A", "PERV-B", "PERV-C", "HEV", "JEV"],
+      "count": 45,
+      "critical": ["PERV-A", "PERV-B", "PERV-C", "FMDV", "ASFV", "CSFV", "NHEV", "RABV"],
       "pathogens": [
         {"code": "PERV-A", "name": "Porcine endogenous retrovirus A", "risk_level": "CRITICAL"},
         {"code": "PERV-B", "name": "Porcine endogenous retrovirus B", "risk_level": "CRITICAL"},
@@ -31,7 +31,27 @@
         {"code": "PSV", "name": "Porcine sapelovirus", "risk_level": "LOW"},
         {"code": "PTV", "name": "Porcine teschovirus", "risk_level": "LOW"},
         {"code": "PEV", "name": "Porcine enterovirus", "risk_level": "LOW"},
-        {"code": "PAV", "name": "Porcine astrovirus", "risk_level": "LOW"}
+        {"code": "PAV", "name": "Porcine astrovirus", "risk_level": "LOW"},
+        {"code": "PCV1", "name": "Porcine circovirus 1", "risk_level": "LOW"},
+        {"code": "PPV2", "name": "Porcine parvovirus 2", "risk_level": "LOW"},
+        {"code": "PPV3", "name": "Porcine parvovirus 3", "risk_level": "LOW"},
+        {"code": "PPV4", "name": "Porcine parvovirus 4", "risk_level": "LOW"},
+        {"code": "PPV5", "name": "Porcine parvovirus 5", "risk_level": "LOW"},
+        {"code": "PPV6", "name": "Porcine parvovirus 6", "risk_level": "LOW"},
+        {"code": "PKV", "name": "Porcine kobuvirus", "risk_level": "LOW"},
+        {"code": "PKUV", "name": "Porcine kubukovirus", "risk_level": "LOW"},
+        {"code": "PSHV", "name": "Porcine stool-associated circular virus", "risk_level": "LOW"},
+        {"code": "PMCV", "name": "Porcine morbillivirus", "risk_level": "MEDIUM"},
+        {"code": "PBoV", "name": "Porcine bocavirus", "risk_level": "LOW"},
+        {"code": "NHEV", "name": "Nipah henipavirus", "risk_level": "CRITICAL"},
+        {"code": "RABV", "name": "Rabies virus", "risk_level": "CRITICAL"},
+        {"code": "CMV", "name": "Cytomegalovirus", "risk_level": "HIGH"},
+        {"code": "LCMV", "name": "Lymphocytic choriomeningitis virus", "risk_level": "HIGH"},
+        {"code": "RVFV", "name": "Rift Valley fever virus", "risk_level": "HIGH"},
+        {"code": "WNV", "name": "West Nile virus", "risk_level": "HIGH"},
+        {"code": "DENV", "name": "Dengue virus", "risk_level": "HIGH"},
+        {"code": "ZIKV", "name": "Zika virus", "risk_level": "HIGH"},
+        {"code": "CHIKV", "name": "Chikungunya virus", "risk_level": "HIGH"}
       ]
     },
     "bacteria": {
@@ -65,7 +85,14 @@
         {"code": "EP", "name": "Erysipelothrix rhusiopathiae", "risk_level": "MEDIUM"},
         {"code": "BR", "name": "Brucella species", "risk_level": "HIGH"},
         {"code": "LM", "name": "Lawsonia intracellularis", "risk_level": "LOW"},
-        {"code": "BRA", "name": "Brachyspira species", "risk_level": "LOW"}
+        {"code": "BRA", "name": "Brachyspira species", "risk_level": "LOW"},
+        {"code": "CB", "name": "Coxiella burnetii", "risk_level": "HIGH"},
+        {"code": "RI", "name": "Rickettsia species", "risk_level": "MEDIUM"},
+        {"code": "EH", "name": "Ehrlichia species", "risk_level": "MEDIUM"},
+        {"code": "AN", "name": "Anaplasma species", "risk_level": "MEDIUM"},
+        {"code": "MH", "name": "Mycoplasma hyopneumoniae", "risk_level": "MEDIUM"},
+        {"code": "MS", "name": "Mycoplasma suis", "risk_level": "MEDIUM"},
+        {"code": "CA-B", "name": "Chlamydia species", "risk_level": "MEDIUM"}
       ]
     },
     "parasites": {

@@ -65,7 +65,7 @@
         {"code": "EP", "name": "Erysipelothrix rhusiopathiae", "risk_level": "MEDIUM"},
         {"code": "BR", "name": "Brucella species", "risk_level": "HIGH"},
         {"code": "LM", "name": "Lawsonia intracellularis", "risk_level": "LOW"},
-        {"code": "BB", "name": "Brachyspira species", "risk_level": "LOW"}
+        {"code": "BRA", "name": "Brachyspira species", "risk_level": "LOW"}
       ]
     },
     "parasites": {

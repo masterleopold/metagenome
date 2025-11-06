@@ -29,9 +29,9 @@ python tests/test_pmda_compliance.py         # PMDA compliance
 ./tools/workflow_cli.py metrics --run-id RUN-2024-001
 
 # Code Quality
-black scripts/ lambda/ lib/ tools/ tests/
-flake8 scripts/ lambda/ lib/ tools/ tests/
-mypy lib/ scripts/
+black scripts/ lambda/ tools/ tests/
+flake8 scripts/ lambda/ tools/ tests/
+mypy scripts/
 
 # Documentation Portal
 cd docs-portal
@@ -74,7 +74,6 @@ Core regulatory requirement. Full list in `md/厚労省異種移植指針_91病�
 ```
 scripts/          # Pipeline phase scripts (1-6)
 lambda/           # AWS Lambda functions
-lib/              # Shared Python libraries
 tools/            # CLI tools and utilities
 tests/            # Test suite
 infrastructure/   # Terraform IaC

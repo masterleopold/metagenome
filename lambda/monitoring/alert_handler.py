@@ -313,6 +313,13 @@ def log_alert(workflow_id: str, alert_type: str, details: Dict):
         VALUES (:workflow_id, :alert_type, :details, NOW())
     """
 
+    # Convert workflow_id to int, handling both string and int types
+    try:
+        wf_id = int(workflow_id) if workflow_id else 0
+    except (ValueError, TypeError):
+        wf_id = 0
+        print(f'Warning: Invalid workflow_id "{workflow_id}", using 0')
+
     try:
         rds.execute_statement(
             resourceArn=CLUSTER_ARN,
@@ -320,7 +327,7 @@ def log_alert(workflow_id: str, alert_type: str, details: Dict):
             database=DATABASE,
             sql=sql,
             parameters=[
-                {'name': 'workflow_id', 'value': {'longValue': workflow_id if workflow_id else 0}},
+                {'name': 'workflow_id', 'value': {'longValue': wf_id}},
                 {'name': 'alert_type', 'value': {'stringValue': alert_type}},
                 {'name': 'details', 'value': {'stringValue': json.dumps(details, default=str)}}
             ]

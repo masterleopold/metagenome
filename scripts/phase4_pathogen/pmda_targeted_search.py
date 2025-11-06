@@ -123,7 +123,16 @@ def parse_bam_results(bam_file: Path, pmda_config: dict,
         'read_names': []
     })
 
-    bam = pysam.AlignmentFile(str(bam_file), "rb")
+    # Validate BAM file exists and is readable
+    if not bam_file.exists():
+        print(f"ERROR: BAM file not found: {bam_file}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        bam = pysam.AlignmentFile(str(bam_file), "rb")
+    except Exception as e:
+        print(f"ERROR: Failed to open BAM file {bam_file}: {e}", file=sys.stderr)
+        sys.exit(1)
 
     for read in bam:
         if read.is_unmapped or read.is_secondary or read.is_supplementary:

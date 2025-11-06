@@ -13,9 +13,9 @@ Comprehensive audit of the MinION Pathogen Screening Pipeline codebase identifie
 
 - **Total Bugs Found**: 23
 - **Total Bugs Fixed**: 21 (91.3%)
-- **Remaining**: 2 low-priority improvements (docstrings)
-- **Files Created**: 7 new scripts + 3 documentation files
-- **Files Modified**: 13 existing files
+- **Remaining**: 2 low-priority improvements (#16 string formatting, #22 docstrings)
+- **Files Created**: 7 new scripts + 4 documentation files
+- **Files Modified**: 17 existing files
 - **Tests**: All PMDA compliance tests passing (13/13)
 
 ## Sprint Breakdown
@@ -381,6 +381,50 @@ Net: +2,098 lines
 - Comprehensive docstrings (incremental)
 - Additional integration tests (nice-to-have)
 - Performance benchmarking (future)
+
+## Additional Fixes (Cleanup Pass)
+
+After the initial audit completion, a comprehensive re-check identified 4 additional bugs that were not fully addressed:
+
+### Bug #6 (BUG_REPORT.md) - Non-existent lib/ Directory Documentation
+**Problem**: CLAUDE.md referenced a lib/ directory that doesn't exist
+**Solution**:
+- Removed lib/ references from code quality commands (black, flake8, mypy)
+- Removed lib/ from directory structure documentation
+- No actual code imports from lib/, so this was pure documentation cleanup
+
+### Bug #10 (BUG_REPORT.md) - SQL Type Coercion Issue
+**Problem**: workflow_id typed as str but passed as longValue to RDS, causing potential TypeError
+**Solution**:
+- Added proper int() conversion with try/except in alert_handler.py
+- Handles both string and int workflow_id values gracefully
+- Logs warning if invalid workflow_id, uses 0 as fallback
+
+### Bug #14 (BUG_REPORT.md) - Error Suppression in PERV Scripts
+**Problem**: MAFFT alignment errors silently suppressed with stderr=subprocess.DEVNULL
+**Solution**:
+- Changed to stderr=subprocess.PIPE in perv_phylogenetics.py
+- Added return code checking and error logging
+- Prevents silent alignment failures that could produce invalid phylogenetic trees
+
+### Bug #15 (BUG_REPORT.md) - Missing BAM File Error Handling
+**Problem**: No validation before opening BAM files with pysam, causing cryptic errors
+**Solution**:
+- Added file existence checks in perv_typing.py, detect_recombinants.py, pmda_targeted_search.py
+- Added try/except around pysam.AlignmentFile() calls
+- Provides clear error messages instead of cryptic pysam exceptions
+
+**Files Modified**:
+- CLAUDE.md (documentation)
+- lambda/monitoring/alert_handler.py (type safety)
+- scripts/phase4_pathogen/perv_phylogenetics.py (error logging)
+- scripts/phase4_pathogen/perv_typing.py (validation)
+- scripts/phase4_pathogen/detect_recombinants.py (validation)
+- scripts/phase4_pathogen/pmda_targeted_search.py (validation)
+
+**Commit**: `f189f17` - "fix: resolve remaining high-priority bugs"
+
+---
 
 ## Regulatory Compliance
 

@@ -338,7 +338,7 @@ def main():
     print(f"High-risk pathogens detected: {len(high_risk_detections)}")
 
     if critical_detections:
-        print("\n⚠️  CRITICAL PATHOGENS DETECTED:")
+        print("\n[WARNING] CRITICAL PATHOGENS DETECTED:")
         for det in critical_detections:
             print(f"  - {det['code']}: {det['name']} ({det['reads']} reads, "
                   f"{det['average_identity']:.2%} identity)")

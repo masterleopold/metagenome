@@ -266,7 +266,7 @@ echo "=========================================="
 # Check for significant viral findings
 if [[ $FILTERED_HITS -gt 100 ]]; then
     echo ""
-    echo "⚠️  WARNING: High number of viral hits detected ($FILTERED_HITS)"
+    echo "[WARNING] High number of viral hits detected ($FILTERED_HITS)"
     echo "Review $OUTPUT_DIR/blast_filtered.txt for details"
     echo ""
 fi

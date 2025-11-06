@@ -113,9 +113,9 @@ class PMDAReportGenerator:
         if 'qc' in self.results:
             qc_data = [
                 ['指標 / Metric', '値 / Value', '基準 / Threshold', '判定 / Pass'],
-                ['総リード数 / Total Reads', f"{self.results['qc']['metrics']['total_reads']:,}", '≥100,000', '✓' if self.results['qc']['metrics']['total_reads'] >= 100000 else '✗'],
-                ['平均品質スコア / Mean Q-score', f"{self.results['qc']['metrics']['mean_qscore']:.1f}", '≥9.0', '✓' if self.results['qc']['metrics']['mean_qscore'] >= 9 else '✗'],
-                ['N50', f"{self.results['qc']['metrics']['n50']:,}", '≥200', '✓' if self.results['qc']['metrics']['n50'] >= 200 else '✗'],
+                ['総リード数 / Total Reads', f"{self.results['qc']['metrics']['total_reads']:,}", '≥100,000', 'PASS' if self.results['qc']['metrics']['total_reads'] >= 100000 else 'FAIL'],
+                ['平均品質スコア / Mean Q-score', f"{self.results['qc']['metrics']['mean_qscore']:.1f}", '≥9.0', 'PASS' if self.results['qc']['metrics']['mean_qscore'] >= 9 else 'FAIL'],
+                ['N50', f"{self.results['qc']['metrics']['n50']:,}", '≥200', 'PASS' if self.results['qc']['metrics']['n50'] >= 200 else 'FAIL'],
             ]
 
             qc_table = Table(qc_data, colWidths=[2*inch, 1.5*inch, 1.5*inch, 0.5*inch])
@@ -168,7 +168,7 @@ class PMDAReportGenerator:
 
         # Critical alerts
         if self._has_critical_findings():
-            story.append(Paragraph('⚠️ 重要所見 / Critical Findings', styles['Heading3']))
+            story.append(Paragraph('[WARNING] 重要所見 / Critical Findings', styles['Heading3']))
             findings = self._get_critical_findings()
             for finding in findings:
                 story.append(Paragraph(f"• {finding}", styles['BodyText']))

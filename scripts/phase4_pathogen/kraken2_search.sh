@@ -218,7 +218,7 @@ if [[ -f "$OUTPUT_DIR/pmda_pathogens.json" ]]; then
 
     if [[ $CRITICAL_COUNT -gt 0 ]]; then
         echo ""
-        echo "⚠️  WARNING: $CRITICAL_COUNT critical PMDA pathogen(s) detected!"
+        echo "[WARNING] $CRITICAL_COUNT critical PMDA pathogen(s) detected!"
         echo "Review $OUTPUT_DIR/pmda_pathogens.json for details"
         echo ""
     fi

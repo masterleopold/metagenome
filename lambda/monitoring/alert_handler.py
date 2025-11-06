@@ -78,7 +78,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 def handle_perv_alert(run_id: str, workflow_id: str, details: Dict):
     """Handle PERV detection alert - highest priority."""
 
-    subject = f'🚨 CRITICAL: PERV Detection - Run {run_id}'
+    subject = f'[CRITICAL] PERV Detection - Run {run_id}'
 
     message = f"""
 CRITICAL ALERT: Porcine Endogenous Retrovirus (PERV) Detected
@@ -122,7 +122,7 @@ def handle_critical_pathogen(run_id: str, workflow_id: str, details: Dict):
     pathogen = details.get('pathogen_code', 'Unknown')
     pathogen_name = details.get('pathogen_name', pathogen)
 
-    subject = f'⚠️ Critical Pathogen Detected: {pathogen} - Run {run_id}'
+    subject = f'[WARNING] Critical Pathogen Detected: {pathogen} - Run {run_id}'
 
     message = f"""
 CRITICAL PATHOGEN DETECTION ALERT

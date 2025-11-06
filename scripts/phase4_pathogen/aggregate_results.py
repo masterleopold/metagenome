@@ -340,10 +340,10 @@ def main():
     print(f"Critical findings: {merged_results['summary']['critical_findings_count']}")
 
     if merged_results['summary'].get('perv_detected'):
-        print("\n🚨 CRITICAL: PERV DETECTED 🚨")
+        print("\n[CRITICAL] PERV DETECTED")
 
     if alerts:
-        print(f"\n⚠️  {len(alerts)} ALERT(S) GENERATED:")
+        print(f"\n[WARNING] {len(alerts)} ALERT(S) GENERATED:")
         for alert in alerts:
             print(f"  [{alert['priority']}] {alert['alert_type']}: {alert.get('message', alert.get('pathogen', ''))}")
 

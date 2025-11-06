@@ -12,8 +12,9 @@ import psycopg2
 import boto3
 
 # PMDA QC thresholds
+# Note: Aligned with default_pipeline.yaml quality_thresholds.min_reads
 QC_THRESHOLDS = {
-    'min_reads': 100000,
+    'min_reads': 10000,  # Changed from 100000 to match pipeline config
     'min_mean_qscore': 9.0,
     'min_median_qscore': 8.0,
     'min_n50': 200,

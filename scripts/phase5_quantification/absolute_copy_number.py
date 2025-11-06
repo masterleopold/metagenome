@@ -6,6 +6,7 @@ Calculate absolute copy numbers (copies/mL) for detected pathogens
 import argparse
 import json
 from pathlib import Path
+import numpy as np
 
 # Average genome sizes for calculation (bp)
 GENOME_SIZES = {
@@ -103,10 +104,6 @@ def main():
     parser.add_argument('--run-id', required=True)
 
     args = parser.parse_args()
-
-    # Add numpy import
-    global np
-    import numpy as np
 
     results = process_quantification(
         args.kraken, args.normalized, args.plasma_volume

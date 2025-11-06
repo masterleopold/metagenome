@@ -351,10 +351,11 @@ def main():
     print("="*70)
 
     # Exit code based on findings
+    # 0 = Success, 1 = Error, 2 = Warning/Critical finding
     if merged_results['summary'].get('perv_detected'):
-        sys.exit(2)  # PERV detected
+        sys.exit(2)  # PERV detected (highest priority)
     elif merged_results['summary']['critical_findings_count'] > 0:
-        sys.exit(1)  # Critical pathogen detected
+        sys.exit(2)  # Critical pathogen detected
     else:
         sys.exit(0)  # Success
 

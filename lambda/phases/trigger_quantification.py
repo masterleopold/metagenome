@@ -6,6 +6,8 @@ Trigger quantification phase on EC2
 import json
 import boto3
 import os
+import re
+import shlex
 from typing import Dict, Any
 
 ec2 = boto3.client('ec2')
@@ -15,6 +17,29 @@ ANALYSIS_AMI = os.environ['ANALYSIS_AMI_ID']
 INSTANCE_TYPE = os.environ.get('QUANT_INSTANCE_TYPE', 'm5.2xlarge')
 SUBNET_ID = os.environ['SUBNET_ID']
 SECURITY_GROUP = os.environ['SECURITY_GROUP_ID']
+
+
+import re
+import shlex
+
+def validate_run_id(run_id: str) -> str:
+    pattern = r'^[A-Z0-9][A-Z0-9_-]{0,63}$'
+    if not re.match(pattern, run_id):
+        raise ValueError(f"Invalid run_id format: {run_id}")
+    return run_id
+
+def validate_s3_path_component(component: str, name: str = "path") -> str:
+    pattern = r'^[a-zA-Z0-9/_.-]+$'
+    if not re.match(pattern, component) or '..' in component:
+        raise ValueError(f"Invalid {name}: {component}")
+    return component
+
+def validate_bucket_name(bucket: str) -> str:
+    pattern = r'^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$'
+    if not re.match(pattern, bucket):
+        raise ValueError(f"Invalid bucket: {bucket}")
+    return bucket
+
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -64,9 +89,9 @@ def launch_quant_instance(run_id: str, bucket: str,
     """Launch EC2 instance for quantification."""
 
     user_data = f"""#!/bin/bash
-export RUN_ID='{run_id}'
-export S3_INPUT='s3://{bucket}/{input_prefix}'
-export S3_OUTPUT='s3://{bucket}/{output_prefix}'
+export RUN_ID={shlex.quote(run_id)}
+export S3_INPUT={shlex.quote(f's3://{bucket}/{input_prefix}')}
+export S3_OUTPUT={shlex.quote(f's3://{bucket}/{output_prefix}')}
 
 echo "Quantification instance started for run $RUN_ID" | logger
 
@@ -116,7 +141,7 @@ def execute_quantification(instance_id: str, run_id: str, bucket: str,
 #!/bin/bash
 set -euo pipefail
 
-export RUN_ID='{run_id}'
+export RUN_ID={shlex.quote(run_id)}
 WORK_DIR="/mnt/analysis/$RUN_ID/quantification"
 mkdir -p "$WORK_DIR"
 cd "$WORK_DIR"

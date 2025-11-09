@@ -28,9 +28,10 @@ def run_phylogenetic_analysis(consensus_file: Path, reference_file: Path) -> dic
 
     # Run MAFFT alignment
     aligned_file = consensus_file.parent / "aligned.fasta"
-    result = subprocess.run([
-        "mafft", "--auto", str(combined_file)
-    ], stdout=open(aligned_file, 'w'), stderr=subprocess.PIPE, text=True)
+    with open(aligned_file, 'w') as align_out:
+        result = subprocess.run([
+            "mafft", "--auto", str(combined_file)
+        ], stdout=align_out, stderr=subprocess.PIPE, text=True)
 
     if result.returncode != 0:
         print(f"WARNING: MAFFT alignment failed with return code {result.returncode}")

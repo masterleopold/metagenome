@@ -28,12 +28,16 @@ mkdir -p "$OUTPUT"
 
 echo "Starting quantification analysis..."
 
-# Quantify from Kraken2 results
+# Quantify from Kraken2 results (all 91 PMDA pathogens)
 if [ -f "$INPUT_DIR/kraken2/kraken2_report.txt" ]; then
+    # Config file location (AMI or repo)
+    CONFIG_FILE="${PMDA_CONFIG:-/opt/minion/templates/config/pmda_pathogens.json}"
+
     python3 "$SCRIPT_DIR/kraken_quantify.py" \
         --report "$INPUT_DIR/kraken2/kraken2_report.txt" \
         --output "$OUTPUT/kraken_quantification.json" \
-        --run-id "$RUN_ID"
+        --run-id "$RUN_ID" \
+        --config "$CONFIG_FILE"
 fi
 
 # Quantify from BLAST results

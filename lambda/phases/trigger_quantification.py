@@ -150,12 +150,13 @@ cd "$WORK_DIR"
 aws s3 sync "s3://{bucket}/{input_prefix}" pathogen/ \\
     --exclude "*" --include "*.json" --include "*.txt"
 
-# Kraken quantification
+# Kraken quantification (all 91 PMDA pathogens)
 if [ -f pathogen/kraken2/report.txt ]; then
     /opt/minion/scripts/phase5_quantification/kraken_quantify.py \\
         --report pathogen/kraken2/report.txt \\
         --output kraken_quantification.json \\
-        --run-id "$RUN_ID"
+        --run-id "$RUN_ID" \\
+        --config /opt/minion/templates/config/pmda_pathogens.json
 fi
 
 # BLAST quantification

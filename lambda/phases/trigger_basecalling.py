@@ -6,6 +6,8 @@ Trigger basecalling phase on EC2
 import json
 import boto3
 import os
+import re
+import shlex
 from typing import Dict, Any
 
 ec2 = boto3.client('ec2')
@@ -17,6 +19,39 @@ BASECALLING_AMI = os.environ['BASECALLING_AMI_ID']
 INSTANCE_TYPE = os.environ.get('BASECALLING_INSTANCE_TYPE', 'g4dn.xlarge')
 SUBNET_ID = os.environ['SUBNET_ID']
 SECURITY_GROUP = os.environ['SECURITY_GROUP_ID']
+
+
+def validate_run_id(run_id: str) -> str:
+    """Validate run_id format to prevent command injection.
+
+    Accepts formats like: RUN-2024-001, RUN-20241109-ABC123
+    """
+    pattern = r'^[A-Z0-9][A-Z0-9_-]{0,63}$'
+    if not re.match(pattern, run_id):
+        raise ValueError(f"Invalid run_id format: {run_id}. Must be alphanumeric with dashes/underscores, max 64 chars.")
+    return run_id
+
+
+def validate_s3_path_component(component: str, name: str = "path") -> str:
+    """Validate S3 path component to prevent command injection.
+
+    Allows: alphanumeric, dash, underscore, forward slash, period
+    """
+    pattern = r'^[a-zA-Z0-9/_.-]+$'
+    if not re.match(pattern, component):
+        raise ValueError(f"Invalid {name} format: {component}. Must contain only alphanumeric, dash, underscore, slash, period.")
+    if '..' in component:
+        raise ValueError(f"Path traversal detected in {name}: {component}")
+    return component
+
+
+def validate_bucket_name(bucket: str) -> str:
+    """Validate S3 bucket name format to prevent command injection."""
+    pattern = r'^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$'
+    if not re.match(pattern, bucket):
+        raise ValueError(f"Invalid bucket name format: {bucket}")
+    return bucket
+
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """Lambda handler for Phase 1: FAST5/POD5 basecalling to FASTQ.
@@ -47,14 +82,16 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     Raises:
         KeyError: If required event parameters missing
+        ValueError: If input validation fails
         botocore.exceptions.ClientError: If EC2 or SSM operations fail
     """
 
-    run_id = event['run_id']
+    # Validate all inputs to prevent command injection
+    run_id = validate_run_id(event['run_id'])
     workflow_id = event['workflow_id']
-    bucket = event['bucket']
-    input_prefix = event['input_prefix']
-    output_prefix = event['output_prefix']
+    bucket = validate_bucket_name(event['bucket'])
+    input_prefix = validate_s3_path_component(event['input_prefix'], 'input_prefix')
+    output_prefix = validate_s3_path_component(event['output_prefix'], 'output_prefix')
     skip_duplex = event.get('config', {}).get('skip_duplex', False)
 
     # Launch EC2 instance
@@ -119,12 +156,13 @@ def launch_basecalling_instance(run_id: str, bucket: str, input_prefix: str,
         Uses g4dn.xlarge GPU instances for Dorado basecalling.
     """
 
+    # Use shlex.quote() to prevent command injection in bash scripts
     user_data = f"""#!/bin/bash
 # Set environment
-export RUN_ID='{run_id}'
-export S3_INPUT='s3://{bucket}/{input_prefix}'
-export S3_OUTPUT='s3://{bucket}/{output_prefix}'
-export SKIP_DUPLEX='{str(skip_duplex).lower()}'
+export RUN_ID={shlex.quote(run_id)}
+export S3_INPUT={shlex.quote(f's3://{bucket}/{input_prefix}')}
+export S3_OUTPUT={shlex.quote(f's3://{bucket}/{output_prefix}')}
+export SKIP_DUPLEX={shlex.quote(str(skip_duplex).lower())}
 
 # Log startup
 echo "Basecalling instance started for run $RUN_ID" | logger
@@ -224,15 +262,16 @@ def execute_basecalling_command(instance_id: str, run_id: str, bucket: str,
                                skip_duplex: bool) -> Dict:
     """Execute basecalling script on EC2 instance."""
 
+    # Use shlex.quote() to prevent command injection
     command = f"""
 #!/bin/bash
 set -euo pipefail
 
 # Set variables
-export RUN_ID='{run_id}'
-export S3_INPUT='s3://{bucket}/{input_prefix}'
-export S3_OUTPUT='s3://{bucket}/{output_prefix}'
-export SKIP_DUPLEX='{str(skip_duplex).lower()}'
+export RUN_ID={shlex.quote(run_id)}
+export S3_INPUT={shlex.quote(f's3://{bucket}/{input_prefix}')}
+export S3_OUTPUT={shlex.quote(f's3://{bucket}/{output_prefix}')}
+export SKIP_DUPLEX={shlex.quote(str(skip_duplex).lower())}
 
 # Create working directory
 mkdir -p /mnt/analysis/$RUN_ID

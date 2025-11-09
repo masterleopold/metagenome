@@ -132,7 +132,7 @@ def update_workflow_status(workflow_id: str, status: str, execution_arn: str):
         database=DATABASE,
         sql=sql,
         parameters=[
-            {'name': 'workflow_id', 'value': {'longValue': workflow_id}},
+            {'name': 'workflow_id', 'value': {'longValue': int(workflow_id)}},
             {'name': 'status', 'value': {'stringValue': status}},
             {'name': 'execution_arn', 'value': {'stringValue': execution_arn}},
             {'name': 'updated_at', 'value': {'stringValue': datetime.now().isoformat()}}

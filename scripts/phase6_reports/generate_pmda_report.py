@@ -268,7 +268,7 @@ class PMDAReportGenerator:
 
         for pathogen_code, info in self.PMDA_PATHOGENS.items():
             if info['risk'] in ['Critical', 'High'] and self._check_pathogen_detected(pathogen_code):
-                findings.append(f"{info['name_ja']} ({pathogen_code}) が検出されました。')
+                findings.append(f"{info['name_ja']} ({pathogen_code}) が検出されました。")
 
         return findings
 

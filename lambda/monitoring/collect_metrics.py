@@ -263,7 +263,7 @@ def store_metrics(workflow_id: str, phase: str, metrics: Dict):
         database=DATABASE,
         sql=sql,
         parameters=[
-            {'name': 'workflow_id', 'value': {'longValue': workflow_id}},
+            {'name': 'workflow_id', 'value': {'longValue': int(workflow_id)}},
             {'name': 'phase_name', 'value': {'stringValue': phase}},
             {'name': 'metrics', 'value': {'stringValue': json.dumps(metrics, default=str)}}
         ]

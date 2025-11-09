@@ -38,7 +38,8 @@ def parse_blast_results(blast_file: Path) -> dict:
     }
 
     for pathogen, count in pathogen_hits.items():
-        avg_score = sum(pathogen_scores[pathogen]) / len(pathogen_scores[pathogen])
+        scores = pathogen_scores[pathogen]
+        avg_score = sum(scores) / len(scores) if len(scores) > 0 else 0.0
         results['pathogens'][pathogen] = {
             'hit_count': count,
             'avg_bitscore': round(avg_score, 2)

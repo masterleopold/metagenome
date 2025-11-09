@@ -134,7 +134,7 @@ def update_phase_status(workflow_id: str, phase: str, status: str):
         database=DATABASE,
         sql=sql,
         parameters=[
-            {'name': 'workflow_id', 'value': {'longValue': workflow_id}},
+            {'name': 'workflow_id', 'value': {'longValue': int(workflow_id)}},
             {'name': 'phase_name', 'value': {'stringValue': phase}},
             {'name': 'status', 'value': {'stringValue': status}}
         ]
@@ -155,7 +155,7 @@ def log_phase_error(workflow_id: str, phase: str, error: Dict):
         database=DATABASE,
         sql=sql,
         parameters=[
-            {'name': 'workflow_id', 'value': {'longValue': workflow_id}},
+            {'name': 'workflow_id', 'value': {'longValue': int(workflow_id)}},
             {'name': 'phase_name', 'value': {'stringValue': phase}},
             {'name': 'error_message', 'value': {'stringValue': error.get('message', 'Unknown error')}},
             {'name': 'error_details', 'value': {'stringValue': json.dumps(error)}}

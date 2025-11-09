@@ -95,12 +95,18 @@ def parse_kraken_report(report_file: Path, config_file: Path) -> dict:
             matched_code = name_to_code[taxon_name]
             matched_name = code_to_info[matched_code]['name']
         else:
-            # Fuzzy match - check if any PMDA pathogen name is contained in taxon
+            # Fuzzy match - find ALL matches and prefer the longest (most specific)
+            potential_matches = []
             for pmda_name, code in name_to_code.items():
                 if pmda_name in taxon_name or taxon_name in pmda_name:
-                    matched_code = code
-                    matched_name = code_to_info[code]['name']
-                    break
+                    potential_matches.append((pmda_name, code))
+
+            # Prefer longer match (species > genus)
+            if potential_matches:
+                # Sort by length descending (longest first = most specific)
+                best_match = max(potential_matches, key=lambda x: len(x[0]))
+                matched_code = best_match[1]
+                matched_name = code_to_info[matched_code]['name']
 
         if matched_code:
             reads = int(row['reads_clade'])

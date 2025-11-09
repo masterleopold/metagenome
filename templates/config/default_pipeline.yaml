@@ -70,12 +70,20 @@ pmda:
   guideline_version: "2024"
   pathogen_count: 91
   critical_pathogens:
+    # Critical viruses (8)
     - PERV-A
     - PERV-B
     - PERV-C
     - ASFV
     - CSFV
     - FMDV
+    - NHEV  # Nipah henipavirus
+    - RABV  # Rabies virus
+    # Critical bacteria (2)
+    - MT    # Mycobacterium tuberculosis
+    - BA    # Bacillus anthracis
+    # Critical prions (1)
+    - PRION # Transmissible spongiform encephalopathy agents
   immediate_alert_pathogens:
     - PERV-A
     - PERV-B

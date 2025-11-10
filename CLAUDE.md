@@ -151,6 +151,16 @@ pipeline:
 
 ## Recently Updated
 
+- 2025-11-10: **MinION Pipeline Technical Investigation Report** - Comprehensive technical analysis of the 91-pathogen screening system
+  - Created `docs/minion-pipeline-technical-report.md` - 80+ page technical documentation covering:
+    - Sample preprocessing strategy (PCR-free, universal approach, shotgun metagenomics)
+    - 6-phase pipeline architecture with AWS Lambda + EC2 implementation details
+    - Variant detection capabilities (currently disabled, implementation roadmap provided)
+    - Data retention and reanalysis feasibility (5-year S3 lifecycle, FAST5/FASTQ/BAM reprocessing)
+    - Plasma volume requirements (5-10 mL standard, LOD 50-100 copies/mL)
+  - Detailed investigation of capture probe usage (none - uses CpG methylation-based host depletion instead)
+  - PERV-specific detection with immediate SNS alerting (subtypes A/B/C, recombinant detection)
+  - Cost-benefit analysis for variant calling Phase 7 implementation (+$50-100/sample)
 - 2025-11-10: **Documentation Structure Reorganization** - Organized root markdown files into structured directories
   - Created `docs/audits/` with 10 audit reports (9 audits + summary, 37 bugs fixed)
   - Created `docs/bug-fixes/` with detailed bug fix documentation

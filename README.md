@@ -334,6 +334,18 @@ aws logs tail /aws/lambda/minion-pipeline-production --follow
 aws ssm start-session --target INSTANCE_ID
 ```
 
+## Documentation
+
+Comprehensive documentation is available in the `/docs` directory:
+
+- **[Audit Reports](docs/audits/README.md)** - Code quality audits (9 audits, 37 bugs fixed, zero-bug certification)
+- **[Bug Fixes](docs/bug-fixes/README.md)** - Detailed bug fix documentation and analysis
+- **[Sprint Reports](docs/sprints/README.md)** - Development sprint tracking and metrics
+- **[Development Guide](docs/development/)** - Development workflow, coding standards, and best practices
+- **[API Documentation](docs/API_DOCUMENTATION.md)** - REST endpoints and authentication
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - AWS infrastructure setup instructions
+- **[Session History](docs/claude-sessions/README.md)** - Development session logs
+
 ## Support
 
 - **Documentation**: See `/docs` directory

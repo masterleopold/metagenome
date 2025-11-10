@@ -78,6 +78,7 @@ tools/            # CLI tools and utilities
 tests/            # Test suite
 infrastructure/   # Terraform IaC
 md/               # Japanese strategic documents
+docs/             # Documentation (audits, bug fixes, sprints, sessions)
 docs-portal/      # Next.js documentation site
 ```
 
@@ -113,6 +114,11 @@ pipeline:
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - AWS infrastructure setup
 - [Session History](docs/claude-sessions/README.md) - Development session logs
 
+### Quality Assurance Documentation
+- [Audit Reports](docs/audits/README.md) - 9 comprehensive audits, 37 bugs fixed, zero-bug certification
+- [Bug Fixes](docs/bug-fixes/README.md) - Detailed bug fix documentation and analysis
+- [Sprint Reports](docs/sprints/README.md) - Development sprint tracking and metrics
+
 ### Strategic Documents (Japanese)
 - `異種移植用ドナーブタの病原体検査体制構築計画書.md` - Master construction plan
 - `専門家向け詳細報告書：異種移植用ドナーブタにおける病原体メタゲノム解析体制の構築.md` - Expert report
@@ -145,18 +151,22 @@ pipeline:
 
 ## Recently Updated
 
+- 2025-11-10: **Documentation Structure Reorganization** - Organized root markdown files into structured directories
+  - Created `docs/audits/` with 10 audit reports (9 audits + summary, 37 bugs fixed)
+  - Created `docs/bug-fixes/` with detailed bug fix documentation
+  - Created `docs/sprints/` with sprint completion reports
+  - Added comprehensive README.md to each directory with timelines and summaries
+  - Improved documentation discoverability and maintainability
 - 2025-10-09: **NGS vs Traditional Methods Cost Analysis** - Created comprehensive cost-benefit analysis document
   - `NGS全量解析vs従来法ハイブリッド戦略_コスト・手間分析.md` - Compares 3 strategies for PMDA 91-pathogen screening
   - Pattern A (NGS all 91): ¥162,574/sample, 20h hands-on, 3-5 days turnaround
   - Pattern B (Hybrid NGS+Traditional): ¥449,574/sample, 72h hands-on, 7-10 days (2.8× cost increase)
   - Pattern C (Traditional only): ¥315,000/sample, regulatory non-compliant
-  - Analysis covers wet lab, sequencing, bioinformatics, labor costs, and PMDA compliance
   - NGS-only approach demonstrates superior cost efficiency, faster turnaround, and full regulatory compliance
 - 2025-10-08: **MinION Protocol Appendices Complete** - Added 3 missing appendices to lab protocols
   - Appendix A: Reagents & Equipment List (¥21.5M initial investment)
   - Appendix B: Time & Cost Estimates (¥127k/sample, 4-year ROI)
   - Appendix C: Troubleshooting Guide (25 common issues)
-- 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker) [`0a7eb04`](https://github.com/masterleopold/metagenome/commit/0a7eb049d1006595253573076bb01dd2d0979885)
-- 2025-10-08: **CLAUDE.md optimized** - Reduced from 47KB to 5.3KB (88.5% reduction)
+- 2025-10-08: **Architecture Documentation Update** - Updated all core documentation to reflect Lambda + EC2 custom AMI architecture (containerless, no Docker)
 
 For complete historical changes, see [Session History](docs/claude-sessions/README.md).

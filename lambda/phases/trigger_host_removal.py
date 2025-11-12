@@ -52,6 +52,10 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     input_path = event['input_path']
     reference = event.get('config', {}).get('reference', 'sus_scrofa_11.1')
 
+    # PMDA 4-virus support: check if RNA workflow needed
+    target_viruses = event.get('config', {}).get('target_viruses', [])
+    sample_type = event.get('config', {}).get('sample_type', 'dna')  # 'dna', 'rna', or 'dual'
+
     # Parse S3 path
     parts = input_path.replace('s3://', '').split('/', 1)
     bucket = parts[0]
@@ -68,9 +72,10 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     waiter = ec2.get_waiter('instance_running')
     waiter.wait(InstanceIds=[instance_id])
 
-    # Execute host removal
+    # Execute host removal (supports DNA, RNA, or DUAL workflows)
     response = execute_host_removal(
-        instance_id, run_id, bucket, prefix, output_prefix, reference
+        instance_id, run_id, bucket, prefix, output_prefix, reference,
+        sample_type, target_viruses
     )
 
     return {
@@ -138,8 +143,12 @@ echo "sudo shutdown -h +360" | at now + 6 hours
 
 def execute_host_removal(instance_id: str, run_id: str, bucket: str,
                         input_prefix: str, output_prefix: str,
-                        reference: str) -> Dict:
-    """Execute host removal on EC2 instance."""
+                        reference: str, sample_type: str = 'dna',
+                        target_viruses: list = None) -> Dict:
+    """Execute host removal on EC2 instance with DNA/RNA workflow support."""
+
+    target_viruses = target_viruses or []
+    target_viruses_str = ' '.join(target_viruses) if target_viruses else ''
 
     command = f"""
 #!/bin/bash
@@ -153,14 +162,20 @@ cd "$WORK_DIR"
 # Download FASTQ files
 aws s3 sync "s3://{bucket}/{input_prefix}" input/ --exclude "*" --include "*.fastq*"
 
-# Run minimap2 alignment
-/opt/minion/scripts/phase3_host_removal/remove_host.sh \\
-    -i input/ \\
+# Determine input FASTQ
+INPUT_FASTQ=$(find input/ -name "*.fastq*" | head -1)
+
+# Use host removal orchestrator (supports DNA, RNA, DUAL workflows)
+python3 /opt/minion/scripts/phase3_host_removal/host_removal_orchestrator.py \\
+    -i "$INPUT_FASTQ" \\
     -o filtered/ \\
-    -r /mnt/efs/references/{reference}/{reference}.fasta \\
+    -r "$RUN_ID" \\
+    --sample-type {sample_type} \\
+    --host-genome /mnt/efs/host_genome/{reference}.fa \\
+    --rrna-db /mnt/efs/databases/host/pig_rrna/minimap2/pig_rrna.mmi \\
     -t 16
 
-# Calculate depletion metrics
+# Calculate depletion metrics (combined DNA+RNA if dual)
 /opt/minion/scripts/phase3_host_removal/calculate_depletion.py \\
     --before input/ \\
     --after filtered/ \\
@@ -170,6 +185,11 @@ aws s3 sync "s3://{bucket}/{input_prefix}" input/ --exclude "*" --include "*.fas
 # Upload results
 aws s3 sync filtered/ "s3://{bucket}/{output_prefix}/" --exclude "*.sam" --exclude "*.bam"
 aws s3 cp depletion_stats.json "s3://{bucket}/{output_prefix}/"
+
+# Upload orchestrator results if available
+if [ -f filtered/host_removal_orchestrator_results.json ]; then
+    aws s3 cp filtered/host_removal_orchestrator_results.json "s3://{bucket}/{output_prefix}/"
+fi
 
 # Clean up
 rm -rf "$WORK_DIR"

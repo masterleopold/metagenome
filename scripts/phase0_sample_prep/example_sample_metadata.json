@@ -1,0 +1,26 @@
+{
+  "sample_id": "PIG-2024-001",
+  "run_id": "RUN-2024-001",
+  "pig_id": "YUCATAN-MPP-1234",
+  "collection_date": "2024-11-12T09:30:00Z",
+  "blood_volume_ml": 10,
+  "tube_type": "EDTA",
+  "rnase_inhibitor_added": true,
+  "rnase_inhibitor_type": "SUPERase•In",
+  "rnase_inhibitor_concentration_u_ml": 20,
+  "processing_time_hours": 2.5,
+  "plasma_volume_ml": 4.5,
+  "pbmc_count": 3500000,
+  "pbmc_viability_percent": 95,
+  "extraction_kit": "Zymo Quick-cfDNA/RNA Serum & Plasma Kit",
+  "target_pathogens": [
+    "polyomavirus",
+    "hantavirus",
+    "eeev",
+    "spumavirus"
+  ],
+  "pmda_screening": true,
+  "clinical_indication": "Pre-xenotransplantation donor screening",
+  "operator": "Lab Technician A",
+  "notes": "Standard 4-virus panel for PMDA compliance"
+}

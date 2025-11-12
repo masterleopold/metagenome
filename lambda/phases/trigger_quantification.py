@@ -184,6 +184,15 @@ fi
     --output absolute_quantification.json \\
     --run-id "$RUN_ID"
 
+# PMDA 4-virus quantification (if detected)
+if [ -f pathogen/pmda_4virus/detection_results.json ]; then
+    /opt/minion/scripts/phase5_quantification/pmda_4virus_quantification.py \\
+        -i pathogen/pmda_4virus/detection_results.json \\
+        -o pmda_4virus_quantification.json \\
+        -r "$RUN_ID" \\
+        --plasma-volume {plasma_volume}
+fi
+
 # Generate quantification report
 cat > quantification_summary.json << EOF
 {{
@@ -195,7 +204,8 @@ cat > quantification_summary.json << EOF
         "kraken": "kraken_quantification.json",
         "blast": "blast_quantification.json",
         "normalized": "normalized_quantification.json",
-        "absolute": "absolute_quantification.json"
+        "absolute": "absolute_quantification.json",
+        "pmda_4virus": "pmda_4virus_quantification.json"
     }}
 }}
 EOF

@@ -45,6 +45,29 @@ cd docs-portal && npm run build  # Production build
 - Requirements: PPA >95%, NPA >98%, R² >0.90
 - Database: `/mnt/efs/databases/pmda/2024.1/`
 
+### Sample Preparation Protocols (2025-11 Update)
+**Recommended: Protocol 12 - Unified Workflow (covers all 91 pathogens)**
+- **Workflows**: 2 universal (DNA + RNA) - replaces 3-4 complex variants
+- **Time**: 13 hours hands-on (19% reduction)
+- **Cost**: ¥157,000/sample (+¥5,000 over baseline)
+- **Coverage**: 100% (91/91 pathogens)
+- **LOD**: 100-500 copies/mL (screening-sufficient)
+- **Key features**: Universal poly(A) selection, CpG methylation-based host depletion
+- **Protocol**: `md/MinION_Protocol_12_統合サンプル調製プロトコル.md`
+
+**Optional: Protocol 11 - High-Sensitivity Enhancement**
+- Use ONLY when LOD <50 copies/mL required for specific viruses
+- Target: Polyomavirus, Hantavirus, EEEV, Spumavirus
+- **Protocol**: `md/MinION_Protocol_11_PMDA_4ウイルス高感度検出プロトコル.md`
+
+**Conditional: Protocol 13 - Spumavirus-Specific Screening**
+- Triggered only when Phase 1 detects retrovirus pol signatures (5-10% of samples)
+- **Detection probability**: <0.1% (0 detections in 70 years)
+- **Rationale**: PMDA precautionary testing despite zero historical detections
+- **Method**: Nested PCR + phylogenetic analysis + PERV discrimination
+- **Protocol**: `md/MinION_Protocol_13_スピューマウイルス専用検査プロトコル.md`
+- **Context**: Section "科学的背景補足: ブタスピューマウイルスの実在性について" explains scientific background
+
 ## Architecture Overview
 
 ### Pipeline Orchestration Pattern
@@ -55,17 +78,23 @@ cd docs-portal && npm run build  # Production build
 4. EC2 instances use UserData scripts and auto-terminate
 5. Phase completion triggers next Lambda → EC2 cycle
 
-### Phase Structure (6-Phase Pipeline)
+### Phase Structure (7-Phase Pipeline - Phase 0 NEW)
 ```
 scripts/
+├── phase0_sample_prep/     # NEW: Sample routing & workflow determination
+│   ├── sample_router.py    # Determines DNA vs RNA extraction workflow
+│   └── README.md           # Phase 0 usage documentation
 ├── phase1_basecalling/     # FAST5→FASTQ (GPU: g4dn.xlarge, Dorado)
 ├── phase2_qc/              # Quality metrics (t3.large, NanoPlot/PycoQC)
-├── phase3_host_removal/    # Sus scrofa depletion (r5.4xlarge, Minimap2)
+│                           # RNA integrity (RIN) for RNA viruses
+├── phase3_host_removal/    # Host depletion (r5.4xlarge, Minimap2)
+│                           # CpG methylation (DNA), rRNA depletion (RNA), poly(A) selection
 ├── phase4_pathogen/        # Multi-DB screening (4 parallel EC2, Kraken2/BLAST)
 │   ├── perv_typing.py      # PERV-A/B/C subtype detection
 │   ├── detect_recombinants.py
 │   ├── perv_phylogenetics.py
-│   └── pmda_targeted_search.py
+│   ├── pmda_targeted_search.py
+│   └── detect_pmda_4viruses.py  # NEW: Polyoma/Hantavirus/EEEV/Spumavirus
 ├── phase5_quantification/  # Abundance calc (t3.large, copies/mL)
 └── phase6_reports/         # PMDA-compliant reports (t3.large)
 ```
@@ -185,8 +214,32 @@ S3 Upload (FAST5) → Lambda Orchestrator → Step Functions → EC2 Phase Execu
 
 ## Documentation
 
+### Technical Documentation
 - [Technical Details](docs/TECHNICAL_DETAILS.md) - Full architecture, phases, databases
+- [MinION Pipeline Technical Report](docs/minion-pipeline-technical-report.md) - Comprehensive 80+ page technical investigation
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and AWS debugging
 - [Changelog](docs/CHANGELOG.md) - Recent updates
 - [Development Workflow](docs/development/WORKFLOW_GUIDE.md) - Complete setup guide
 - [API Documentation](docs/API_DOCUMENTATION.md) - REST API endpoints
+
+### PMDA Compliance Documentation
+- [PMDA Simplified Sample Prep Strategy](docs/PMDA_Simplified_Sample_Prep_Strategy.md) - Protocol 12 technical justification
+- [PMDA Simplified Workflow Flowchart](docs/PMDA_Simplified_Workflow_Flowchart.md) - Visual workflows and decision trees
+- [Session History](docs/claude-sessions/README.md) - Development session logs and decisions
+
+## Recent Updates (2025-11-13)
+
+### Protocol 13: Spumavirus Scientific Background Addition
+- **Added comprehensive supplementary section** to Protocol 13 explaining the scientific reality that porcine spumavirus has never been detected
+- **Key facts**: 0 detections in 70 years (1954-2025), 0 NCBI sequences, 0 peer-reviewed publications
+- **PMDA inclusion rationale**: Precautionary principle based on phylogenetic proximity to foamy virus-positive species
+- **Detection probability**: <0.1% (most Phase 1 triggers are PERV false positives)
+- **Guidance for technicians**: Realistic expectations, PERV discrimination protocols, value of negative data
+- **Impact scenarios**: What would happen if truly detected (Nature/Science-level discovery, immediate PMDA report)
+- **Documentation**: Session log at `docs/claude-sessions/2025-11-13-protocol-13-spumavirus-scientific-background.md`
+
+### Documentation Portal Updates
+- **Fixed pathogen category counts**: Viruses (41), Bacteria (27), Parasites (19), Fungi (2), Special Management (5)
+- **Added Protocol 12 section**: Unified workflow details, time/cost metrics, key features
+- **Added Conditional Screening Strategy section**: Two-tier detection approach, universal vs conditional testing
+- **Build verified**: Documentation portal builds successfully with no TypeScript errors

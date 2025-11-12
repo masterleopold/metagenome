@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 
 const pathogenCategories = [
-  { name: "Viruses", count: 50, detected: 5, color: "text-destructive dark:text-red-400", bgColor: "bg-red-50 dark:bg-destructive/10" },
-  { name: "Bacteria", count: 35, detected: 2, color: "text-primary", bgColor: "bg-primary/10" },
-  { name: "Parasites", count: 5, detected: 0, color: "text-primary", bgColor: "bg-primary/10" },
-  { name: "Fungi", count: 5, detected: 0, color: "text-secondary", bgColor: "bg-secondary/10" },
-  { name: "Prions", count: 1, detected: 0, color: "text-secondary", bgColor: "bg-secondary/10" },
+  { name: "Viruses", count: 41, detected: 5, color: "text-destructive dark:text-red-400", bgColor: "bg-red-50 dark:bg-destructive/10" },
+  { name: "Bacteria", count: 27, detected: 2, color: "text-primary", bgColor: "bg-primary/10" },
+  { name: "Parasites", count: 19, detected: 0, color: "text-primary", bgColor: "bg-primary/10" },
+  { name: "Fungi", count: 2, detected: 0, color: "text-secondary", bgColor: "bg-secondary/10" },
+  { name: "Special Mgmt", count: 5, detected: 0, color: "text-purple-600 dark:text-purple-400", bgColor: "bg-purple-50 dark:bg-purple-900/10" },
 ];
 
 const criticalPathogens = [
@@ -128,6 +128,130 @@ export default function PMDACompliancePage() {
                   </CardContent>
                 </Card>
               </div>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-semibold mb-6">Sample Preparation Protocol</h2>
+
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Protocol 12: Unified Workflow (Recommended)</CardTitle>
+                  <CardDescription>Simplified sample preparation covering all 91 pathogens</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Alert>
+                    <ShieldCheckIcon className="h-4 w-4" />
+                    <AlertTitle>Latest Protocol Update (2025-11)</AlertTitle>
+                    <AlertDescription>
+                      Protocol 12 replaces 3-4 complex workflows with 2 universal workflows (DNA + RNA), achieving 100% pathogen coverage with 19% time reduction and only ¥5,000 additional cost.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-muted p-4 rounded-lg">
+                      <h4 className="font-semibold mb-2">Workflow Simplification</h4>
+                      <div className="text-sm space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Workflows:</span>
+                          <span className="font-medium">2 (DNA + RNA)</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Hands-on time:</span>
+                          <span className="font-medium">13 hours</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Cost/sample:</span>
+                          <span className="font-medium">¥157,000</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Coverage:</span>
+                          <span className="font-medium">91/91 (100%)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-muted p-4 rounded-lg">
+                      <h4 className="font-semibold mb-2">Key Features</h4>
+                      <ul className="text-sm space-y-1">
+                        <li className="flex items-start gap-2">
+                          <CheckCircleIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <span>Universal poly(A) selection for all RNA viruses</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircleIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <span>CpG methylation-based host depletion</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircleIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <span>LOD: 100-500 copies/mL (screening-sufficient)</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-semibold mb-6">Conditional Screening Strategy</h2>
+
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Two-Tier Detection Approach</CardTitle>
+                  <CardDescription>Universal screening + conditional follow-up for low-probability pathogens</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    While most PMDA pathogens are screened universally (100% of samples), certain low-probability pathogens trigger conditional follow-up testing only when initial metagenomic screening detects relevant signatures.
+                  </p>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-primary/5 dark:bg-primary/10 p-4 rounded-lg border border-primary/20">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <CheckCircleIcon className="h-5 w-5 text-primary" />
+                        Universal Screening (90 pathogens)
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        All samples undergo metagenomic analysis via Protocol 12
+                      </p>
+                      <ul className="text-sm space-y-1">
+                        <li>• PERV (A/B/C subtypes)</li>
+                        <li>• All 41 DNA/RNA viruses</li>
+                        <li>• All 27 bacterial pathogens</li>
+                        <li>• All 19 parasites</li>
+                        <li>• All 2 fungi</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <h4 className="font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangleIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        Conditional Testing (1 pathogen)
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Triggered only when metagenomic data shows relevant signatures
+                      </p>
+                      <div className="bg-white dark:bg-purple-950/30 p-3 rounded">
+                        <div className="font-medium text-sm mb-1">Porcine Spumavirus</div>
+                        <div className="text-xs text-muted-foreground mb-2">
+                          Protocol 13: Nested PCR + Phylogenetic analysis
+                        </div>
+                        <div className="text-xs space-y-1">
+                          <div><strong>Trigger rate:</strong> 5-10% of samples</div>
+                          <div><strong>Detection probability:</strong> &lt;0.1%</div>
+                          <div><strong>Reason:</strong> 0 detections in 70 years, tested precautionarily</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Alert>
+                    <AlertDescription>
+                      <strong>Precautionary Testing:</strong> Spumavirus has never been detected in pigs despite 70 years of virology research. It remains on the PMDA list based on the precautionary principle: phylogenetic proximity to foamy virus-positive species (cattle, horses) and potential for cross-species transmission justifies continued surveillance despite zero historical detections.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
             </section>
 
             <section className="mb-12">

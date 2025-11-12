@@ -17,6 +17,15 @@ GENOME_SIZES = {
     'PERV-B': 8000,
     'PERV-C': 8000,
 
+    # PMDA 4-Virus High-Sensitivity Protocol
+    'POLYOMA': 5150,    # Polyomavirus (Sus scrofa polyomavirus 2)
+    'HANTV': 11900,     # Hantavirus (combined L+M+S: 6530+3650+1720)
+    'HANTV-L': 6530,    # Hantavirus L segment (large, RNA polymerase)
+    'HANTV-M': 3650,    # Hantavirus M segment (medium, glycoproteins)
+    'HANTV-S': 1720,    # Hantavirus S segment (small, nucleocapsid)
+    'EEEV': 11841,      # Eastern Equine Encephalitis Virus
+    'SPUMV': 12000,     # Porcine Spumavirus (estimated, no exact reference)
+
     # High-risk viruses
     'HEV': 7200,        # Hepatitis E virus
     'JEV': 11000,       # Japanese encephalitis virus

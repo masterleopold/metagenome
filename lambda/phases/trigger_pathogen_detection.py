@@ -312,11 +312,23 @@ def execute_pathogen_detection(instance_id: str, run_id: str, bucket: str,
 
     if 'pmda' in databases:
         db_commands.append("""
-# Run targeted PMDA pathogen search
-/opt/minion/scripts/phase4_pathogen/pmda_targeted_search.py \\
+# Run comprehensive PMDA ALL 91-pathogen detection
+# Covers: 41 viruses, 27 bacteria, 2 fungi, 19 parasites
+/opt/minion/scripts/phase4_pathogen/detect_pmda_all_91_pathogens.py \\
+    -i filtered/*.fastq.gz \\
+    -o pmda_all_91/ \\
+    -r "$RUN_ID" \\
+    --database /mnt/efs/databases/pmda/2024.2/all_91_pathogens \\
+    --threads 32
+
+# Run PMDA 4-virus high-sensitivity detection (enhancement)
+# For difficult-to-detect viruses: Polyomavirus, Hantavirus, EEEV, Spumavirus
+/opt/minion/scripts/phase4_pathogen/detect_pmda_4viruses.py \\
     --input filtered/ \\
-    --output pmda/ \\
-    --database /mnt/efs/databases/pmda/pmda_91.fasta \\
+    --output pmda_4virus/ \\
+    --target all \\
+    --database-dir /mnt/efs/databases/pmda/2024.1/ \\
+    --threads 32 \\
     --run-id "$RUN_ID"
 """)
 

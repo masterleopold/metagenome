@@ -1,58 +1,8 @@
 {
-  "version": "2024.3",
+  "version": "2024.2",
   "total_pathogens": 91,
-  "last_updated": "2025-11-13",
+  "last_updated": "2025-11-12",
   "source": "厚生労働省 異種移植指針 別添2 (Onions et al. 2000)",
-  "protocol_specifications": {
-    "recommended_protocol": "Protocol 12",
-    "protocol_12_unified": {
-      "name": "Unified Sample Prep Protocol",
-      "workflows": 2,
-      "hands_on_time_hours": 13,
-      "cost_per_sample_jpy": 157000,
-      "lod_standard": {
-        "dna_viruses": "100-200 copies/mL",
-        "poly_a_plus_rna_viruses": "100-300 copies/mL",
-        "poly_a_minus_rna_viruses": "300-500 copies/mL",
-        "bacteria": "100-200 copies/mL",
-        "fungi": "200-500 copies/mL",
-        "parasites": "200-500 copies/mL",
-        "perv": "<10 copies/mL",
-        "spumavirus_pbmc": "1-10 copies/10^5 PBMCs (conditional)"
-      },
-      "sample_types": {
-        "plasma_dna": "5-10 mL EDTA blood",
-        "plasma_rna": "5-10 mL EDTA blood with SUPERase•In",
-        "pbmc": "10 mL EDTA blood (conditional)"
-      },
-      "conditional_screening": {
-        "spumavirus": {
-          "trigger": "Retrovirus-like pol gene detected in plasma screening",
-          "sample": "PBMC genomic DNA",
-          "method": "Nested PCR + Sanger sequencing",
-          "frequency": "~5-10% of samples"
-        }
-      }
-    },
-    "protocol_11_high_sensitivity": {
-      "name": "High-Sensitivity Enhancement Protocol (Optional)",
-      "workflows": 4,
-      "hands_on_time_hours": 19.5,
-      "cost_per_sample_jpy": 185000,
-      "lod_enhanced": {
-        "polyomavirus": "<50 copies/mL",
-        "hantavirus": "<50 copies/mL",
-        "eeev": "<50 copies/mL",
-        "spumavirus_pbmc": "1-10 copies/10^5 PBMCs"
-      },
-      "use_cases": [
-        "Confirmation after Protocol 12 positive",
-        "High epidemiological risk samples",
-        "Regulatory requirement LOD <50",
-        "Research validation studies"
-      ]
-    }
-  },
   "categories": {
     "viruses": {
       "count": 41,
@@ -105,7 +55,7 @@
         {"code": "PGHV", "name": "Porcine Gammaherpesvirus", "name_ja": "ブタガンマヘルペスウイルス", "pmda_line": "Special Mgmt #2", "risk_level": "HIGH", "zoonotic": false, "special_management": true},
         {"code": "PCV2", "name": "Porcine Circovirus 2", "name_ja": "ブタサーコウイルス2型", "pmda_line": "Special Mgmt #3", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true},
         {"code": "PCV3", "name": "Porcine Circovirus 3", "name_ja": "ブタサーコウイルス3型", "pmda_line": "Special Mgmt #3", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true},
-        {"code": "SPUMV", "name": "Porcine Spumavirus", "name_ja": "ブタスピューマウイルス", "pmda_line": "Special Mgmt #5", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true, "conditional_screening": true, "detection_note": "Nested PCR required - no porcine reference genome exists. Conditional screening: triggered by retrovirus-like pol gene in plasma."}
+        {"code": "SPUMV", "name": "Porcine Spumavirus", "name_ja": "ブタスピューマウイルス", "pmda_line": "Special Mgmt #5", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true, "detection_note": "Nested PCR required - no porcine reference genome exists"}
       ]
     },
     "bacteria": {

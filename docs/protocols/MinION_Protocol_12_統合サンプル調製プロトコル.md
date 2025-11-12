@@ -727,8 +727,46 @@ HANTV（ハンタウイルス）、WEEV、VEEV、REO
 - Email: [技術サポートアドレス]
 - GitHub: https://github.com/masterleopold/metagenome
 
+### D. Protocol 12 v2.1 関連文書
+
+#### Step 2.5 実装資料
+- **Step 2.5スタッフトレーニングガイド** (`docs/training/Step_2.5_Staff_Training_Guide.md`)
+  - 8時間トレーニングプログラム（理論3時間 + 実技5時間）
+  - DNase I濃度最適化、Klenow Fragment合成手順
+  - トラブルシューティング、QC解釈、ALCOA+準拠記録法
+
+- **LOD検証プロトコル** (`docs/validation/LOD_Validation_Protocol_PCV2_PCV3_TTV_PPV.md`)
+  - PCV2/PCV3/TTV/PPV の検出限界検証（3フェーズ、1080サンプル、6ヶ月）
+  - Probit解析による統計的LOD決定
+  - PMDA規制要件準拠（PPA >95%, NPA >98%, R² >0.90）
+
+#### バイオインフォマティクス対応
+- **環状ゲノム処理ガイド** (`docs/pipeline/Circular_Genome_Handling_Guide.md`)
+  - 参照配列重複戦略（例: PCV2 1768 bp → 3536 bp）
+  - Junction read マッピング手法
+  - カバレッジ計算（参照の前半のみカウント）
+  - 定量計算（実際のゲノムサイズ使用）
+
+#### PMDA戦略文書
+- **PMDA簡素化サンプル調製戦略** (`docs/PMDA_Simplified_Sample_Prep_Strategy.md`)
+  - Protocol 12 v2.1 統合アプローチの技術的根拠
+  - Section 7: Bioinformatics Pipeline Updates (v2.1)
+
+- **PMDA簡素化ワークフローフローチャート** (`docs/PMDA_Simplified_Workflow_Flowchart.md`)
+  - Step 2.5を含む完全ワークフローの可視化
+
+- **PMDA完全91病原体カバレッジ** (`docs/PMDA_Complete_91_Pathogen_Coverage.md`)
+  - TRUE 91/91カバレッジ達成の証明文書
+  - PCV2/PCV3/TTV/PPV の検出可能性確認
+
+#### セッションログ
+- **Protocol 12 v2.1 実装セッション** (`docs/claude-sessions/2025-11-13-protocol-12-v2.1-circular-ssdna-support.md`)
+  - 環状DNA・ssDNA対応の完全実装記録（547行）
+  - 問題発見から解決実装まで24ファイル作成/修正の詳細
+
 ---
 
 **改訂履歴**:
 - v1.0 (2024-10-08): 初版作成
 - v2.0 (2025-11-13): 統合プロトコルに改訂（3-4ワークフロー → 2ワークフロー）
+- v2.1 (2025-11-13): Step 2.5追加（環状DNA・ssDNAウイルス対応）、TRUE 91/91カバレッジ達成

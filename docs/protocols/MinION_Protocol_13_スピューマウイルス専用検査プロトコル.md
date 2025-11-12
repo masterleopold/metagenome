@@ -1323,7 +1323,15 @@ Consensus: CCRTCNCCRAANCCRTC  ← Outer Reverse
 
 | バージョン | 日付 | 変更内容 | 作成者 |
 |-----------|------|---------|-------|
-| 1.0 | 2025-11-13 | 初版作成 | MinION Pipeline Team |
+| 1.0 | 2025-11-13 | 初版作成（科学的背景補足セクション含む） | MinION Pipeline Team |
+
+## 関連文書
+
+- **Protocol 13 科学的背景補足セッション** (`docs/claude-sessions/2025-11-13-protocol-13-spumavirus-scientific-background.md`)
+  - スピューマウイルスの実在性に関する70年の歴史的検証
+  - PMDA指定根拠と予防原則の解説
+  - 検出確率<0.1%の現実的評価
+  - 技術者向けガイダンス（結果解釈、PERV識別、記録価値）
 
 ---
 

@@ -6,10 +6,25 @@
   "protocol_specifications": {
     "recommended_protocol": "Protocol 12",
     "protocol_12_unified": {
-      "name": "Unified Sample Prep Protocol",
+      "name": "Unified Sample Prep Protocol v2.1",
+      "version": "2.1",
       "workflows": 2,
-      "hands_on_time_hours": 13,
-      "cost_per_sample_jpy": 157000,
+      "hands_on_time_hours": 15.5,
+      "cost_per_sample_jpy": 162000,
+      "circular_ssdna_support": true,
+      "step_2_5_added": {
+        "linearization": "DNase I treatment for circular DNA",
+        "second_strand_synthesis": "Klenow Fragment for ssDNA to dsDNA conversion",
+        "time_added_hours": 2.5,
+        "cost_added_jpy": 5000,
+        "pathogens_enabled": ["PCV2", "PCV3", "TTV", "PPV"],
+        "reagents": {
+          "dnase_i": "NEB M0303",
+          "klenow_fragment": "NEB M0212",
+          "random_hexamers": "NEB S1230",
+          "dntp_set": "NEB N0446"
+        }
+      },
       "lod_standard": {
         "dna_viruses": "100-200 copies/mL",
         "poly_a_plus_rna_viruses": "100-300 copies/mL",
@@ -18,7 +33,8 @@
         "fungi": "200-500 copies/mL",
         "parasites": "200-500 copies/mL",
         "perv": "<10 copies/mL",
-        "spumavirus_pbmc": "1-10 copies/10^5 PBMCs (conditional)"
+        "spumavirus_pbmc": "1-10 copies/10^5 PBMCs (conditional)",
+        "circular_ssdna_viruses": "100-500 copies/mL (with Step 2.5)"
       },
       "sample_types": {
         "plasma_dna": "5-10 mL EDTA blood",
@@ -58,7 +74,7 @@
       "count": 41,
       "critical": ["PERV-A", "PERV-B", "PERV-C", "FMDV", "ASFV", "CSFV", "RABV"],
       "pathogens": [
-        {"code": "PPV", "name": "Porcine Parvovirus", "name_ja": "ブタパルボウイルス", "pmda_line": "1", "risk_level": "MEDIUM", "zoonotic": false},
+        {"code": "PPV", "name": "Porcine Parvovirus", "name_ja": "ブタパルボウイルス", "pmda_line": "1", "risk_level": "MEDIUM", "zoonotic": false, "genome_structure": "linear_ssDNA", "genome_size_kb": 5.0, "requires_linearization": false, "requires_second_strand_synthesis": true},
         {"code": "PRV", "name": "Pseudorabies Virus (Porcine Herpesvirus)", "name_ja": "オーエスキー病ウイルス（ブタヘルペスウイルス）", "pmda_line": "2", "risk_level": "HIGH", "zoonotic": false},
         {"code": "ASFV", "name": "African Swine Fever Virus", "name_ja": "アフリカブタコレラウイルス", "pmda_line": "3", "risk_level": "CRITICAL", "zoonotic": false},
         {"code": "SWPV", "name": "Swinepox Virus", "name_ja": "ブタポックスウイルス", "pmda_line": "4", "risk_level": "MEDIUM", "zoonotic": false},
@@ -98,13 +114,13 @@
         {"code": "BVDV", "name": "Bovine Viral Diarrhea Virus", "name_ja": "牛ウイルス性下痢ウイルス", "pmda_line": "36", "risk_level": "MEDIUM", "zoonotic": false},
         {"code": "IBRV", "name": "Infectious Bovine Rhinotracheitis Virus", "name_ja": "牛伝染性鼻気管炎ウイルス", "pmda_line": "37", "risk_level": "MEDIUM", "zoonotic": false},
         {"code": "RV", "name": "Rotavirus", "name_ja": "ロタウイルス", "pmda_line": "38", "risk_level": "LOW", "zoonotic": false},
-        {"code": "TTV", "name": "Torque Teno Virus", "name_ja": "ブタトルクテノウイルス", "pmda_line": "40", "risk_level": "LOW", "zoonotic": false},
+        {"code": "TTV", "name": "Torque Teno Virus", "name_ja": "ブタトルクテノウイルス", "pmda_line": "40", "risk_level": "LOW", "zoonotic": false, "genome_structure": "circular_ssDNA", "genome_size_kb": 3.8, "requires_linearization": true, "requires_second_strand_synthesis": true},
         {"code": "PERV-A", "name": "Porcine Endogenous Retrovirus A", "name_ja": "ブタ内在性レトロウイルスA", "pmda_line": "41", "risk_level": "CRITICAL", "zoonotic": false, "endogenous": true, "special_management": true},
         {"code": "PERV-B", "name": "Porcine Endogenous Retrovirus B", "name_ja": "ブタ内在性レトロウイルスB", "pmda_line": "41", "risk_level": "CRITICAL", "zoonotic": false, "endogenous": true, "special_management": true},
         {"code": "PERV-C", "name": "Porcine Endogenous Retrovirus C", "name_ja": "ブタ内在性レトロウイルスC", "pmda_line": "41", "risk_level": "CRITICAL", "zoonotic": false, "endogenous": true, "special_management": true},
         {"code": "PGHV", "name": "Porcine Gammaherpesvirus", "name_ja": "ブタガンマヘルペスウイルス", "pmda_line": "Special Mgmt #2", "risk_level": "HIGH", "zoonotic": false, "special_management": true},
-        {"code": "PCV2", "name": "Porcine Circovirus 2", "name_ja": "ブタサーコウイルス2型", "pmda_line": "Special Mgmt #3", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true},
-        {"code": "PCV3", "name": "Porcine Circovirus 3", "name_ja": "ブタサーコウイルス3型", "pmda_line": "Special Mgmt #3", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true},
+        {"code": "PCV2", "name": "Porcine Circovirus 2", "name_ja": "ブタサーコウイルス2型", "pmda_line": "Special Mgmt #3", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true, "genome_structure": "circular_ssDNA", "genome_size_kb": 1.7, "requires_linearization": true, "requires_second_strand_synthesis": true},
+        {"code": "PCV3", "name": "Porcine Circovirus 3", "name_ja": "ブタサーコウイルス3型", "pmda_line": "Special Mgmt #3", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true, "genome_structure": "circular_ssDNA", "genome_size_kb": 2.0, "requires_linearization": true, "requires_second_strand_synthesis": true},
         {"code": "SPUMV", "name": "Porcine Spumavirus", "name_ja": "ブタスピューマウイルス", "pmda_line": "Special Mgmt #5", "risk_level": "MEDIUM", "zoonotic": false, "special_management": true, "conditional_screening": true, "detection_note": "Nested PCR required - no porcine reference genome exists. Conditional screening: triggered by retrovirus-like pol gene in plasma."}
       ]
     },

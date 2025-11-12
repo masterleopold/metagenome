@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """
 Calculate absolute copy numbers (copies/mL) for detected pathogens
+
+Version: 2.1 (2025-11-13)
+- Added TTV (Torque teno virus, circular ssDNA, 3.8 kb)
+- Added annotations for circular/ssDNA genomes requiring Step 2.5 processing
+- Updated genome size database to reflect Protocol 12 v2.1 compatibility
+
+Note: Circular and single-stranded DNA viruses (PCV2, PCV3, TTV, PPV) require
+Protocol 12 v2.1 Step 2.5 preprocessing:
+  - Sub-step 2.5.1: DNase I linearization (for circular genomes)
+  - Sub-step 2.5.2: Klenow Fragment second-strand synthesis (for ssDNA)
 """
 
 import argparse
@@ -35,10 +45,16 @@ GENOME_SIZES = {
     'PRRSV': 15000,     # PRRS virus
     'PRV': 143000,      # Pseudorabies virus
 
-    # Other viruses
-    'PCV2': 1768,       # Porcine circovirus 2
-    'PCV3': 2000,       # Porcine circovirus 3
-    'PPV': 5000,        # Porcine parvovirus
+    # Circular & Single-Stranded DNA Viruses (require Step 2.5 processing)
+    # Note: These genomes are circular ssDNA or linear ssDNA requiring:
+    #  - DNase I linearization (for circular genomes)
+    #  - Klenow Fragment second-strand synthesis (for ssDNA)
+    'PCV2': 1768,       # Porcine circovirus 2 (circular ssDNA) - Special Management
+    'PCV3': 2000,       # Porcine circovirus 3 (circular ssDNA) - Special Management
+    'TTV': 3800,        # Torque teno virus (circular ssDNA)
+    'PPV': 5000,        # Porcine parvovirus (linear ssDNA)
+
+    # Other viruses (standard linear dsDNA/RNA)
     'SIV': 13500,       # Swine influenza virus
     'PEDV': 28000,      # Porcine epidemic diarrhea virus
     'TGEV': 28500,      # Transmissible gastroenteritis virus

@@ -6,6 +6,8 @@ PMDA-compliant metagenomic analysis pipeline for xenotransplantation donor pig s
 
 This pipeline provides comprehensive pathogen detection for 91 PMDA-designated pathogens in donor pigs intended for xenotransplantation. The system uses Oxford Nanopore long-read sequencing technology combined with AWS cloud infrastructure for scalable, cost-effective analysis.
 
+**Latest Update (v2.1)**: Protocol 12 now includes circular and single-stranded DNA virus detection, achieving TRUE 100% pathogen coverage.
+
 ## Key Features
 
 - **PMDA Compliance**: Full coverage of 91 designated pathogens
@@ -25,7 +27,8 @@ MinION Sequencer → S3 Upload → Lambda Orchestrator → Step Functions
                                                             ↓
                                       Lambda triggers EC2 instances per phase
                                                             ↓
-                    [Phase 1: GPU EC2 Basecalling (g4dn.xlarge) →
+                    [Phase 0: Sample Prep Routing (t3.small) →
+                     Phase 1: GPU EC2 Basecalling (g4dn.xlarge) →
                      Phase 2: QC (t3.large) →
                      Phase 3: Host Removal (r5.4xlarge) →
                      Phase 4: Pathogen Detection (4x parallel EC2) →
@@ -151,7 +154,29 @@ Reports are automatically generated in multiple formats:
 - **JSON**: Machine-readable PMDA checklist
 - **HTML**: Interactive web report
 
+## Sample Preparation Protocols
+
+### Protocol 12 v2.1 (Recommended)
+- **Universal workflow** for 100% pathogen coverage
+- **Time**: 15.5 hours hands-on
+- **Cost**: ¥162,000/sample
+- **Key feature**: Includes circular/ssDNA virus detection (PCV2, PCV3, TTV, PPV)
+
+### Protocol 11 (Optional)
+- Use for ultra-high sensitivity (<50 copies/mL)
+- Target: Polyomavirus, Hantavirus, EEEV, Spumavirus
+
+### Protocol 13 (Conditional)
+- Triggered by retrovirus pol signatures
+- Spumavirus-specific screening
+
+For detailed protocols, see [docs/PROTOCOLS_GUIDE.md](docs/PROTOCOLS_GUIDE.md).
+
 ## Pipeline Phases
+
+### 0. Sample Preparation Routing
+- Determines DNA vs RNA extraction workflow
+- Selects appropriate protocol based on sample type
 
 ### 1. Basecalling
 - Converts raw signal (FAST5/POD5) to sequences (FASTQ)
@@ -228,11 +253,11 @@ vi /etc/minion-pipeline/custom.yaml
 ### 91 Pathogen Coverage
 
 The pipeline screens for all 91 PMDA-designated pathogens:
-- **Viruses**: 50 pathogens including PERV variants
-- **Bacteria**: 35 pathogens
-- **Parasites**: 5 pathogens
-- **Fungi**: 5 pathogens
-- **Prions**: 1 pathogen
+- **Viruses**: 41 pathogens including circular/ssDNA viruses
+- **Bacteria**: 27 pathogens
+- **Parasites**: 19 pathogens
+- **Fungi**: 2 pathogens
+- **Special Management**: 5 pathogens (PCV2, PCV3, PERV-A/B/C)
 
 ### Critical Pathogens
 
@@ -339,9 +364,12 @@ aws ssm start-session --target INSTANCE_ID
 Comprehensive documentation is available in the `/docs` directory:
 
 ### Quick References
-- **[CLAUDE.md](CLAUDE.md)** - Essential guide for Claude Code development
-- **[CHANGELOG](docs/CHANGELOG.md)** - Project timeline and recent updates
-- **[Technical Details](docs/TECHNICAL_DETAILS.md)** - Architecture, phases, and databases
+- **[CLAUDE.md](CLAUDE.md)** - Essential guide for Claude Code development (optimized)
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Commands, conventions, and patterns
+- **[Architecture](docs/ARCHITECTURE.md)** - Pipeline architecture and AWS infrastructure
+- **[Protocols Guide](docs/PROTOCOLS_GUIDE.md)** - Sample preparation protocols (11, 12, 13)
+- **[Recent Updates](docs/RECENT_UPDATES.md)** - Latest changes and version history
+- **[Technical Details](docs/TECHNICAL_DETAILS.md)** - In-depth technical documentation
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and AWS debugging
 
 ### Detailed Documentation

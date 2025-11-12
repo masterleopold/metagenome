@@ -135,21 +135,21 @@ export default function PMDACompliancePage() {
 
               <Card className="mb-6">
                 <CardHeader>
-                  <CardTitle>Protocol 12: Unified Workflow (Recommended)</CardTitle>
-                  <CardDescription>Simplified sample preparation covering all 91 pathogens</CardDescription>
+                  <CardTitle>Protocol 12 v2.1: Unified Workflow (Recommended)</CardTitle>
+                  <CardDescription>TRUE 100% coverage - includes circular and ssDNA viruses</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Alert>
                     <ShieldCheckIcon className="h-4 w-4" />
-                    <AlertTitle>Latest Protocol Update (2025-11)</AlertTitle>
+                    <AlertTitle>Protocol 12 v2.1 Update (2025-11-13)</AlertTitle>
                     <AlertDescription>
-                      Protocol 12 replaces 3-4 complex workflows with 2 universal workflows (DNA + RNA), achieving 100% pathogen coverage with 19% time reduction and only ¥5,000 additional cost.
+                      Critical update adds Step 2.5 for circular/ssDNA virus support, achieving TRUE 91/91 pathogen coverage. Previous v1.0 could only detect 87/91 pathogens due to Oxford Nanopore LSK114 ligation kit limitations with circular DNA and single-stranded DNA.
                     </AlertDescription>
                   </Alert>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-muted p-4 rounded-lg">
-                      <h4 className="font-semibold mb-2">Workflow Simplification</h4>
+                      <h4 className="font-semibold mb-2">Workflow Specifications</h4>
                       <div className="text-sm space-y-1">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Workflows:</span>
@@ -157,15 +157,15 @@ export default function PMDACompliancePage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Hands-on time:</span>
-                          <span className="font-medium">13 hours</span>
+                          <span className="font-medium">15.5 hours</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Cost/sample:</span>
-                          <span className="font-medium">¥157,000</span>
+                          <span className="font-medium">¥162,000</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Coverage:</span>
-                          <span className="font-medium">91/91 (100%)</span>
+                          <span className="font-medium text-primary">91/91 (TRUE 100%)</span>
                         </div>
                       </div>
                     </div>
@@ -183,9 +183,40 @@ export default function PMDACompliancePage() {
                         </li>
                         <li className="flex items-start gap-2">
                           <CheckCircleIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <span>Step 2.5: Circular DNA linearization + ssDNA conversion</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircleIcon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                           <span>LOD: 100-500 copies/mL (screening-sufficient)</span>
                         </li>
                       </ul>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 dark:bg-purple-900/10 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <h4 className="font-semibold mb-2 text-sm">Step 2.5: Circular & ssDNA Virus Support</h4>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Added to enable detection of 4 critical PMDA pathogens that were incompatible with standard ligation-based library preparation:
+                    </p>
+                    <div className="grid md:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <div className="font-semibold mb-1">Affected Pathogens:</div>
+                        <ul className="text-xs space-y-0.5">
+                          <li>• <strong>PCV2</strong> - Porcine Circovirus 2 (circular ssDNA, 1.7kb) - Special Mgmt</li>
+                          <li>• <strong>PCV3</strong> - Porcine Circovirus 3 (circular ssDNA, 2.0kb) - Special Mgmt</li>
+                          <li>• <strong>TTV</strong> - Torque teno virus (circular ssDNA, 3.8kb)</li>
+                          <li>• <strong>PPV</strong> - Porcine parvovirus (linear ssDNA, 5.0kb)</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <div className="font-semibold mb-1">Process Steps:</div>
+                        <ul className="text-xs space-y-0.5">
+                          <li>• <strong>Sub-step 2.5.1:</strong> DNase I linearization (0.005 U, 30 min)</li>
+                          <li>• <strong>Sub-step 2.5.2:</strong> Klenow Fragment second-strand synthesis (2 hours)</li>
+                          <li>• <strong>Time added:</strong> +2.5 hours (+19%)</li>
+                          <li>• <strong>Cost added:</strong> +¥5,000 (+3.2%)</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

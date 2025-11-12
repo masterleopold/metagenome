@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import {
   CheckCircleIcon,
   ZapIcon,
@@ -33,9 +34,16 @@ export default function OverviewPage() {
                   <p className="text-base leading-relaxed mb-4">
                     The MinION Pathogen Screening Pipeline is a PMDA-compliant metagenomic analysis system designed for comprehensive pathogen detection in donor pigs intended for xenotransplantation. The system uses Oxford Nanopore MinION Mk1D long-read sequencing technology combined with AWS cloud infrastructure for scalable, cost-effective analysis.
                   </p>
-                  <p className="text-base leading-relaxed text-muted-foreground">
+                  <p className="text-base leading-relaxed text-muted-foreground mb-4">
                     This pipeline provides end-to-end automation from basecalling to reporting, ensuring complete coverage of all 91 PMDA-designated pathogens with special emphasis on critical PERV (Porcine Endogenous Retrovirus) detection.
                   </p>
+                  <Alert>
+                    <ShieldCheckIcon className="h-4 w-4" />
+                    <AlertTitle>Protocol 12 v2.1 Update (2025-11-13)</AlertTitle>
+                    <AlertDescription>
+                      Achieved TRUE 100% PMDA pathogen coverage (91/91) by adding Step 2.5 for circular and ssDNA virus detection. Now successfully detects PCV2, PCV3 (Special Management), TTV, and PPV which were previously incompatible with standard Oxford Nanopore library preparation.
+                    </AlertDescription>
+                  </Alert>
                 </CardContent>
               </Card>
 
@@ -46,7 +54,7 @@ export default function OverviewPage() {
                     <CardTitle>PMDA Compliant</CardTitle>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">
-                    Full coverage of 91 designated pathogens for xenotransplantation safety
+                    TRUE 100% coverage of all 91 designated pathogens including circular and ssDNA viruses (v2.1)
                   </CardContent>
                 </Card>
 

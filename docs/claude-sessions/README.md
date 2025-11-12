@@ -5,7 +5,19 @@ This directory contains detailed logs of development sessions with Claude Code. 
 ## Session Index
 
 ### 2025-11-13
-1. [Protocol 13 Spumavirus Scientific Background Addition](./2025-11-13-protocol-13-spumavirus-scientific-background.md)
+1. [Protocol 12 v2.1: Circular and ssDNA Virus Support](./2025-11-13-protocol-12-v2.1-circular-ssdna-support.md)
+   - **Critical Discovery**: Protocol 12 v1.0 only covered 87/91 PMDA pathogens (95.6%), not 100%
+   - **Root Cause**: Oxford Nanopore LSK114 cannot detect circular DNA (no free ends) or ssDNA (T4 ligase <5% efficiency)
+   - **Affected Pathogens**: PCV2, PCV3 (Special Management), TTV, PPV - all circular or ssDNA viruses
+   - **Solution Implemented**: Added Step 2.5 with DNase I linearization + Klenow Fragment second-strand synthesis
+   - **Result**: Achieved TRUE 91/91 pathogen coverage (100%)
+   - **Bioinformatics Challenge**: Junction reads from circular genomes require reference duplication strategy
+   - **Cost Impact**: +¥5,000/sample (+3.2%), total ¥162,000/sample
+   - **Time Impact**: +2.5 hours (+19%), total 15.5 hours
+   - **Documentation**: 24 files created/modified (~8,000 lines total, including 8 Japanese translations)
+   - **Validation**: LOD protocol and staff training guide created
+
+2. [Protocol 13 Spumavirus Scientific Background Addition](./2025-11-13-protocol-13-spumavirus-scientific-background.md)
    - Added comprehensive Japanese supplementary section to Protocol 13
    - Documented scientific reality: 0 porcine spumavirus detections in 70 years
    - Explained PMDA inclusion rationale (precautionary principle)

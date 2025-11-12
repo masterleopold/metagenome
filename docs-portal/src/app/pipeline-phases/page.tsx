@@ -13,6 +13,7 @@ import {
   ClockIcon,
   ServerIcon,
   InfoIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 
 const phases = [
@@ -110,6 +111,14 @@ export default function PipelinePhasesPage() {
               <AlertTitle>Total Pipeline Duration</AlertTitle>
               <AlertDescription>
                 Complete analysis typically takes 4-8 hours depending on sample size and complexity. Each phase runs sequentially with automated transitions.
+              </AlertDescription>
+            </Alert>
+
+            <Alert className="mb-8" variant="default">
+              <ShieldCheckIcon className="h-4 w-4" />
+              <AlertTitle>Protocol 12 v2.1: Sample Preparation Update</AlertTitle>
+              <AlertDescription>
+                Laboratory sample preparation now includes Step 2.5 (circular DNA linearization + ssDNA conversion) to enable detection of PCV2, PCV3, TTV, and PPV. The bioinformatics pipeline (Phase 4 & 5) automatically handles circular genome references with duplication strategy for proper junction read mapping.
               </AlertDescription>
             </Alert>
 
@@ -405,6 +414,15 @@ python3 pmda_check.py \\
                       language="python"
                     />
                   </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-2">Circular Genome Handling (v2.1)</h4>
+                    <Alert>
+                      <AlertDescription>
+                        <strong>Protocol 12 v2.1 Update:</strong> Circular virus genomes (PCV2, PCV3, TTV) are detected using duplicated references (e.g., PCV2: 1768 bp → 3536 bp) to properly map junction reads created during random DNase I linearization. This ensures accurate detection without split alignments.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
                 </CardContent>
               </Card>
             </section>
@@ -453,6 +471,15 @@ python3 absolute_quantification.py \\
 # }`}
                       language="python"
                     />
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-2">Circular Genome Coverage (v2.1)</h4>
+                    <Alert>
+                      <AlertDescription>
+                        For circular genomes (PCV2, PCV3, TTV), coverage is calculated only on the first half of duplicated references to avoid double-counting. Quantification uses actual genome sizes (e.g., PCV2 = 1768 bp), not duplicated reference sizes, ensuring accurate copy number calculations.
+                      </AlertDescription>
+                    </Alert>
                   </div>
                 </CardContent>
               </Card>

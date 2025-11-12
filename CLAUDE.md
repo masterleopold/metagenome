@@ -42,6 +42,14 @@ black scripts/ lambda/ tools/      # Format
 | [Protocols](docs/PROTOCOLS_GUIDE.md) | Sample prep protocols |
 | [Development](docs/DEVELOPMENT_GUIDE.md) | Dev guide |
 
-## Current Focus
+## Recent Updates
 
-Protocol 12 v2.1 (100% pathogen coverage with circular/ssDNA virus support)
+**2025-11-13**: Protocol 12 v2.1 - Added Step 2.5 for circular/ssDNA virus support
+- TRUE 91/91 pathogen coverage (87/91 → 91/91)
+- Enables detection of PCV2, PCV3 (Special Management), TTV, PPV
+- Cost: +¥5,000/sample (+3.2%), total ¥162,000
+- Time: +2.5 hours (+19%), total 15.5 hours
+- Bioinformatics: Reference duplication for circular genomes
+- Documentation: 24 files created/modified, 8 Japanese translations
+
+See [Session Log](docs/claude-sessions/2025-11-13-protocol-12-v2.1-circular-ssdna-support.md) for full details.

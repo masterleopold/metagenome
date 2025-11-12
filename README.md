@@ -338,6 +338,13 @@ aws ssm start-session --target INSTANCE_ID
 
 Comprehensive documentation is available in the `/docs` directory:
 
+### Quick References
+- **[CLAUDE.md](CLAUDE.md)** - Essential guide for Claude Code development
+- **[CHANGELOG](docs/CHANGELOG.md)** - Project timeline and recent updates
+- **[Technical Details](docs/TECHNICAL_DETAILS.md)** - Architecture, phases, and databases
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and AWS debugging
+
+### Detailed Documentation
 - **[Audit Reports](docs/audits/README.md)** - Code quality audits (9 audits, 37 bugs fixed, zero-bug certification)
 - **[Bug Fixes](docs/bug-fixes/README.md)** - Detailed bug fix documentation and analysis
 - **[Sprint Reports](docs/sprints/README.md)** - Development sprint tracking and metrics
@@ -345,6 +352,7 @@ Comprehensive documentation is available in the `/docs` directory:
 - **[API Documentation](docs/API_DOCUMENTATION.md)** - REST endpoints and authentication
 - **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - AWS infrastructure setup instructions
 - **[Session History](docs/claude-sessions/README.md)** - Development session logs
+- **[Technical Q&A](docs/technical-qa/)** - Technical question and answer documentation
 
 ## Support
 

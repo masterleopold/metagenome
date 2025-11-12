@@ -58,7 +58,7 @@ PERV_MARKERS = {
   - Sub-step 2.5.2: ssDNA→dsDNA conversion (Klenow Fragment + Random Hexamers)
 - Ensures detection of PCV2/PCV3 (Special Management pathogens), TTV, PPV
 
-**Protocol Document**: `md/MinION_Protocol_12_統合サンプル調製プロトコル.md`
+**Protocol Document**: `docs/protocols/MinION_Protocol_12_統合サンプル調製プロトコル.md`
 
 ### Protocol 11 - High-Sensitivity Enhancement (OPTIONAL)
 
@@ -70,7 +70,7 @@ PERV_MARKERS = {
 - **Cost**: +¥45,000/sample
 - **When to use**: Only after Protocol 12 if ultra-high sensitivity needed
 
-**Protocol Document**: `md/MinION_Protocol_11_PMDA_4ウイルス高感度検出プロトコル.md`
+**Protocol Document**: `docs/protocols/MinION_Protocol_11_PMDA_4ウイルス高感度検出プロトコル.md`
 
 ### Protocol 13 - Spumavirus-Specific Screening (CONDITIONAL)
 
@@ -90,7 +90,7 @@ PERV_MARKERS = {
 - **PMDA inclusion reason**: Phylogenetic proximity to other species with foamy viruses
 - **Impact if detected**: Nature/Science-level discovery, immediate PMDA notification
 
-**Protocol Document**: `md/MinION_Protocol_13_スピューマウイルス専用検査プロトコル.md`
+**Protocol Document**: `docs/protocols/MinION_Protocol_13_スピューマウイルス専用検査プロトコル.md`
 
 ## Protocol Selection Flowchart
 
@@ -144,7 +144,8 @@ Standard SQK-LSK114 ligation-based library prep CANNOT detect:
 
 ## Documentation References
 
-- **Japanese protocols**: `md/` directory
+- **Japanese protocols**: `docs/protocols/` directory (18 protocol files)
 - **PMDA compliance**: `docs/PMDA_Simplified_Sample_Prep_Strategy.md`
 - **Workflow diagrams**: `docs/PMDA_Simplified_Workflow_Flowchart.md`
 - **Technical details**: `docs/TECHNICAL_DETAILS.md`
+- **Session logs**: `docs/claude-sessions/` - Development session documentation

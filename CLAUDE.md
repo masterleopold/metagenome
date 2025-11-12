@@ -4,52 +4,131 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Project**: MinION Pathogen Screening Pipeline - PMDA-compliant xenotransplantation donor pig screening (91 pathogens)
 
-## Critical Context
+## Critical Constraints
 
-**⚠️ PERV Detection**: ANY PERV-A/B/C detection → Immediate SNS alert (`scripts/phase4_pathogen/perv_typing.py`)
-**⚠️ PMDA Compliance**: Must maintain 91 pathogen coverage, PPA >95%, NPA >98%
+**⚠️ PERV Detection**: ANY PERV-A/B/C detection → Immediate SNS alert (`scripts/phase4_pathogen/perv_typing.py:34`)
+**⚠️ PMDA Compliance**: Must maintain 91 pathogen coverage, PPA >95%, NPA >98% (`templates/config/pmda_pathogens.json`)
 **⚠️ Data Security**: No patient data in git, encrypted S3 only
 **⚠️ AWS Region**: Always use `ap-northeast-1` (Tokyo)
 
 ## Essential Commands
 
 ```bash
-pytest tests/                      # Run tests
-pytest tests/test_pmda_compliance.py::test_name -v  # Single test
-black scripts/ lambda/ tools/      # Format
-./tools/workflow_cli.py start --run-id RUN-2024-001 --bucket minion-data
+# Testing
+python -m pytest tests/                                    # Run all tests
+python -m pytest tests/test_pmda_compliance.py::test_name -v  # Single test
+python -m pytest tests/ --cov=scripts --cov=lambda         # With coverage
+
+# Code Quality
+black scripts/ lambda/ tools/                              # Format
+flake8 scripts/ lambda/                                    # Lint
+
+# Pipeline
+./tools/workflow_cli.py start --run-id RUN-001 --bucket minion-data
+./tools/workflow_cli.py status --run-id RUN-001 --watch    # Monitor
 ```
 
 ## Architecture
 
 **7-Phase Pipeline**: phase0_sample_prep → phase1_basecalling → phase2_qc → phase3_host_removal → phase4_pathogen → phase5_quantification → phase6_reports
 
-**AWS Pattern**: S3 upload → Lambda orchestrator → Step Functions → EC2 per phase (auto-terminates)
+**AWS Pattern (Containerless)**: S3 upload → Lambda orchestrator → Step Functions → EC2 per phase (custom AMIs, auto-terminate)
+- No Docker containers - uses custom AMIs with pre-installed tools
+- Phase 1: g4dn.xlarge (GPU for Dorado basecalling)
+- Phase 3: r5.4xlarge (128GB RAM for host removal)
+- Phase 4: 4x parallel EC2 (Kraken2/BLAST pathogen detection)
 
-## Key Files
+## Code Structure
 
-- Config: `templates/config/pmda_pathogens.json`
-- Pipeline: `lambda/orchestration/pipeline_orchestrator.py`
-- PERV: `scripts/phase4_pathogen/perv_typing.py`
+```
+scripts/
+├── phase0_sample_prep/        # Sample routing & workflow determination
+├── phase1_basecalling/        # FAST5→FASTQ (Dorado duplex)
+├── phase2_qc/                 # Quality metrics (NanoPlot/PycoQC)
+├── phase3_host_removal/       # Host depletion (Minimap2)
+├── phase4_pathogen/           # Multi-DB screening (Kraken2/BLAST)
+│   ├── perv_typing.py         # CRITICAL: PERV-A/B/C subtype detection
+│   ├── detect_pmda_4viruses.py   # Polyoma/Hantavirus/EEEV/Spumavirus
+│   └── detect_pmda_all_91_pathogens.py  # Full 91 pathogen coverage
+├── phase5_quantification/     # Abundance calculation (copies/mL)
+└── phase6_reports/            # PMDA-compliant report generation
+
+lambda/
+├── orchestration/             # Pipeline coordination (S3 trigger)
+├── monitoring/                # EC2 lifecycle management
+├── phases/                    # Phase-specific handlers
+└── shared/                    # Common validation logic
+
+tools/
+├── workflow_cli.py            # Main CLI (start/status/metrics)
+├── database_setup.sh          # Reference database initialization
+└── monitoring_dashboard.py    # Streamlit dashboard
+```
+
+## Key Patterns
+
+### File Validation (Required)
+```python
+from pathlib import Path
+
+def process_file(file_path: str):
+    file = Path(file_path)
+    if not file.exists():
+        raise FileNotFoundError(f"File not found: {file}")
+    if file.stat().st_size == 0:
+        raise ValueError(f"Empty file: {file}")
+```
+
+### AWS Operations (Always ap-northeast-1)
+```python
+import boto3
+s3 = boto3.client('s3', region_name='ap-northeast-1')
+```
+
+### PERV Detection Pattern
+- Check `PERV_MARKERS` dict in `perv_typing.py:14-31`
+- Any detection → immediate SNS alert
+- Subtype-specific motifs for A/B/C classification
+
+### BAM File Handling
+```python
+import pysam
+bam = pysam.AlignmentFile(str(bam_file), "rb")
+# Always validate index exists
+if not Path(f"{bam_file}.bai").exists():
+    pysam.index(str(bam_file))
+```
+
+## Key Configuration Files
+
+- `templates/config/pmda_pathogens.json` - 91 pathogen definitions, Protocol 12 v2.1 specs
+- `lambda/orchestration/pipeline_orchestrator.py` - Main orchestration logic
+- `scripts/phase4_pathogen/perv_typing.py` - CRITICAL PERV detection
+- `infrastructure/terraform/` - AWS infrastructure as code
+
+## Database Locations (EFS Mount)
+
+- Kraken2: `/mnt/efs/databases/kraken2/pmda_2024/`
+- BLAST: `/mnt/efs/databases/blast/nt_2024/`
+- PERV: `/mnt/efs/databases/perv/references/`
+- Custom PMDA: `/mnt/efs/databases/pmda/2024.1/`
 
 ## Documentation
 
-| Quick Access | Details |
-|-------------|---------|
-| [Commands](docs/COMMANDS.md) | All commands & operations |
-| [Patterns](docs/PATTERNS.md) | Code patterns & conventions |
-| [Architecture](docs/ARCHITECTURE.md) | Detailed architecture |
-| [Protocols](docs/PROTOCOLS_GUIDE.md) | Sample prep protocols |
-| [Development](docs/DEVELOPMENT_GUIDE.md) | Dev guide |
+| Document | Purpose |
+|----------|---------|
+| [README](README.md) | Project overview, installation, usage |
+| [Quick Reference](docs/QUICK_REFERENCE.md) | Commands, workflows, troubleshooting |
+| [Architecture](docs/ARCHITECTURE.md) | Detailed system design |
+| [Patterns](docs/PATTERNS.md) | Code conventions & best practices |
+| [Protocols](docs/PROTOCOLS_GUIDE.md) | Lab protocols (Protocol 12 v2.1) |
+| [Changelog](docs/CHANGELOG.md) | Version history & updates |
 
-## Recent Updates
+## Important Notes
 
-**2025-11-13**: Protocol 12 v2.1 - Added Step 2.5 for circular/ssDNA virus support
-- TRUE 91/91 pathogen coverage (87/91 → 91/91)
-- Enables detection of PCV2, PCV3 (Special Management), TTV, PPV
-- Cost: +¥5,000/sample (+3.2%), total ¥162,000
-- Time: +2.5 hours (+19%), total 15.5 hours
-- Bioinformatics: Reference duplication for circular genomes
-- Documentation: 24 files created/modified, 8 Japanese translations
-
-See [Session Log](docs/claude-sessions/2025-11-13-protocol-12-v2.1-circular-ssdna-support.md) for full details.
+- **Protocol 12 v2.1**: Includes Step 2.5 for circular/ssDNA virus support (PCV2, PCV3, TTV, PPV)
+- **Test Pattern**: Use pytest with moto for AWS service mocking
+- **Error Handling**: Always validate file existence/size before processing
+- **EC2 Pattern**: Each phase runs on dedicated instance, auto-terminates on completion
+- **Spot Instances**: 70% cost savings, handled by orchestrator
+- **RDS Schema**: Aurora Serverless v2 for pipeline metadata

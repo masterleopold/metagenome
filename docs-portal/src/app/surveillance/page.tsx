@@ -28,7 +28,7 @@ const targetViruses = [
   {
     name: "Polyomavirus",
     nameJa: "ポリオーマウイルス",
-    priority: "MEDIUM",
+    priority: "HIGH",
     source: "Sus scrofa polyomavirus",
     thresholdCritical: null,
     thresholdHigh: 100,

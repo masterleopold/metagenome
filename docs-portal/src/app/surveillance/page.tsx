@@ -157,8 +157,8 @@ export default function SurveillancePage() {
                         <CardTitle className="text-lg">{virus.name}</CardTitle>
                         <Badge
                           variant={
-                            virus.priority === "CRITICAL" ? "destructive" :
-                            virus.priority === "HIGH" ? "default" :
+                            virus.priority === "CRITICAL" ? "error" :
+                            virus.priority === "HIGH" ? "warning" :
                             "secondary"
                           }
                         >
@@ -187,7 +187,7 @@ export default function SurveillancePage() {
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">High:</span>
                             <span className="font-medium text-orange-600 dark:text-orange-400">
-                              >{virus.thresholdHigh} copies/mL
+                              {`>${virus.thresholdHigh} copies/mL`}
                             </span>
                           </div>
                         )}

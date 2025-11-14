@@ -46,7 +46,7 @@ viruses:
 
   polyomavirus:
     enabled: true
-    priority: medium
+    priority: high
     description: "Sus scrofa polyomavirus (limited surveillance data)"
 
   spumavirus:

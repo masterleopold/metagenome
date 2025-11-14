@@ -4,9 +4,9 @@
 **作成日:** 2025-11-12
 **最終更新:** 2025-11-13
 **対象ウイルス:** ポリオーマウイルス、ハンタウイルス、東部ウマ脳炎ウイルス(EEEV)、ブタスピューマウイルス
-**検出感度目標:** <50 copies/mL plasma (スピューマウイルスは<10 copies/10⁵ PBMCs)
+**検出感度目標:** \<50 copies/mL plasma (スピューマウイルスは\<10 copies/10⁵ PBMCs)
 
----
+---- 
 
 ## ⚠️ 重要: プロトコル使用ガイダンス
 
@@ -14,32 +14,32 @@
 
 **本プロトコル（Protocol 11）は高感度化オプション**であり、通常のスクリーニングには **Protocol 12「統合サンプル調製プロトコル」** を使用することを強く推奨します。
 
-| 項目 | Protocol 12（推奨）| Protocol 11（本文書） |
-|-----|------------------|---------------------|
-| **用途** | 通常スクリーニング（91病原体） | 高感度確認検査（4ウイルス） |
-| **LOD** | 100-500 copies/mL | <50 copies/mL |
-| **実験時間** | 13時間 | 19.5時間（+6.5時間） |
-| **コスト** | ¥157,000 | ¥185,000（+¥28,000） |
-| **複雑度** | 低（2ワークフロー） | 高（4ワークフロー） |
-| **適応** | 全サンプル | 以下の場合のみ |
+| 項目       | Protocol 12（推奨）   | Protocol 11（本文書）   |
+| -------- | ----------------- | ------------------ |
+| **用途**   | 通常スクリーニング（91病原体）  | 高感度確認検査（4ウイルス）     |
+| **LOD**  | 100-500 copies/mL | \<50 copies/mL     |
+| **実験時間** | 13時間              | 19.5時間（+6.5時間）     |
+| **コスト**  | ¥157,000          | ¥185,000（+¥28,000） |
+| **複雑度**  | 低（2ワークフロー）        | 高（4ワークフロー）         |
+| **適応**   | 全サンプル             | 以下の場合のみ            |
 
 ### ✅ Protocol 11を使用すべき場合
 
 以下のいずれかに該当する場合のみ、本プロトコルを使用してください：
 
 1. **Protocol 12で陽性検出後の確認検査**
-   - 初回スクリーニングで4ウイルスのいずれかが検出された
-   - 定量精度向上のため高感度検査が必要
+   2. 初回スクリーニングで4ウイルスのいずれかが検出された
+   3. 定量精度向上のため高感度検査が必要
 
 2. **疫学的な感染リスクが高い**
-   - 輸入ブタ、非SPF施設由来
-   - 感染症発生地域からの移動歴
+   2. 輸入ブタ、非SPF施設由来
+   3. 感染症発生地域からの移動歴
 
 3. **規制当局からの特別要求**
-   - LOD <50 copies/mL達成が必須条件として指定された場合
+   2. LOD \<50 copies/mL達成が必須条件として指定された場合
 
 4. **研究目的での超高感度解析**
-   - バリデーション試験、LOD決定試験
+   2. バリデーション試験、LOD決定試験
 
 ### ❌ Protocol 11を使用しない方が良い場合
 
@@ -47,22 +47,22 @@
 - **コスト・時間を最小化したい** → Protocol 12が効率的
 - **初回検査（確定診断ではない）** → Protocol 12で十分
 
----
+---- 
 
 ## 1. プロトコル概要
 
 ### 1.1 目的
 
-本プロトコルは、異種移植用ドナーブタの病原体スクリーニングにおいて、PMDA指定91病原体のうち特に検出が困難な以下の4ウイルスについて、超高感度検出(<50 copies/mL)を実現するための統合プロトコルである。
+本プロトコルは、異種移植用ドナーブタの病原体スクリーニングにおいて、PMDA指定91病原体のうち特に検出が困難な以下の4ウイルスについて、超高感度検出(\<50 copies/mL)を実現するための統合プロトコルである。
 
 ### 1.2 対象ウイルスの特性
 
-| ウイルス | ゲノム型 | サイズ(kb) | 血漿中の形態 | PMDA分類 | 検出上の課題 |
-|---------|---------|-----------|------------|----------|------------|
-| **ポリオーマウイルス** | dsDNA環状 | 5.0 | cfDNA(ビリオン由来) | Line 35/58 | 宿主DNA混入、類似ウイルスとの鑑別 |
-| **ハンタウイルス** | ssRNA(-)3分節 | 11.8 (L:6.5, M:3.6, S:1.7) | ビリオンRNA + cfRNA | Line 31/54, 人獣共通感染症 | rRNA除去、poly(A)尾なし、RNA分解 |
-| **東部ウマ脳炎ウイルス(EEEV)** | ssRNA(+)、poly(A)+ | 11-12 | ビリオンRNA + cfRNA | Line 32/55, 人獣共通感染症 | rRNA除去、短時間ウイルス血症 |
-| **ブタスピューマウイルス** | ssRNA→dsDNAプロウイルス | 7-10 (プロウイルス) | PBMCゲノムDNA(組込型) | Line 154, 特別管理微生物 | ブタでの存在不明、PERV識別 |
+| ウイルス                 | ゲノム型              | サイズ(kb)                    | 血漿中の形態          | PMDA分類              | 検出上の課題                  |
+| -------------------- | ----------------- | -------------------------- | --------------- | ------------------- | ----------------------- |
+| **ポリオーマウイルス**        | dsDNA環状           | 5.0                        | cfDNA(ビリオン由来)   | Line 35/58          | 宿主DNA混入、類似ウイルスとの鑑別      |
+| **ハンタウイルス**          | ssRNA(-)3分節       | 11.8 (L:6.5, M:3.6, S:1.7) | ビリオンRNA + cfRNA | Line 31/54, 人獣共通感染症 | rRNA除去、poly(A)尾なし、RNA分解 |
+| **東部ウマ脳炎ウイルス(EEEV)** | ssRNA(+)、poly(A)+ | 11-12                      | ビリオンRNA + cfRNA | Line 32/55, 人獣共通感染症 | rRNA除去、短時間ウイルス血症        |
+| **ブタスピューマウイルス**      | ssRNA→dsDNAプロウイルス | 7-10 (プロウイルス)              | PBMCゲノムDNA(組込型) | Line 154, 特別管理微生物   | ブタでの存在不明、PERV識別         |
 
 ### 1.3 検出戦略の概要
 
@@ -73,7 +73,7 @@
 - **ssRNA(-)ウイルス (ハンタウイルス):** 血漿cfRNA抽出 → rRNA除去 → アンプリコンRT-PCRまたはSMART-9N cDNA → MinIONシーケンス
 - **レトロウイルスプロウイルス (スピューマウイルス):** PBMC分離 → ゲノムDNA抽出 → Nested PCR (pol遺伝子) → MinIONシーケンスまたはqPCR定量
 
----
+---- 
 
 ## 2. サンプル採取と前処理
 
@@ -83,28 +83,28 @@
 
 #### 2.1.1 採血量と使用チューブ
 
-| 目的 | 採血量 | チューブ種類 | 添加試薬 | 保存条件 |
-|------|--------|------------|---------|---------|
-| **DNA/RNAウイルス検出(標準)** | 5 mL | EDTA | なし | 4時間以内に処理(4°C) |
-| **DNA/RNAウイルス検出(高感度)** | 10 mL | EDTA | SUPERase•In 200 U (20 U/mL) | 4時間以内に処理(4°C) |
-| **遅延処理が必要な場合** | 10 mL | Streck cfDNA BCT (DNA) / cf-RNA Preservative Tube (RNA) | 専用保存液含有 | 室温30日間安定 |
+| 目的                     | 採血量   | チューブ種類                                                  | 添加試薬                        | 保存条件          |
+| ---------------------- | ----- | ------------------------------------------------------- | --------------------------- | ------------- |
+| **DNA/RNAウイルス検出(標準)**  | 5 mL  | EDTA                                                    | なし                          | 4時間以内に処理(4°C) |
+| **DNA/RNAウイルス検出(高感度)** | 10 mL | EDTA                                                    | SUPERase•In 200 U (20 U/mL) | 4時間以内に処理(4°C) |
+| **遅延処理が必要な場合**         | 10 mL | Streck cfDNA BCT (DNA) / cf-RNA Preservative Tube (RNA) | 専用保存液含有                     | 室温30日間安定      |
 
 #### 2.1.2 RNA保護のための重要注意事項
 
 **ハンタウイルスとEEEV検出では、RNA分解防止が最重要:**
 
 1. **RNase阻害剤の即時添加**
-   - 採血直後にSUPERase•In RNase Inhibitor (Invitrogen)を20 U/mLで添加
-   - SUPERase•InはRNase A/B/C/1/T1を阻害
+   2. 採血直後にSUPERase•In RNase Inhibitor (Invitrogen)を20 U/mLで添加
+   3. SUPERase•InはRNase A/B/C/1/T1を阻害
 
 2. **RNaseフリー環境の維持**
-   - 手袋着用(素手で触らない)
-   - フィルターチップ使用
-   - RNaseZap処理済みワークスペース
+   2. 手袋着用(素手で触らない)
+   3. フィルターチップ使用
+   4. RNaseZap処理済みワークスペース
 
 3. **凍結融解サイクルの最小化**
-   - 血漿分離後は-80°Cで保存
-   - 凍結融解は最大1-2回まで(それ以上はRNA分解が進行)
+   2. 血漿分離後は-80°Cで保存
+   3. 凍結融解は最大1-2回まで(それ以上はRNA分解が進行)
 
 ### 2.2 血漿分離(DNA/RNAウイルス)
 
@@ -150,7 +150,7 @@
 - 目安: 10 mL全血 → 1-5×10⁶ PBMCs
 ```
 
----
+---- 
 
 ## 3. 核酸抽出プロトコル
 
@@ -216,7 +216,7 @@
 - 100 ng DNA = 約16,000 cells
 - 感染率10%と仮定 → 100 ngに1,600プロウイルスコピー含有
 
----
+---- 
 
 ## 4. ウイルス特異的前処理
 
@@ -366,7 +366,7 @@ Expected product: ~400 bp
 - 特異度: PERVと識別可能(pol遺伝子配列が異なる)
 ```
 
----
+---- 
 
 ## 5. MinIONライブラリ調製
 
@@ -432,7 +432,7 @@ Expected product: ~400 bp
 
 ### 5.3 ハンタウイルス: Amplicon-based cDNA
 
-**戦略:** メタゲノムでは感度不足(<10⁵ copies/mL)のため、アンプリコンアプローチ
+**戦略:** メタゲノムでは感度不足(\<10⁵ copies/mL)のため、アンプリコンアプローチ
 
 #### 5.3.1 Tiled Amplicon設計
 
@@ -494,7 +494,7 @@ Expected product: ~400 bp
 - Qubit dsDNA HS: 目標 >50 fmol (400 bp × 1×10¹¹ molecules = ~27 ng)
 ```
 
----
+---- 
 
 ## 6. MinION Sequencing
 
@@ -534,20 +534,20 @@ Expected product: ~400 bp
 
 **ウイルス別推奨Run時間:**
 
-| ウイルス | ウイルス量予想 | Run時間 | 期待Read数 | 判定基準 |
-|---------|------------|--------|----------|---------|
-| **ポリオーマウイルス** | 10³-10⁷ copies/mL | 24-48時間 | >100 virus reads | ≥100 readsで陽性 |
-| **EEEV** | 10⁵-10⁸ copies/mL | 8-24時間 | >100 virus reads | ≥100 readsで陽性 |
-| **ハンタウイルス(amplicon)** | 10-10³ copies/mL | 4-8時間 | >1,000 reads (全amplicons) | L/M/S全分節検出で陽性 |
-| **スピューマウイルス(PCR)** | 1-10 copies/10⁵ cells | 1-4時間 | >100 reads (pol gene) | Sanger確認後陽性 |
+| ウイルス                  | ウイルス量予想               | Run時間   | 期待Read数                    | 判定基準          |
+| --------------------- | --------------------- | ------- | -------------------------- | ------------- |
+| **ポリオーマウイルス**         | 10³-10⁷ copies/mL     | 24-48時間 | \>100 virus reads          | ≥100 readsで陽性 |
+| **EEEV**              | 10⁵-10⁸ copies/mL     | 8-24時間  | \>100 virus reads          | ≥100 readsで陽性 |
+| **ハンタウイルス(amplicon)** | 10-10³ copies/mL      | 4-8時間   | \>1,000 reads (全amplicons) | L/M/S全分節検出で陽性 |
+| **スピューマウイルス(PCR)**    | 1-10 copies/10⁵ cells | 1-4時間   | \>100 reads (pol gene)     | Sanger確認後陽性   |
 
 **低力価サンプル戦略:**
 - Real-time basecallingでウイルスread出現をモニター
-- 4時間経過時点でウイルスread <10の場合:
+- 4時間経過時点でウイルスread \<10の場合:
   - オプション1: Adaptive Samplingでウイルス濃縮(host read reject)
   - オプション2: Hybridization capture enrichmentを追加し、再ライブラリ調製
 
----
+---- 
 
 ## 7. Bioinformatics解析
 
@@ -779,18 +779,18 @@ def discriminate_spumavirus_from_perv(blast_result):
    - <50%相同性 → PERV等他のレトロウイルス
 ```
 
----
+---- 
 
 ## 8. QC基準と判定
 
 ### 8.1 各ウイルスのQC基準
 
-| ウイルス | 検出基準 | 定量範囲 | 確認試験 | PMDA要求LOD |
-|---------|---------|---------|---------|------------|
-| **ポリオーマウイルス** | ≥100 reads, ≥10× coverage | 50-10⁷ copies/mL | qPCR (BK virus primers) | <50 copies/mL |
-| **ハンタウイルス** | L/M/S全分節≥50 reads | 100-10⁶ copies/mL | qRT-PCR (S segment) | <50 copies/mL |
-| **EEEV** | ≥100 reads, ≥10× coverage | 50-10⁸ copies/mL | qRT-PCR (nsP4 or E1 gene) | <50 copies/mL |
-| **スピューマウイルス** | Nested PCR陽性 + Sanger確認 | 1-1,000/10⁵ PBMCs | PBMC培養活性化試験 | <10 copies/10⁵ cells |
+| ウイルス          | 検出基準                      | 定量範囲              | 確認試験                      | PMDA要求LOD             |
+| ------------- | ------------------------- | ----------------- | ------------------------- | --------------------- |
+| **ポリオーマウイルス** | ≥100 reads, ≥10× coverage | 50-10⁷ copies/mL  | qPCR (BK virus primers)   | \<50 copies/mL        |
+| **ハンタウイルス**   | L/M/S全分節≥50 reads         | 100-10⁶ copies/mL | qRT-PCR (S segment)       | \<50 copies/mL        |
+| **EEEV**      | ≥100 reads, ≥10× coverage | 50-10⁸ copies/mL  | qRT-PCR (nsP4 or E1 gene) | \<50 copies/mL        |
+| **スピューマウイルス** | Nested PCR陽性 + Sanger確認   | 1-1,000/10⁵ PBMCs | PBMC培養活性化試験               | \<10 copies/10⁵ cells |
 
 ### 8.2 PMDA Validation要求
 
@@ -804,43 +804,43 @@ def discriminate_spumavirus_from_perv(blast_result):
 - 10, 50, 100, 500, 1,000, 5,000, 10,000 copies/mL標準曲線
 - 測定値 vs 期待値の相関係数
 
-**Precision (再現性):** CV <20% at 10× LOD
+**Precision (再現性):** CV \<20% at 10× LOD
 
----
+---- 
 
 ## 9. トラブルシューティング
 
 ### 9.1 ポリオーマウイルス検出不良
 
-| 症状 | 原因 | 対策 |
-|------|------|------|
-| ウイルスread <10 | 宿主DNA除去不十分 | CpGキャプチャー2回実施、またはProbe capture追加 |
-| 多数のSus scrofa read | CpG除去失敗 | MBD-Fc beads量を2倍に増量 |
-| Coverage偏り | 環状ゲノム線状化不足 | 制限酵素処理(BamHI)またはshearing追加 |
+| 症状                 | 原因         | 対策                               |
+| ------------------ | ---------- | -------------------------------- |
+| ウイルスread \<10      | 宿主DNA除去不十分 | CpGキャプチャー2回実施、またはProbe capture追加 |
+| 多数のSus scrofa read | CpG除去失敗    | MBD-Fc beads量を2倍に増量              |
+| Coverage偏り         | 環状ゲノム線状化不足 | 制限酵素処理(BamHI)またはshearing追加       |
 
 ### 9.2 ハンタウイルスRNA分解
 
-| 症状 | 原因 | 対策 |
-|------|------|------|
-| RNA収量<1 ng | RNase混入 | SUPERase•In 40 U/mLに増量、採血から抽出まで2時間以内 |
-| RIN <5 | 凍結融解過多 | 凍結融解1回まで、Aliquot保存 |
-| rRNA除去不十分 | ブタrRNA交差反応低 | カスタムブタrRNAプローブ設計(Integrated DNA Technologies) |
+| 症状          | 原因          | 対策                                            |
+| ----------- | ----------- | --------------------------------------------- |
+| RNA収量\<1 ng | RNase混入     | SUPERase•In 40 U/mLに増量、採血から抽出まで2時間以内          |
+| RIN \<5     | 凍結融解過多      | 凍結融解1回まで、Aliquot保存                            |
+| rRNA除去不十分   | ブタrRNA交差反応低 | カスタムブタrRNAプローブ設計(Integrated DNA Technologies) |
 
 ### 9.3 EEEV低力価
 
-| 症状 | 原因 | 対策 |
-|------|------|------|
-| Poly(A)+ RNA <10 ng | 血漿量不足 | 10 mL血漿使用、または5回抽出プール |
-| ウイルスread <50 | ウイルス血症短期間 | 発熱後48時間以内の採血推奨 |
-| Host mRNA混入多 | Poly(A)選択でhost mRNAも濃縮 | Probe capture追加(Alphavirus panel) |
+| 症状                   | 原因                     | 対策                                |
+| -------------------- | ---------------------- | --------------------------------- |
+| Poly(A)+ RNA \<10 ng | 血漿量不足                  | 10 mL血漿使用、または5回抽出プール              |
+| ウイルスread \<50        | ウイルス血症短期間              | 発熱後48時間以内の採血推奨                    |
+| Host mRNA混入多         | Poly(A)選択でhost mRNAも濃縮 | Probe capture追加(Alphavirus panel) |
 
 ### 9.4 スピューマウイルスPCR陰性
 
-| 症状 | 原因 | 対策 |
-|------|------|------|
-| Nested PCR陰性 | ブタスピューマウイルス不在? | PMDA確認、または検出対象から除外 |
-| 1st PCR陰性 | プライマーミスマッチ | Degenerate primerのdegeneracy増加 |
-| PERV偽陽性 | pol遺伝子類似 | Sanger確認、系統解析必須 |
+| 症状           | 原因             | 対策                             |
+| ------------ | -------------- | ------------------------------ |
+| Nested PCR陰性 | ブタスピューマウイルス不在? | PMDA確認、または検出対象から除外             |
+| 1st PCR陰性    | プライマーミスマッチ     | Degenerate primerのdegeneracy増加 |
+| PERV偽陽性      | pol遺伝子類似       | Sanger確認、系統解析必須                |
 
 ---
 
@@ -848,14 +848,14 @@ def discriminate_spumavirus_from_perv(blast_result):
 
 ### 10.1 追加コスト(既存パイプライン比)
 
-| 項目 | キット名 | 単価 | 用途 | サンプル当たりコスト |
-|------|---------|------|------|---------------------|
-| rRNA除去 | NEBNext rRNA Depletion Kit (96 rxns) | ¥150,000 | ハンタ・EEEV | ¥1,563 |
-| Poly(A)選択 | NEBNext Poly(A) mRNA Module (96 rxns) | ¥120,000 | EEEV | ¥1,250 |
-| Direct RNAキット | ONT Direct RNA Kit (24 rxns) | ¥200,000 | EEEV | ¥8,333 |
-| Nested PCRプライマー | Custom degenerate primers | ¥50,000 | スピューマ | ¥521 (96サンプル分) |
-| Sangerシーケンス | 外注(両方向) | ¥3,000 | スピューマ確認 | ¥3,000 |
-| **合計追加コスト** | - | - | - | **¥14,667/サンプル** |
+| 項目              | キット名                                  | 単価       | 用途       | サンプル当たりコスト       |
+| --------------- | ------------------------------------- | -------- | -------- | ---------------- |
+| rRNA除去          | NEBNext rRNA Depletion Kit (96 rxns)  | ¥150,000 | ハンタ・EEEV | ¥1,563           |
+| Poly(A)選択       | NEBNext Poly(A) mRNA Module (96 rxns) | ¥120,000 | EEEV     | ¥1,250           |
+| Direct RNAキット   | ONT Direct RNA Kit (24 rxns)          | ¥200,000 | EEEV     | ¥8,333           |
+| Nested PCRプライマー | Custom degenerate primers             | ¥50,000  | スピューマ    | ¥521 (96サンプル分)   |
+| Sangerシーケンス     | 外注(両方向)                               | ¥3,000   | スピューマ確認  | ¥3,000           |
+| **合計追加コスト**     | -                                     | -        | -        | **¥14,667/サンプル** |
 
 **既存パイプラインコスト:** ¥127,000/サンプル
 **4ウイルス対応後:** ¥141,667/サンプル (+11.5%)
@@ -865,35 +865,35 @@ def discriminate_spumavirus_from_perv(blast_result):
 
 ### 10.2 バリデーション初期投資
 
-| 項目 | 詳細 | コスト |
-|------|------|--------|
-| 合成DNA/RNA標準品 | 各ウイルス×7濃度 | ¥300,000 |
-| Probe capture panel | ViroFind panel or custom | ¥500,000 |
-| qPCR/qRT-PCR検証 | TaqMan probes, 検証実験 | ¥200,000 |
-| **初期投資合計** | - | **¥1,000,000** |
+| 項目                  | 詳細                       | コスト            |
+| ------------------- | ------------------------ | -------------- |
+| 合成DNA/RNA標準品        | 各ウイルス×7濃度                | ¥300,000       |
+| Probe capture panel | ViroFind panel or custom | ¥500,000       |
+| qPCR/qRT-PCR検証      | TaqMan probes, 検証実験      | ¥200,000       |
+| **初期投資合計**          | -                        | **¥1,000,000** |
 
----
+---- 
 
 ## 11. 実施スケジュール
 
 ### 11.1 プロトコル実装フェーズ(3-4ヶ月)
 
-| フェーズ | 期間 | 作業内容 |
-|---------|------|---------|
+| フェーズ                    | 期間  | 作業内容                                     |
+| ----------------------- | --- | ---------------------------------------- |
 | **Month 1-2: プロトコル最適化** | 2ヶ月 | RNA抽出、rRNA除去、poly(A)選択の最適化。合成標準品スパイクイン実験 |
 | **Month 3: Pipeline統合** | 1ヶ月 | Phase 0追加、Phase 3/4修正、データベース構築、解析スクリプト実装 |
-| **Month 4: 社内検証** | 1ヶ月 | LOD決定(10反復×7濃度×4ウイルス)、PPA/NPA/R²計算 |
+| **Month 4: 社内検証**       | 1ヶ月 | LOD決定(10反復×7濃度×4ウイルス)、PPA/NPA/R²計算       |
 
 ### 11.2 PMDA申請準備(3ヶ月)
 
-| フェーズ | 期間 | 作業内容 |
-|---------|------|---------|
+| フェーズ                  | 期間  | 作業内容                            |
+| --------------------- | --- | ------------------------------- |
 | **Month 5-6: 臨床検体検証** | 2ヶ月 | 陽性コントロール入手(研究機関・獣医クリニック)、qPCR相関 |
 | **Month 7: ドキュメント作成** | 1ヶ月 | Validation dossier、SOP、トレーニング資料 |
 
 **合計実装期間:** 7ヶ月
 
----
+---- 
 
 ## 12. 参考文献
 
@@ -927,29 +927,29 @@ def discriminate_spumavirus_from_perv(blast_result):
 11. Fernández-Lázaro D, et al. "Clinical perspective and translational oncology of liquid biopsy." *Diagnostics* 2020;10:443.
 12. Belizário JE, et al. "Current challenges and best practices for cell-free long RNA biomarker discovery." *Biomarker Res* 2022;10:62.
 
----
+---- 
 
 ## 13. 付録
 
 ### 13.1 試薬・機器チェックリスト
 
 **Phase 0 (Sample Preparation)追加試薬:**
-- [ ] SUPERase•In RNase Inhibitor (Invitrogen AM2696)
-- [ ] Ficoll-Paque PLUS (Cytiva 17144003)
-- [ ] RNaseZap (Invitrogen AM9780)
+- [ ]() SUPERase•In RNase Inhibitor (Invitrogen AM2696)
+- [ ]() Ficoll-Paque PLUS (Cytiva 17144003)
+- [ ]() RNaseZap (Invitrogen AM9780)
 
 **Phase 3 (Host Removal)追加試薬:**
-- [ ] NEBNext rRNA Depletion Kit (Human/Mouse/Rat) (NEB E6310)
-- [ ] NEBNext Poly(A) mRNA Magnetic Isolation Module (NEB E7490)
-- [ ] DNase I, RNase-free (NEB M0303)
+- [ ]() NEBNext rRNA Depletion Kit (Human/Mouse/Rat) (NEB E6310)
+- [ ]() NEBNext Poly(A) mRNA Magnetic Isolation Module (NEB E7490)
+- [ ]() DNase I, RNase-free (NEB M0303)
 
 **Phase 4 (Detection)追加試薬:**
-- [ ] Custom degenerate primers (Spumavirus pol gene)
-- [ ] High-fidelity Taq (Q5 or Phusion)
+- [ ]() Custom degenerate primers (Spumavirus pol gene)
+- [ ]() High-fidelity Taq (Q5 or Phusion)
 
 **MinION追加キット:**
-- [ ] Direct RNA Sequencing Kit (ONT SQK-RNA002)
-- [ ] Native Barcoding Kit (ONT SQK-NBD114)
+- [ ]() Direct RNA Sequencing Kit (ONT SQK-RNA002)
+- [ ]() Native Barcoding Kit (ONT SQK-NBD114)
 
 ### 13.2 データベースファイル構造
 
@@ -1003,17 +1003,11 @@ H = A/T/C (not G)
 - Wet lab validation: SFV-positive primate PBMC DNA (if available)
 ```
 
----
+---- 
 
 ## 14. 変更履歴
 
-| Version | 日付 | 変更内容 | 作成者 |
-|---------|------|---------|--------|
-| 1.0 | 2025-11-12 | 初版作成。ポリオーマ、ハンタ、EEEV、スピューマ4ウイルス高感度検出プロトコル統合 | Claude Code |
+| Version | 日付         | 変更内容                                       | 作成者         |
+| ------- | ---------- | ------------------------------------------ | ----------- |
+| 1.0     | 2025-11-12 | 初版作成。ポリオーマ、ハンタ、EEEV、スピューマ4ウイルス高感度検出プロトコル統合 | Claude Code |
 
----
-
-**承認:** _____________________
-**日付:** _____________________
-
-**次回レビュー予定:** 2026-05-12 (6ヶ月後)

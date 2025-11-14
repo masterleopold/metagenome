@@ -1,0 +1,342 @@
+# Severity Classification Rules for 4-Virus Surveillance System
+# Version: 1.0
+# Last Updated: 2024-11-14
+
+# Severity Levels (aligned with PERV detection system)
+severity_levels:
+  critical:
+    priority: 1
+    description: "Immediate action required - PERV-level emergency"
+    notification:
+      - SNS immediate
+      - SMS to key personnel
+      - Dashboard alert (flashing)
+      - Pipeline pause consideration
+    response_time: "< 5 minutes"
+
+  high:
+    priority: 2
+    description: "Urgent attention required - significant detection"
+    notification:
+      - SNS notification
+      - Email to surveillance team
+      - Dashboard warning
+    response_time: "< 30 minutes"
+
+  medium:
+    priority: 3
+    description: "Investigation recommended - potential concern"
+    notification:
+      - Email notification
+      - Dashboard display
+    response_time: "< 2 hours"
+
+  low:
+    priority: 4
+    description: "Informational - monitoring only"
+    notification:
+      - Dashboard record
+      - Daily summary inclusion
+    response_time: "< 24 hours"
+
+
+# Virus-Specific Detection Rules
+virus_rules:
+  spumavirus:
+    description: "Spumavirus (Foamy Virus) - MHLW Special Management Pathogen #5"
+    severity_thresholds:
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 500"
+        severity: critical
+        reason: "High viral load - xenotransplantation risk"
+
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 100"
+        severity: high
+        reason: "Moderate viral load detected"
+
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 50"
+        severity: medium
+        reason: "Low-level detection - monitoring required"
+
+      - condition:
+          source: internal_pipeline
+          detected: true
+        severity: low
+        reason: "Spumavirus presence confirmed"
+
+      - condition:
+          source: external
+          keyword_match: true
+        severity: medium
+        reason: "External source reports spumavirus in region"
+
+    special_notes: |
+      - No porcine spumavirus reference genome exists
+      - Detection uses cross-genus comparison (simian/bovine/feline)
+      - Persistent infection possible
+      - Protocol 13 requires PBMC genomic DNA screening
+
+  hantavirus:
+    description: "Hantavirus - Primarily rodent-borne zoonotic pathogen"
+    severity_thresholds:
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 100"
+        severity: high
+        reason: "Unusual pig infection - requires investigation"
+
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 50"
+        severity: medium
+        reason: "Potential spillover event"
+
+      - condition:
+          source: internal_pipeline
+          detected: true
+        severity: low
+        reason: "Hantavirus detected - verify rodent exposure"
+
+      - condition:
+          source: external
+          outbreak_reported: true
+        severity: high
+        reason: "Regional outbreak may affect pig facilities"
+
+      - condition:
+          source: academic
+          new_case_report: true
+        severity: low
+        reason: "Academic case report - monitor development"
+
+    special_notes: |
+      - Primary reservoir: Rodents (NOT pigs)
+      - Pig detection suggests rodent contamination
+      - Focus on facility biosecurity and rodent control
+      - Aerosolized transmission risk to personnel
+
+  polyomavirus:
+    description: "Polyomavirus (Sus scrofa polyomavirus) - Limited surveillance data"
+    severity_thresholds:
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 100"
+        severity: high
+        reason: "Significant polyomavirus detection"
+
+      - condition:
+          source: internal_pipeline
+          copies_per_ml: "> 50"
+        severity: medium
+        reason: "Moderate polyomavirus level"
+
+      - condition:
+          source: internal_pipeline
+          detected: true
+        severity: low
+        reason: "Polyomavirus presence confirmed"
+
+      - condition:
+          source: academic
+          prevalence_study: true
+        severity: medium
+        reason: "New prevalence data available - review baseline"
+
+    special_notes: |
+      - Sus scrofa polyomavirus 2 (MH381769) identified
+      - Limited epidemiological data in Japan
+      - No routine surveillance programs exist
+      - Consider baseline prevalence establishment
+
+  eeev:
+    description: "Eastern Equine Encephalitis Virus - NOT endemic to Japan/Asia"
+    severity_thresholds:
+      - condition:
+          source: internal_pipeline
+          detected: true
+        severity: critical
+        reason: "EEEV NOT endemic to Japan - requires immediate verification"
+
+      - condition:
+          source: external
+          import_alert: true
+        severity: high
+        reason: "Imported genetic material may carry EEEV"
+
+      - condition:
+          source: academic
+          geographic_expansion: true
+        severity: medium
+        reason: "Monitor for geographic range changes"
+
+    special_notes: |
+      - Endemic to: North/South America only
+      - NOT found in Asia/Japan historically
+      - Any detection requires:
+        1. Immediate sequence confirmation
+        2. Verify sample origin (imported genetic material?)
+        3. Rule out Japanese encephalitis virus (JEV) misclassification
+        4. Contact MHLW/MAFF immediately
+
+
+# Source-Specific Rules
+source_rules:
+  internal_pipeline:
+    description: "Real-time MinION sequencing pipeline (Phase 4)"
+    priority: highest
+    processing:
+      - Immediate analysis
+      - Quantification (copies/mL)
+      - Severity classification
+      - Alert routing
+
+  maff:
+    description: "Ministry of Agriculture (monthly reports)"
+    priority: medium
+    processing:
+      - Daily scraping
+      - Keyword detection
+      - Regional trend analysis
+      - Email alerts for matches
+
+  estat:
+    description: "Government statistics portal (retrospective)"
+    priority: low
+    processing:
+      - Daily API queries
+      - Statistical trend analysis
+      - Baseline establishment
+      - Monthly summary reports
+
+  academic:
+    description: "PubMed/J-STAGE publications"
+    priority: low
+    processing:
+      - Daily literature search
+      - Abstract analysis
+      - Epidemiology updates
+      - Weekly digest
+
+
+# Compound Detection Rules
+compound_rules:
+  multiple_viruses:
+    - condition:
+        viruses_detected: ">= 2"
+        any_severity: critical
+      action:
+        severity: critical
+        notification: immediate
+        reason: "Multiple virus co-infection with critical-level virus"
+
+    - condition:
+        viruses_detected: ">= 2"
+        all_severity: high
+      action:
+        severity: critical
+        notification: immediate
+        reason: "Multiple high-severity virus co-infection"
+
+  external_validation:
+    - condition:
+        internal_detection: true
+        external_confirmation: true
+      action:
+        increase_severity: 1  # Bump up one level
+        reason: "External source validates internal detection"
+
+  geographic_risk:
+    - condition:
+        facility_location: "outbreak_region"
+        virus_detected: true
+      action:
+        increase_severity: 1
+        reason: "Facility in outbreak region - elevated risk"
+
+
+# Alert Routing Configuration
+alert_routing:
+  critical:
+    sns_topics:
+      - "arn:aws:sns:ap-northeast-1:ACCOUNT:4virus-critical"
+      - "arn:aws:sns:ap-northeast-1:ACCOUNT:perv-alerts"  # Reuse PERV topic
+    email:
+      - "surveillance-team@example.com"
+      - "lab-director@example.com"
+    sms:
+      - "+81-90-XXXX-XXXX"  # Emergency contact
+    slack:
+      - "#critical-alerts"
+
+  high:
+    sns_topics:
+      - "arn:aws:sns:ap-northeast-1:ACCOUNT:4virus-high"
+    email:
+      - "surveillance-team@example.com"
+    slack:
+      - "#pathogen-alerts"
+
+  medium:
+    email:
+      - "surveillance-team@example.com"
+    slack:
+      - "#pathogen-monitoring"
+
+  low:
+    dashboard: true
+    daily_summary: true
+
+
+# Deduplication Rules
+deduplication:
+  time_window: 3600  # 1 hour
+  group_by:
+    - virus_type
+    - sample_id
+    - severity
+  action: suppress_duplicate_alerts
+  reason: "Prevent alert fatigue from duplicate detections"
+
+
+# Auto-escalation Rules
+auto_escalation:
+  - condition:
+      severity: medium
+      no_response_time: 7200  # 2 hours
+    action:
+      escalate_to: high
+      notify: supervisor
+
+  - condition:
+      severity: high
+      no_response_time: 1800  # 30 minutes
+    action:
+      escalate_to: critical
+      notify: emergency_contact
+
+
+# Validation Requirements
+validation:
+  critical_detections:
+    - Sequence confirmation (Sanger/consensus)
+    - Independent bioinformatics verification
+    - Epidemiological context review
+    - MHLW/PMDA notification preparation
+
+  high_detections:
+    - Repeat sequencing if material available
+    - Cross-check with Kraken2/BLAST
+    - Review sample collection history
+
+  medium_detections:
+    - Document in surveillance log
+    - Monitor for recurrence
+
+  low_detections:
+    - Record in database
+    - Include in weekly reports

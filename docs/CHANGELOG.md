@@ -2,6 +2,34 @@
 
 ## Recent Updates
 
+### 2025-11-14: 4-Virus Surveillance System Implementation
+**Comprehensive dual-source monitoring system for 4 target viruses**
+- **Target Viruses**: Hantavirus, Polyomavirus, Spumavirus (MHLW Special Management #5), EEEV
+- **Architecture**: Standalone monitoring system with API integration to main pipeline
+  - **External Sources**: Daily collection (11:00 JST) from MAFF, E-Stat (APP_ID: bae1f981a6d093a9676b03c8eea37324b8de421b), PubMed, J-STAGE
+  - **Internal Pipeline**: Real-time Phase 4 result monitoring via S3 events
+- **Components Implemented**:
+  - External collectors: `surveillance/external/` (MAFF scraper, E-Stat API, Academic monitor with J-STAGE web scraping)
+  - Internal listeners: `surveillance/internal/pipeline_listener.py`
+  - Severity engine: 4-level classification (CRITICAL/HIGH/MEDIUM/LOW) with YAML rules
+  - Notification router: Multi-channel (SNS/SES/SMS/Dashboard/API)
+  - Streamlit dashboard: Real-time monitoring (port 8501, 30s auto-refresh)
+  - FastAPI REST API: Programmatic access (port 8000)
+- **AWS Infrastructure**:
+  - 3 DynamoDB tables (detections, external-updates, notifications)
+  - S3 data lake with lifecycle policies (365d external, 730d internal)
+  - Lambda functions (external_collector, pipeline_listener, alert_processor)
+  - EventBridge daily schedule (cron: 0 2 * * ? * = 11:00 JST)
+  - SNS topics (critical-alerts, high-alerts, daily-summary)
+- **Cost Efficiency**: ~$7.40/month operating cost (Lambda ~$2, DynamoDB ~$5, S3 ~$0.30, SNS/SES ~$0.10)
+- **Documentation**:
+  - Added comprehensive architecture section to `docs/ARCHITECTURE.md` (300+ lines)
+  - Created docs-portal page: `docs-portal/src/app/surveillance/page.tsx`
+  - Updated main `README.md`, sidebar navigation, homepage
+  - Created `surveillance/README.md` user guide
+  - Updated `docs/QUICK_REFERENCE.md`, `docs/DEVELOPMENT_GUIDE.md`, `docs/RECENT_UPDATES.md`
+- **Session Log**: See [detailed log](claude-sessions/2025-11-14-4virus-surveillance-system.md)
+
 ### 2025-11-13: Protocol 12 v2.1 - Circular/ssDNA Virus Support
 **Added Step 2.5 for complete pathogen coverage**
 - **Coverage Achievement**: TRUE 91/91 pathogen coverage (87/91 → 91/91)

@@ -1,0 +1,217 @@
+{
+  "tables": [
+    {
+      "TableName": "surveillance-detections",
+      "Description": "Virus detections from internal pipeline and external sources",
+      "KeySchema": [
+        {
+          "AttributeName": "detection_id",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "timestamp",
+          "KeyType": "RANGE"
+        }
+      ],
+      "AttributeDefinitions": [
+        {
+          "AttributeName": "detection_id",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "timestamp",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "virus_type",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "severity",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "timestamp_sort",
+          "AttributeType": "N"
+        }
+      ],
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "virus-type-index",
+          "KeySchema": [
+            {
+              "AttributeName": "virus_type",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "timestamp_sort",
+              "KeyType": "RANGE"
+            }
+          ],
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        },
+        {
+          "IndexName": "severity-index",
+          "KeySchema": [
+            {
+              "AttributeName": "severity",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "timestamp_sort",
+              "KeyType": "RANGE"
+            }
+          ],
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        }
+      ],
+      "BillingMode": "PAY_PER_REQUEST",
+      "PointInTimeRecoverySpecification": {
+        "PointInTimeRecoveryEnabled": true
+      },
+      "StreamSpecification": {
+        "StreamEnabled": true,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "Tags": [
+        {
+          "Key": "Project",
+          "Value": "MinION-Surveillance"
+        },
+        {
+          "Key": "Component",
+          "Value": "4-Virus-Detection"
+        }
+      ]
+    },
+    {
+      "TableName": "surveillance-external-updates",
+      "Description": "Daily updates from external sources (MAFF, E-Stat, Academic)",
+      "KeySchema": [
+        {
+          "AttributeName": "source#date",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "update_id",
+          "KeyType": "RANGE"
+        }
+      ],
+      "AttributeDefinitions": [
+        {
+          "AttributeName": "source#date",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "update_id",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "source",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "timestamp",
+          "AttributeType": "N"
+        }
+      ],
+      "GlobalSecondaryIndexes": [
+        {
+          "IndexName": "source-timestamp-index",
+          "KeySchema": [
+            {
+              "AttributeName": "source",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "timestamp",
+              "KeyType": "RANGE"
+            }
+          ],
+          "Projection": {
+            "ProjectionType": "ALL"
+          }
+        }
+      ],
+      "BillingMode": "PAY_PER_REQUEST",
+      "TimeToLiveSpecification": {
+        "Enabled": true,
+        "AttributeName": "ttl"
+      },
+      "Tags": [
+        {
+          "Key": "Project",
+          "Value": "MinION-Surveillance"
+        },
+        {
+          "Key": "Component",
+          "Value": "External-Sources"
+        }
+      ]
+    },
+    {
+      "TableName": "surveillance-notifications",
+      "Description": "Notification delivery tracking",
+      "KeySchema": [
+        {
+          "AttributeName": "notification_id",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "timestamp",
+          "KeyType": "RANGE"
+        }
+      ],
+      "AttributeDefinitions": [
+        {
+          "AttributeName": "notification_id",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "timestamp",
+          "AttributeType": "S"
+        }
+      ],
+      "BillingMode": "PAY_PER_REQUEST",
+      "TimeToLiveSpecification": {
+        "Enabled": true,
+        "AttributeName": "ttl"
+      },
+      "Tags": [
+        {
+          "Key": "Project",
+          "Value": "MinION-Surveillance"
+        },
+        {
+          "Key": "Component",
+          "Value": "Notifications"
+        }
+      ]
+    }
+  ],
+  "s3_structure": {
+    "bucket": "surveillance-data",
+    "folders": [
+      "external/maff/YYYY/MM/DD/reports/",
+      "external/estat/YYYY/MM/DD/stats/",
+      "external/academic/YYYY/MM/DD/articles/",
+      "internal/detections/YYYY/MM/DD/HH/"
+    ],
+    "lifecycle_rules": [
+      {
+        "id": "expire-external-after-1-year",
+        "prefix": "external/",
+        "expiration_days": 365
+      },
+      {
+        "id": "expire-internal-after-2-years",
+        "prefix": "internal/",
+        "expiration_days": 730
+      }
+    ]
+  }
+}

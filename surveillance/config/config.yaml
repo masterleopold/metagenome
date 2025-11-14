@@ -1,0 +1,173 @@
+# 4-Virus Surveillance System Configuration
+# Version: 1.0
+# Last Updated: 2024-11-14
+
+# AWS Configuration
+aws:
+  region: ap-northeast-1
+  s3_bucket: surveillance-data
+  dynamodb:
+    detections_table: surveillance-detections
+    external_updates_table: surveillance-external-updates
+    notifications_table: surveillance-notifications
+
+# E-Stat API Configuration
+estat:
+  app_id: bae1f981a6d093a9676b03c8eea37324b8de421b
+  base_url: https://api.e-stat.go.jp/rest/3.0/app
+  stat_ids:
+    livestock_disease: "0003103532"
+    pig_population: "0003103533"
+    veterinary_inspection: "0003103534"
+
+# MAFF Surveillance Configuration
+maff:
+  target_url: https://www.maff.go.jp/j/syouan/douei/kansi_densen/
+  additional_urls:
+    - https://www.maff.go.jp/j/syouan/douei/kansi_densen/kansi_densen.html
+    - https://www.maff.go.jp/j/syouan/douei/kansi_densen/attach/pdf/index.html
+
+# Academic Monitoring Configuration
+academic:
+  pubmed:
+    email: surveillance@example.com  # REQUIRED: Update with actual email
+    base_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils
+  jstage:
+    enabled: true  # ✅ Implemented via web scraping
+    search_url: https://www.jstage.jst.go.jp/result/global/-char/ja
+    rate_limit_delay: 1  # seconds between requests (be respectful)
+
+# Target Viruses Configuration
+viruses:
+  hantavirus:
+    enabled: true
+    priority: high
+    description: "Rodent-borne zoonotic pathogen"
+
+  polyomavirus:
+    enabled: true
+    priority: medium
+    description: "Sus scrofa polyomavirus (limited surveillance data)"
+
+  spumavirus:
+    enabled: true
+    priority: critical
+    description: "MHLW Special Management Pathogen #5"
+
+  eeev:
+    enabled: true
+    priority: critical
+    description: "NOT endemic to Japan - requires verification"
+
+# SNS Topics Configuration
+sns:
+  critical_alerts:
+    arn: "arn:aws:sns:ap-northeast-1:ACCOUNT:4virus-critical-alerts"
+    subscriptions:
+      - protocol: email
+        endpoint: surveillance-critical@example.com  # UPDATE
+      - protocol: sms
+        endpoint: "+81-90-XXXX-XXXX"  # UPDATE
+
+  high_alerts:
+    arn: "arn:aws:sns:ap-northeast-1:ACCOUNT:4virus-high-alerts"
+    subscriptions:
+      - protocol: email
+        endpoint: surveillance-team@example.com  # UPDATE
+
+  daily_summary:
+    arn: "arn:aws:sns:ap-northeast-1:ACCOUNT:4virus-daily-summary"
+    subscriptions:
+      - protocol: email
+        endpoint: surveillance-reports@example.com  # UPDATE
+
+# SES Configuration
+ses:
+  sender_email: surveillance@example.com  # UPDATE with verified SES email
+  sender_name: "MinION 4-Virus Surveillance"
+  reply_to: noreply@example.com
+
+# Dashboard Configuration
+dashboard:
+  streamlit:
+    port: 8501
+    auto_refresh: true
+    refresh_interval: 30  # seconds
+
+  api:
+    port: 8000
+    base_url: http://localhost:8000
+    cors_origins:
+      - http://localhost:8501
+      - https://dashboard.example.com  # UPDATE for production
+
+# Schedule Configuration
+schedules:
+  daily_collection:
+    cron: "0 2 * * ? *"  # 11:00 JST (02:00 UTC)
+    timezone: JST
+    description: "Daily external source collection"
+
+  daily_summary:
+    cron: "0 0 * * ? *"  # 09:00 JST (00:00 UTC)
+    timezone: JST
+    description: "Daily summary email"
+
+# Data Retention
+retention:
+  s3:
+    external_sources: 365  # days
+    internal_detections: 730  # days
+
+  dynamodb:
+    external_updates_ttl: 90  # days
+    notifications_ttl: 90  # days
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  cloudwatch:
+    enabled: true
+    log_group: /aws/surveillance/4virus
+    retention_days: 30
+
+# Feature Flags
+features:
+  external_maff: true
+  external_estat: true
+  external_academic: true
+  internal_pipeline: true
+  slack_notifications: false  # Not yet implemented
+  jstage_monitoring: true     # ✅ Implemented (Web scraping)
+
+# Performance Tuning
+performance:
+  lambda:
+    memory_mb: 512
+    timeout_seconds: 900
+
+  api:
+    max_results_limit: 1000
+    default_page_size: 100
+
+  dashboard:
+    cache_ttl: 300  # seconds
+
+# Security
+security:
+  encrypt_at_rest: true
+  encrypt_in_transit: true
+  enable_point_in_time_recovery: true
+
+# Contact Information
+contacts:
+  critical:
+    name: "Surveillance Team Lead"
+    email: critical@example.com  # UPDATE
+    phone: "+81-90-XXXX-XXXX"    # UPDATE
+
+  technical:
+    name: "Technical Support"
+    email: support@example.com   # UPDATE
+    slack: "#surveillance-tech"  # UPDATE if using Slack

@@ -12,6 +12,7 @@ This pipeline provides comprehensive pathogen detection for 91 PMDA-designated p
 
 - **PMDA Compliance**: Full coverage of 91 designated pathogens
 - **PERV Detection**: Critical detection of Porcine Endogenous Retroviruses (PERV-A, B, C)
+- **4-Virus Surveillance**: Real-time monitoring of Hantavirus, Polyomavirus, Spumavirus, and EEEV with external data integration (MAFF, E-Stat, PubMed, J-STAGE)
 - **Real-time Analysis**: Streaming analysis capability with MinION
 - **Cloud-Native**: Serverless architecture on AWS (Lambda + EC2 on-demand)
 - **Automated Workflow**: End-to-end automation from basecalling to reporting
@@ -361,13 +362,31 @@ aws ssm start-session --target INSTANCE_ID
 
 ## Documentation
 
-Comprehensive documentation is available in the `/docs` directory:
+### 📚 Documentation Portal
+
+**Interactive Documentation Site**: [docs-portal](./docs-portal)
+
+Start the documentation portal:
+```bash
+cd docs-portal
+npm install
+npm run dev
+# Access: http://localhost:3000
+```
+
+Key Pages:
+- **Getting Started** - Setup and first workflow
+- **Architecture** - System design and AWS infrastructure
+- **4-Virus Surveillance** - Real-time monitoring system for Hantavirus, Polyomavirus, Spumavirus, and EEEV
+- **PMDA Compliance** - 91 pathogen coverage details
+- **API Reference** - Complete API documentation
 
 ### Quick References
 - **[CLAUDE.md](CLAUDE.md)** - Essential guide for Claude Code development (optimized)
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Commands, conventions, and patterns
 - **[Architecture](docs/ARCHITECTURE.md)** - Pipeline architecture and AWS infrastructure
 - **[Protocols Guide](docs/PROTOCOLS_GUIDE.md)** - Sample preparation protocols (11, 12, 13)
+- **[4-Virus Surveillance](surveillance/README.md)** - External + internal virus monitoring system
 - **[Recent Updates](docs/RECENT_UPDATES.md)** - Latest changes and version history
 - **[Technical Details](docs/TECHNICAL_DETAILS.md)** - In-depth technical documentation
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and AWS debugging

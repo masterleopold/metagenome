@@ -24,6 +24,28 @@ mypy scripts/                             # Type checking
 ./tools/workflow_cli.py logs --run-id RUN-2024-001 --phase 4
 ```
 
+### Surveillance System Operations
+```bash
+# Start Streamlit Dashboard (auto-refresh every 30s)
+streamlit run surveillance/dashboard/app.py --server.port 8501
+
+# Start FastAPI REST API
+cd surveillance/api && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Manual test external collectors
+python surveillance/external/estat_client.py --test
+python surveillance/external/maff_scraper.py --test
+python surveillance/external/academic_monitor.py --test
+
+# Check surveillance detections (via API)
+curl http://localhost:8000/api/v1/detections?limit=10
+curl http://localhost:8000/api/v1/alerts/active
+
+# View DynamoDB surveillance data
+aws dynamodb scan --table-name surveillance-detections --region ap-northeast-1 --max-items 5
+aws dynamodb scan --table-name surveillance-external-updates --region ap-northeast-1 --max-items 5
+```
+
 ### AWS Operations
 ```bash
 aws s3 ls s3://minion-data/runs/ --region ap-northeast-1
@@ -68,6 +90,18 @@ aws ec2 describe-instances --filters "Name=tag:Pipeline,Values=MinION" --region 
 2. Update if needed (monthly): `./scripts/database/update_all.sh`
 3. Verify integrity: `./tools/verify_databases.py`
 4. Update config: `templates/config/pmda_pathogens.json`
+
+### 5. 4-Virus Surveillance Alert Response
+1. Check alert details in dashboard or SNS notification
+2. Review detection source: `surveillance/dashboard/app.py` (Active Alerts tab)
+3. For CRITICAL alerts (Spumavirus >500 or ANY EEEV):
+   - Review Phase 4 results: `s3://minion-data/results/{RUN_ID}/phase4/`
+   - Verify external sources: Check MAFF/E-Stat/PubMed/J-STAGE reports
+   - Generate detailed report via API: `GET /api/v1/detections?virus={virus_type}`
+4. For external source alerts:
+   - Review original publication/report in S3: `s3://surveillance-data/external/`
+   - Cross-reference with internal detections
+   - Update response protocols if needed
 
 ## Debug Commands
 
@@ -138,6 +172,17 @@ aws stepfunctions describe-execution \
 - Kraken2: `/mnt/efs/databases/kraken2/`
 - BLAST: `/mnt/efs/databases/blast/`
 - PERV: `/mnt/efs/databases/perv/`
+
+### Surveillance System
+- External collectors: `surveillance/external/`
+- Internal listeners: `surveillance/internal/`
+- Alerting system: `surveillance/alerting/`
+- Dashboard: `surveillance/dashboard/app.py`
+- REST API: `surveillance/api/main.py`
+- Lambda functions: `surveillance/lambda/`
+- Configuration: `surveillance/config/config.yaml`, `surveillance/config/severity_rules.yaml`
+- Terraform: `infrastructure/surveillance/main.tf`
+- DynamoDB tables: `surveillance-detections`, `surveillance-external-updates`, `surveillance-notifications`
 
 ## Emergency Contacts
 

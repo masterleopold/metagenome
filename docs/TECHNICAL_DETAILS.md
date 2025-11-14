@@ -1,6 +1,6 @@
 # Technical Details
 
-## Pipeline Architecture (6 Phases)
+## Main Pipeline Architecture (6 Phases)
 
 **Implementation**: Lambda functions orchestrate EC2 instances (custom AMIs) for each phase. **No Docker containers used**.
 
@@ -68,3 +68,38 @@
 - S3 lifecycle policies (5-year retention)
 - CloudWatch monitoring and alerting
 - Step Functions for workflow orchestration
+
+## 4-Virus Surveillance System
+
+### Architecture Pattern
+**Standalone monitoring system** with API integration to main pipeline:
+- External sources (daily): MAFF, E-Stat, PubMed, J-STAGE
+- Internal pipeline: Real-time Phase 4 result monitoring
+
+### Target Viruses
+1. **Hantavirus** (ハンタウイルス) - HIGH threshold: >100 copies/mL
+2. **Polyomavirus** (ポリオーマウイルス) - HIGH threshold: >100 copies/mL
+3. **Spumavirus** (スピューマウイルス) - CRITICAL threshold: >500 copies/mL (MHLW Special Management #5)
+4. **EEEV** (東部ウマ脳炎ウイルス) - CRITICAL: ANY detection
+
+### Data Flow
+- **External**: EventBridge (11:00 JST daily) → Lambda collector → DynamoDB/S3 → Severity engine → Alerts
+- **Internal**: S3 event (Phase 4 results) → Lambda listener → DynamoDB → Severity engine → Alerts
+
+### Components
+- **DynamoDB**: 3 tables (detections, external-updates, notifications)
+- **S3**: Data lake (365d external, 730d internal retention)
+- **Lambda**: external_collector, pipeline_listener, alert_processor
+- **Interfaces**: Streamlit dashboard (port 8501), FastAPI (port 8000)
+- **Alerting**: SNS/SES/SMS/Dashboard (4-level severity: CRITICAL/HIGH/MEDIUM/LOW)
+
+### Cost Efficiency
+- **Monthly Operating Cost**: ~$7.40/month
+- Separate from main pipeline ($50-200 per run)
+
+### Configuration
+- `surveillance/config/config.yaml` - System configuration
+- `surveillance/config/severity_rules.yaml` - YAML-based classification rules
+- E-Stat APP_ID: bae1f981a6d093a9676b03c8eea37324b8de421b
+
+For detailed architecture, see `docs/ARCHITECTURE.md` (300+ lines surveillance section).

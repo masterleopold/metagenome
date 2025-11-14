@@ -11,6 +11,7 @@ import {
   CloudIcon,
   ShieldCheckIcon,
   BookOpenIcon,
+  ActivityIcon,
 } from "lucide-react"
 
 const navigation = [
@@ -56,6 +57,16 @@ const navigation = [
         title: "Deployment",
         href: "/deployment" as const,
         icon: CloudIcon,
+      },
+    ],
+  },
+  {
+    title: "Surveillance",
+    items: [
+      {
+        title: "4-Virus Monitoring",
+        href: "/surveillance" as const,
+        icon: ActivityIcon,
       },
     ],
   },

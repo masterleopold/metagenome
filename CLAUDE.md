@@ -48,6 +48,7 @@ scripts/
 ├── phase3_host_removal/       # Host depletion (Minimap2)
 ├── phase4_pathogen/           # Multi-DB screening (Kraken2/BLAST)
 │   ├── perv_typing.py         # CRITICAL: PERV-A/B/C subtype detection
+│   ├── detect_4viruses.py     # NEW: Hantavirus/Polyomavirus/Spumavirus/EEEV
 │   ├── detect_pmda_4viruses.py   # Polyoma/Hantavirus/EEEV/Spumavirus
 │   └── detect_pmda_all_91_pathogens.py  # Full 91 pathogen coverage
 ├── phase5_quantification/     # Abundance calculation (copies/mL)
@@ -58,6 +59,24 @@ lambda/
 ├── monitoring/                # EC2 lifecycle management
 ├── phases/                    # Phase-specific handlers
 └── shared/                    # Common validation logic
+
+surveillance/                  # NEW: 4-Virus Surveillance System
+├── external/                  # External information collectors
+│   ├── estat_client.py        # E-Stat API (government statistics)
+│   ├── maff_scraper.py        # MAFF surveillance reports
+│   └── academic_monitor.py    # PubMed + J-STAGE
+├── internal/                  # Internal pipeline integration
+│   └── pipeline_listener.py   # Phase 4 result monitoring
+├── alerting/                  # Notification system
+│   ├── severity_engine.py     # 4-level classification
+│   └── notification_router.py # Multi-channel alerts
+├── dashboard/                 # Streamlit UI (port 8501)
+│   └── app.py
+├── api/                       # FastAPI REST API (port 8000)
+│   └── main.py
+└── lambda/                    # Lambda functions
+    ├── external_collector/    # Daily @ 11:00 JST
+    └── pipeline_listener/     # Real-time S3 events
 
 tools/
 ├── workflow_cli.py            # Main CLI (start/status/metrics)
@@ -127,8 +146,23 @@ if not Path(f"{bam_file}.bai").exists():
 ## Important Notes
 
 - **Protocol 12 v2.1**: Includes Step 2.5 for circular/ssDNA virus support (PCV2, PCV3, TTV, PPV)
+- **4-Virus Surveillance** (NEW): Dual-source monitoring system (external: MAFF/E-Stat/PubMed/J-STAGE + internal: Phase 4 results)
+  - Daily collection @ 11:00 JST, real-time internal monitoring
+  - 4-level severity (CRITICAL/HIGH/MEDIUM/LOW), multi-channel alerts (SNS/SES/SMS/Dashboard)
+  - Cost: ~$7.40/month, DynamoDB + Lambda + S3
 - **Test Pattern**: Use pytest with moto for AWS service mocking
 - **Error Handling**: Always validate file existence/size before processing
 - **EC2 Pattern**: Each phase runs on dedicated instance, auto-terminates on completion
 - **Spot Instances**: 70% cost savings, handled by orchestrator
 - **RDS Schema**: Aurora Serverless v2 for pipeline metadata
+
+## Recent Updates (2025-11-14)
+
+### 4-Virus Surveillance System Implementation
+- **Target viruses**: Hantavirus, Polyomavirus, Spumavirus (MHLW Special Management #5), EEEV
+- **External collectors**: `surveillance/external/` (MAFF, E-Stat APP_ID: bae1f981a6d093a9676b03c8eea37324b8de421b, PubMed, J-STAGE web scraping)
+- **Internal listener**: `surveillance/internal/pipeline_listener.py` monitors Phase 4 results
+- **Alerting**: `surveillance/alerting/severity_engine.py` with YAML rules, notification_router.py for multi-channel
+- **UIs**: Streamlit dashboard (8501), FastAPI (8000)
+- **Infrastructure**: 3 DynamoDB tables, S3 data lake, Lambda functions, EventBridge schedule
+- **Documentation**: Added comprehensive sections to ARCHITECTURE.md, created non-engineer guide, updated all /docs files

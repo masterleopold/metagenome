@@ -10,6 +10,7 @@ import {
   DatabaseIcon,
   ServerIcon,
   ZapIcon,
+  RadarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -68,6 +69,12 @@ const quickLinks = [
     icon: ServerIcon,
   },
   {
+    title: "4-Virus Surveillance",
+    description: "Real-time monitoring of Hantavirus, Polyomavirus, Spumavirus, and EEEV",
+    href: "/surveillance" as const,
+    icon: RadarIcon,
+  },
+  {
     title: "API Reference",
     description: "Complete API documentation with request/response examples",
     href: "/api-reference" as const,
@@ -77,6 +84,7 @@ const quickLinks = [
 
 const stats = [
   { label: "PMDA Pathogens", value: "91" },
+  { label: "Surveillance Viruses", value: "4" },
   { label: "Pipeline Phases", value: "6" },
   { label: "AWS Services", value: "10+" },
   { label: "Accuracy (Q30+)", value: "99.9%" },

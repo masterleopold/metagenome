@@ -4,42 +4,30 @@
 **作成日:** 2025-11-12
 **対象:** ハンタウイルス、東部ウマ脳炎ウイルス(EEEV)等のssRNAウイルス検出
 
----
-
-## 目次
-
-1. [RNA分解防止の科学的背景](#1-rna分解防止の科学的背景)
-2. [rRNA除去法の詳細比較](#2-rrna除去法の詳細比較)
-3. [Poly(A)選択 vs rRNA除去の使い分け](#3-polya選択-vs-rrna除去の使い分け)
-4. [Direct RNA vs cDNA Sequencing比較](#4-direct-rna-vs-cdna-sequencing比較)
-5. [SMART-9N増幅法の原理と応用](#5-smart-9n増幅法の原理と応用)
-6. [Amplicon-based検出戦略](#6-amplicon-based検出戦略)
-7. [RNA品質評価とトラブルシューティング](#7-rna品質評価とトラブルシューティング)
-
----
+---- 
 
 ## 1. RNA分解防止の科学的背景
 
 ### 1.1 RNaseの種類と特性
 
-| RNase種類 | 特性 | 分布 | 阻害剤 |
-|----------|------|------|--------|
-| **RNase A** | エンドヌクレアーゼ、CpNpN↓を切断 | ヒト・ブタ膵臓、血清(~300 ng/mL) | SUPERase•In, RNasin |
-| **RNase H** | RNA-DNAハイブリッド特異的 | 細胞質 | EDTA(Mg²⁺要求性) |
-| **RNase 1** | 非特異的エンドヌクレアーゼ | 血漿、組織 | SUPERase•In |
-| **RNase T1** | GpN↓特異的 | 真菌由来、環境汚染 | SUPERase•In |
+| RNase種類      | 特性                  | 分布                      | 阻害剤                 |
+| ------------ | ------------------- | ----------------------- | ------------------- |
+| **RNase A**  | エンドヌクレアーゼ、CpNpN↓を切断 | ヒト・ブタ膵臓、血清(\~300 ng/mL) | SUPERase•In, RNasin |
+| **RNase H**  | RNA-DNAハイブリッド特異的    | 細胞質                     | EDTA(Mg²⁺要求性)       |
+| **RNase 1**  | 非特異的エンドヌクレアーゼ       | 血漿、組織                   | SUPERase•In         |
+| **RNase T1** | GpN↓特異的             | 真菌由来、環境汚染               | SUPERase•In         |
 
 ### 1.2 血漿中のRNA分解メカニズム
 
 **問題点:**
 1. **血液採取時の細胞溶解:** 赤血球・白血球溶解→細胞内RNase放出
-2. **血漿中の内在RNase:** RNase 1が~100 ng/mL存在
+2. **血漿中の内在RNase:** RNase 1が\~100 ng/mL存在
 3. **環境RNase汚染:** 手指、ピペット、チューブ表面
 
 **半減期データ:**
-- 保護なし血漿、室温: t₁/₂ ~15-30分
-- EDTA血漿、4°C: t₁/₂ ~2-4時間
-- SUPERase•In添加、4°C: t₁/₂ >24時間
+- 保護なし血漿、室温: t₁/₂ \~15-30分
+- EDTA血漿、4°C: t₁/₂ \~2-4時間
+- SUPERase•In添加、4°C: t₁/₂ \>24時間
 - -80°C凍結: 安定(ただし凍結融解で50%分解)
 
 ### 1.3 RNase阻害剤の選択
@@ -96,7 +84,7 @@ EDTA blood → 即座に遠心(4°C) → 血漿を-80°C
 欠点: 高価(¥800-1,200/tube)、DNA抽出に不向き
 ```
 
-**長期保存(>1週間):**
+**長期保存(\>1週間):**
 ```
 RNA抽出後、-80°C凍結
 - Elution buffer: Nuclease-free water + 1 U/μL RNasin
@@ -104,7 +92,7 @@ RNA抽出後、-80°C凍結
 - 長期(>6ヶ月): RNA later添加(Ambion)
 ```
 
----
+---- 
 
 ## 2. rRNA除去法の詳細比較
 
@@ -115,7 +103,7 @@ RNA抽出後、-80°C凍結
 - mRNA: 1-5%
 - tRNA: 5-10%
 - small RNA (miRNA, etc.): 3-5%
-- **ウイルスRNA: <0.01%**(感染時)
+- **ウイルスRNA: \<0.01%**(感染時)
 
 **問題:** MinIONシーケンスの80-90%がrRNA読み→ウイルス検出感度低下
 
@@ -221,21 +209,21 @@ RNA抽出後、-80°C凍結
 - 適用: EEEVに最適、ハンタウイルスはステップ2で失われる
 ```
 
----
+---- 
 
 ## 3. Poly(A)選択 vs rRNA除去の使い分け
 
 ### 3.1 ウイルスゲノムのPoly(A)尾有無
 
-| ウイルス | Poly(A)尾 | ゲノム型 | 推奨除去法 |
-|---------|----------|---------|-----------|
-| **東部ウマ脳炎ウイルス(EEEV)** | **あり** | ssRNA(+) | **Poly(A)選択** |
-| **Getahウイルス** | あり | ssRNA(+) | Poly(A)選択 |
-| **Chikungunyaウイルス** | あり | ssRNA(+) | Poly(A)選択 |
-| **ハンタウイルス** | **なし** | ssRNA(-) | **rRNA除去** |
-| **インフルエンザウイルス** | なし | ssRNA(-) | rRNA除去 |
-| **SARSCoV-2** | あり | ssRNA(+) | Poly(A)選択 |
-| **ノロウイルス** | あり | ssRNA(+) | Poly(A)選択 |
+| ウイルス                 | Poly(A)尾 | ゲノム型     | 推奨除去法         |
+| -------------------- | -------- | -------- | ------------- |
+| **東部ウマ脳炎ウイルス(EEEV)** | **あり**   | ssRNA(+) | **Poly(A)選択** |
+| **Getahウイルス**        | あり       | ssRNA(+) | Poly(A)選択     |
+| **Chikungunyaウイルス**  | あり       | ssRNA(+) | Poly(A)選択     |
+| **ハンタウイルス**          | **なし**   | ssRNA(-) | **rRNA除去**    |
+| **インフルエンザウイルス**      | なし       | ssRNA(-) | rRNA除去        |
+| **SARSCoV-2**        | あり       | ssRNA(+) | Poly(A)選択     |
+| **ノロウイルス**           | あり       | ssRNA(+) | Poly(A)選択     |
 
 ### 3.2 Poly(A)選択の詳細プロトコル
 
@@ -309,23 +297,23 @@ or cDNA Kit         Amplicon approach
 MinION Sequencing   MinION Sequencing
 ```
 
----
+---- 
 
 ## 4. Direct RNA vs cDNA Sequencing比較
 
 ### 4.1 技術比較表
 
-| 項目 | Direct RNA (SQK-RNA002) | Direct cDNA (SQK-DCS109) | PCR-cDNA (LSK114) |
-|------|-------------------------|--------------------------|-------------------|
-| **Input量** | 50 ng poly(A)+ RNA | 10 ng poly(A)+ RNA | 1 ng total RNA |
-| **Poly(A)要求** | 必須(または人工付加) | 推奨(oligo(dT)プライミング可) | 不要(random hexamers) |
-| **鎖特異性** | あり(native strand) | あり(RT strand) | なし(dsDNA) |
-| **RNA修飾検出** | 可能(m⁶A, pseudouridine) | 不可 | 不可 |
-| **Read長** | ~RNA長(最大30 kb報告) | ~RNA長 | 増幅bias(短い) |
-| **Throughput** | 低(~0.5-2 Gb/run) | 中(~2-5 Gb/run) | 高(~10-20 Gb/run) |
-| **正確度** | 85-95% (R9.4) | 90-95% | 95-99% |
-| **ウイルス検出感度** | 低(input量制約) | 中 | 高(PCR増幅) |
-| **コスト/run** | ¥100,000 (kit+flow cell) | ¥100,000 | ¥80,000 (barcoding込) |
+| 項目             | Direct RNA (SQK-RNA002)  | Direct cDNA (SQK-DCS109) | PCR-cDNA (LSK114)    |
+| -------------- | ------------------------ | ------------------------ | -------------------- |
+| **Input量**     | 50 ng poly(A)+ RNA       | 10 ng poly(A)+ RNA       | 1 ng total RNA       |
+| **Poly(A)要求**  | 必須(または人工付加)              | 推奨(oligo(dT)プライミング可)     | 不要(random hexamers)  |
+| **鎖特異性**       | あり(native strand)        | あり(RT strand)            | なし(dsDNA)            |
+| **RNA修飾検出**    | 可能(m⁶A, pseudouridine)   | 不可                       | 不可                   |
+| **Read長**      | \~RNA長(最大30 kb報告)        | \~RNA長                   | 増幅bias(短い)           |
+| **Throughput** | 低(\~0.5-2 Gb/run)        | 中(\~2-5 Gb/run)          | 高(\~10-20 Gb/run)    |
+| **正確度**        | 85-95% (R9.4)            | 90-95%                   | 95-99%               |
+| **ウイルス検出感度**   | 低(input量制約)              | 中                        | 高(PCR増幅)             |
+| **コスト/run**    | ¥100,000 (kit+flow cell) | ¥100,000                 | ¥80,000 (barcoding込) |
 
 ### 4.2 Direct RNA Sequencingのワークフロー
 
@@ -432,7 +420,7 @@ MinION Sequencing   MinION Sequencing
 - Throughput高い(2-5 Gb/run vs 0.5-2 Gb for Direct RNA)
 - Poly(A)+ RNA前処理と組み合わせで高濃縮
 
----
+---- 
 
 ## 5. SMART-9N増幅法の原理と応用
 
@@ -519,7 +507,7 @@ or
 rRNA除去 → Amplicon RT-PCR(ハンタ特異的) → MinION sequencing (より高感度)
 ```
 
----
+---- 
 
 ## 6. Amplicon-based検出戦略
 
@@ -642,19 +630,19 @@ rRNA除去 → Amplicon RT-PCR(ハンタ特異的) → MinION sequencing (より
 
 ### 6.4 Amplicon vs Metagenomic比較(ハンタウイルス)
 
-| 項目 | Amplicon-based | Metagenomic (SMART-9N) |
-|------|----------------|----------------------|
-| **感度(LOD)** | 10-100 copies/mL | 10⁴-10⁵ copies/mL |
-| **特異度** | 高(プライマー特異的) | 中(off-target mapping) |
-| **Genome coverage** | 高(>95%, tiled design) | 変動(低力価で部分的) |
-| **Hands-on time** | 6時間 | 8時間 |
-| **Cost** | ¥15,000/sample | ¥25,000/sample |
-| **Unbiased discovery** | 不可(既知ウイルスのみ) | 可能(novel variants検出) |
-| **推奨用途** | 定量・型別、LOD <100必要時 | 初回スクリーニング、未知ウイルス探索 |
+| 項目                     | Amplicon-based         | Metagenomic (SMART-9N) |
+| ---------------------- | ---------------------- | ---------------------- |
+| **感度(LOD)**            | 10-100 copies/mL       | 10⁴-10⁵ copies/mL      |
+| **特異度**                | 高(プライマー特異的)            | 中(off-target mapping)  |
+| **Genome coverage**    | 高(\>95%, tiled design) | 変動(低力価で部分的)            |
+| **Hands-on time**      | 6時間                    | 8時間                    |
+| **Cost**               | ¥15,000/sample         | ¥25,000/sample         |
+| **Unbiased discovery** | 不可(既知ウイルスのみ)           | 可能(novel variants検出)   |
+| **推奨用途**               | 定量・型別、LOD \<100必要時     | 初回スクリーニング、未知ウイルス探索     |
 
-**結論:** ハンタウイルス検出でLOD <50 copies/mL達成にはAmplicon approach必須。
+**結論:** ハンタウイルス検出でLOD \<50 copies/mL達成にはAmplicon approach必須。
 
----
+---- 
 
 ## 7. RNA品質評価とトラブルシューティング
 
@@ -676,59 +664,59 @@ RIN <5: Severe degradation(使用不可)
 - rRNA除去後のRIN測定推奨
 
 **目標:**
-- rRNA除去前: RIN >7
+- rRNA除去前: RIN \>7
 - rRNA除去後: RIN測定不可(rRNAピーク消失)、代わりにElectropherogramで評価
 
 ### 7.2 QC Checkpoints
 
-| Checkpoint | 測定項目 | 合格基準 | 不合格時対策 |
-|-----------|---------|---------|------------|
-| **採血後** | 処理時間 | <4時間(4°C) | cf-RNA Preservative Tube使用 |
-| **血漿分離後** | ヘモリシス | A414/A540 <0.2 | 再採血 |
-| **RNA抽出後** | 濃度 | >2 ng/μL | 5 mL血漿使用またはプール |
-| | RIN | >7 | RNase混入確認、再抽出 |
-| **DNase処理後** | DNA残存 | qPCR Ct >35(β-actin) | DNase量2倍、処理時間延長 |
-| **rRNA除去後** | rRNA除去率 | <10% residual | 2nd round rRNA除去 |
-| **Poly(A)選択後** | rRNAピーク | 不検出(Bioanalyzer) | 2nd round poly(A)選択 |
-| **Library prep後** | 濃度 | >50 fmol | Input増量またはPCR cycles増加 |
+| Checkpoint        | 測定項目    | 合格基準                  | 不合格時対策                     |
+| ----------------- | ------- | --------------------- | -------------------------- |
+| **採血後**           | 処理時間    | \<4時間(4°C)            | cf-RNA Preservative Tube使用 |
+| **血漿分離後**         | ヘモリシス   | A414/A540 \<0.2       | 再採血                        |
+| **RNA抽出後**        | 濃度      | \>2 ng/μL             | 5 mL血漿使用またはプール             |
+|                   | RIN     | \>7                   | RNase混入確認、再抽出              |
+| **DNase処理後**      | DNA残存   | qPCR Ct \>35(β-actin) | DNase量2倍、処理時間延長            |
+| **rRNA除去後**       | rRNA除去率 | \<10% residual        | 2nd round rRNA除去           |
+| **Poly(A)選択後**    | rRNAピーク | 不検出(Bioanalyzer)      | 2nd round poly(A)選択        |
+| **Library prep後** | 濃度      | \>50 fmol             | Input増量またはPCR cycles増加     |
 
 ### 7.3 トラブルシューティングマトリックス
 
-#### 問題1: RNA収量低い(<1 ng from 5 mL plasma)
+#### 問題1: RNA収量低い(\<1 ng from 5 mL plasma)
 
-| 原因 | 検証方法 | 対策 |
-|------|---------|------|
-| ヘモリシス | 血漿の色(赤色) | 遠心条件改善(1,900×g → 2,500×g) |
-| RNase分解 | RIN <5 | SUPERase•In 40 U/mL、処理時間短縮 |
-| 抽出効率低下 | Carrier RNA未添加 | Carrier RNA (yeast tRNA) 1 μg添加 |
-| 血漿量不足 | <5 mL input | 10 mL採血 |
+| 原因      | 検証方法           | 対策                              |
+| ------- | -------------- | ------------------------------- |
+| ヘモリシス   | 血漿の色(赤色)       | 遠心条件改善(1,900×g → 2,500×g)       |
+| RNase分解 | RIN \<5        | SUPERase•In 40 U/mL、処理時間短縮      |
+| 抽出効率低下  | Carrier RNA未添加 | Carrier RNA (yeast tRNA) 1 μg添加 |
+| 血漿量不足   | \<5 mL input   | 10 mL採血                         |
 
-#### 問題2: rRNA除去不十分(>20% residual)
+#### 問題2: rRNA除去不十分(\>20% residual)
 
-| 原因 | 検証方法 | 対策 |
-|------|---------|------|
+| 原因          | 検証方法                     | 対策               |
+| ----------- | ------------------------ | ---------------- |
 | ブタrRNA交差反応低 | Bioanalyzer 18S/28Sピーク残存 | カスタムブタrRNAプローブ設計 |
-| RNase H失活 | 陽性コントロール(ヒトRNA)で検証 | 新しいキット使用 |
-| RNA 2次構造 | 95°C変性不十分 | 95°C 5分に延長 |
+| RNase H失活   | 陽性コントロール(ヒトRNA)で検証       | 新しいキット使用         |
+| RNA 2次構造    | 95°C変性不十分                | 95°C 5分に延長       |
 
 #### 問題3: ウイルスRNA検出されない(qPCR陽性、NGS陰性)
 
-| 原因 | 検証方法 | 対策 |
-|------|---------|------|
-| ウイルス力価低(<10³) | qPCR Ct >35 | Amplicon approach変更 |
-| Poly(A)選択でロス | ウイルスがpoly(A)- | rRNA除去法に変更 |
-| Library prep失敗 | Qubit <10 fmol | Input RNA増量、RT条件最適化 |
-| Sequencing depth不足 | Total reads <1M | Run時間延長(48時間)、Flow cell追加 |
+| 原因                 | 検証方法             | 対策                        |
+| ------------------ | ---------------- | ------------------------- |
+| ウイルス力価低(\<10³)     | qPCR Ct \>35     | Amplicon approach変更       |
+| Poly(A)選択でロス       | ウイルスがpoly(A)-    | rRNA除去法に変更                |
+| Library prep失敗     | Qubit \<10 fmol  | Input RNA増量、RT条件最適化       |
+| Sequencing depth不足 | Total reads \<1M | Run時間延長(48時間)、Flow cell追加 |
 
-#### 問題4: Host RNA混入多(>90% reads)
+#### 問題4: Host RNA混入多(\>90% reads)
 
-| 原因 | 検証方法 | 対策 |
-|------|---------|------|
-| rRNA除去不十分 | Bioanalyzer | 2nd round rRNA除去 |
+| 原因          | 検証方法              | 対策                            |
+| ----------- | ----------------- | ----------------------------- |
+| rRNA除去不十分   | Bioanalyzer       | 2nd round rRNA除去              |
 | Host mRNA混入 | Poly(A)選択でmRNAも濃縮 | Hybridization probe capture追加 |
-| ウイルス力価極低 | qPCR Ct >38 | Amplicon approach必須 |
+| ウイルス力価極低    | qPCR Ct \>38      | Amplicon approach必須           |
 
----
+---- 
 
 ## 8. コスト最適化戦略
 
@@ -764,7 +752,7 @@ RIN <5: Severe degradation(使用不可)
 
 従来法¥449,574/sampleと比較し、**71%コスト削減**
 
----
+---- 
 
 ## 9. 参考文献
 
@@ -774,10 +762,3 @@ RIN <5: Severe degradation(使用不可)
 4. Quick J, et al. "Multiplex PCR method for MinION and Illumina sequencing of Zika and other virus genomes directly from clinical samples." *Nat Protoc* 2017;12:1261-1276.
 5. Garalde DR, et al. "Highly parallel direct RNA sequencing on an array of nanopores." *Nat Methods* 2018;15:201-206.
 6. Belizário JE, et al. "Current challenges and best practices for cell-free long RNA biomarker discovery." *Biomarker Res* 2022;10:62.
-
----
-
-**承認:** _____________________
-**日付:** _____________________
-
-**次回レビュー予定:** 2026-05-12

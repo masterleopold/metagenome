@@ -1,5 +1,118 @@
 # Recent Updates
 
+## 2025-11-15 Updates
+
+### 4-Virus Surveillance: Slack Notification Integration (v2.2.0)
+
+**Comprehensive Slack notification system** integrated into the 4-Virus Surveillance System, providing real-time alerts with rich formatting.
+
+#### Features Implemented
+
+**Slack Client** (`surveillance/alerting/slack_client.py`):
+- **Dual Delivery Methods**: Bot API (primary) with Incoming Webhooks fallback
+- **Rich Block Kit Formatting**: Color-coded messages with severity-based emojis
+- **Severity-Based Channel Routing**:
+  - CRITICAL → `#critical-alerts`
+  - HIGH → `#pathogen-alerts`
+  - MEDIUM → `#pathogen-monitoring`
+  - Daily Summary → `#pathogen-monitoring`
+- **Interactive Elements**: Action buttons for critical alerts (View Dashboard, Acknowledge)
+- **Daily Summary Notifications**: Automated reporting to #pathogen-monitoring
+
+**Integration**:
+- Updated `surveillance/alerting/notification_router.py` with Slack client
+- Automatic initialization and multi-channel routing
+- Graceful fallback when Slack unavailable
+
+**Configuration**:
+- Added Slack settings to `surveillance/config/config.yaml`
+- Environment template: `surveillance/.env.template`
+- Security-first approach (credentials via environment variables)
+
+**Testing & Deployment**:
+- Comprehensive test suite: `surveillance/tests/test_slack_integration.py`
+  - Connection testing
+  - Alert sending (critical/high/medium)
+  - Daily summary testing
+  - NotificationRouter integration testing
+- Lambda deployment script: `surveillance/scripts/setup_lambda_env.sh`
+- Automated environment variable configuration
+
+**Documentation**:
+- Full setup guide: `surveillance/docs/SLACK_SETUP.md` (500+ lines)
+- Quick start guide: `surveillance/SLACK_QUICKSTART.md`
+- Updated `surveillance/README.md` with Slack information
+- Updated main docs:
+  - `docs/ARCHITECTURE.md` - Added Slack integration section
+  - `docs-portal/src/app/surveillance/page.tsx` - Updated portal page
+
+#### Slack App Details
+- **App ID**: A09TVLTGDSL
+- **Required Scopes**: `chat:write`, `chat:write.public`, `channels:read`
+- **Authentication**: Bot User OAuth Token (xoxb-...)
+
+#### Message Format Examples
+
+**Critical Alert**:
+```
+🚨 CRITICAL ALERT
+SPUMAVIRUS detected in MinION surveillance system
+
+Severity: CRITICAL          Viral Load: 650.50 copies/mL
+Sample ID: SAMPLE-001       Run ID: RUN-001
+Source: internal_pipeline   Timestamp: 2025-11-15 10:30:45
+
+Reason: High viral load - xenotransplantation risk
+
+Validation Required:
+• Sequence confirmation
+• Independent bioinformatics verification
+• MHLW/PMDA notification
+
+[View Dashboard] [Acknowledge]
+```
+
+**Daily Summary**:
+```
+📊 Daily Surveillance Summary - 2025-11-15
+
+Samples Processed: 15    Total Detections: 3
+MAFF Reports: 2 new      Academic Papers: 1 new
+
+Alert Summary:
+🚨 Critical: 1  ⚠️ High: 1  ℹ️ Medium: 1  📝 Low: 0
+```
+
+#### Files Added/Modified
+
+**New Files**:
+- `surveillance/alerting/slack_client.py` (580 lines)
+- `surveillance/.env.template` (67 lines)
+- `surveillance/scripts/setup_lambda_env.sh` (66 lines)
+- `surveillance/tests/test_slack_integration.py` (460 lines)
+- `surveillance/docs/SLACK_SETUP.md` (550 lines)
+- `surveillance/SLACK_QUICKSTART.md` (150 lines)
+
+**Modified Files**:
+- `surveillance/alerting/notification_router.py` - Integrated Slack client
+- `surveillance/config/config.yaml` - Added Slack configuration
+- `surveillance/config/severity_rules.yaml` - Updated alert routing
+- `surveillance/README.md` - Added Slack documentation
+- `docs/ARCHITECTURE.md` - Added Slack integration section
+- `docs-portal/src/app/surveillance/page.tsx` - Updated portal page
+
+#### Security Best Practices
+- All credentials stored in environment variables
+- No hardcoded tokens or secrets
+- `.env` files already in `.gitignore`
+- Least privilege Slack scopes
+
+**Cost Impact**: No additional cost (Slack free tier unlimited messages)
+
+**Documentation**: Full session details in this update
+
+---
+
 ## 2025-11-14 Updates
 
 ### 4-Virus Surveillance System (NEW FEATURE)

@@ -29,6 +29,7 @@
      ↓
  通知ルーター
      ├─ SNS/SES
+     ├─ Slack ✅
      ├─ ダッシュボード
      └─ REST API
 ```
@@ -47,6 +48,7 @@ surveillance/
 ├── alerting/              # 通知システム
 │   ├── severity_engine.py      # 重要度分類
 │   ├── notification_router.py  # 通知ルーティング
+│   ├── slack_client.py         # Slack通知クライアント ✅
 │   └── aws_notifier.py
 ├── dashboard/             # Streamlitダッシュボード
 │   └── app.py
@@ -78,11 +80,28 @@ pip install -r requirements.txt
 
 ### 3. 環境変数設定
 ```bash
+# 基本設定
 export SURVEILLANCE_BUCKET=surveillance-data
 export E_STAT_APP_ID=bae1f981a6d093a9676b03c8eea37324b8de421b
 export PUBMED_EMAIL=your-email@example.com
 export AWS_REGION=ap-northeast-1
+
+# Slack通知設定（オプション）
+export SLACK_BOT_TOKEN=xoxb-your-token-here
+export SLACK_APP_ID=A09TVLTGDSL
+export SLACK_CLIENT_ID=580133244533.9947707557904
+export SLACK_CLIENT_SECRET=your-client-secret
+export SLACK_SIGNING_SECRET=your-signing-secret
 ```
+
+または`.env`ファイルを使用:
+```bash
+cp surveillance/.env.template surveillance/.env
+# .envファイルを編集してSlack認証情報を設定
+export $(cat surveillance/.env | grep -v '^#' | xargs)
+```
+
+**Slack設定の詳細**: `surveillance/docs/SLACK_SETUP.md`を参照
 
 ### 4. AWSインフラデプロイ
 ```bash
@@ -158,10 +177,16 @@ python surveillance/external/academic_monitor.py
 
 | レベル | 説明 | 対応時間 | 通知方法 |
 |--------|------|----------|----------|
-| **CRITICAL** | 即座対応必要（PERV同等） | < 5分 | SNS即時、SMS、ダッシュボード点滅 |
-| **HIGH** | 緊急対応必要 | < 30分 | SNS、メール、ダッシュボード警告 |
-| **MEDIUM** | 調査推奨 | < 2時間 | メール、ダッシュボード表示 |
+| **CRITICAL** | 即座対応必要（PERV同等） | < 5分 | SNS即時、SMS、Slack、ダッシュボード点滅 |
+| **HIGH** | 緊急対応必要 | < 30分 | SNS、メール、Slack、ダッシュボード警告 |
+| **MEDIUM** | 調査推奨 | < 2時間 | メール、Slack、ダッシュボード表示 |
 | **LOW** | 情報記録 | < 24時間 | ダッシュボード記録 |
+
+### Slackチャンネルルーティング
+- **CRITICAL** → `#critical-alerts`
+- **HIGH** → `#pathogen-alerts`
+- **MEDIUM** → `#pathogen-monitoring`
+- 日次サマリー → `#pathogen-monitoring`
 
 ### ウイルス別基準
 
@@ -233,6 +258,8 @@ aws s3 ls s3://surveillance-data/external/maff/2024/11/14/
 ### 通知が届かない
 - SNSトピックサブスクリプション確認
 - SESメール検証ステータス確認
+- Slack Bot Tokenが正しく設定されているか確認
+- Slackチャンネルにbotが招待されているか確認
 - CloudWatch Logsでエラー確認
 
 ## テスト
@@ -250,6 +277,18 @@ python -c "from surveillance.external.estat_client import EStatClient; client = 
 ### 重要度分類テスト
 ```bash
 python surveillance/alerting/severity_engine.py
+```
+
+### Slack通知テスト
+```bash
+# 接続テスト
+python surveillance/tests/test_slack_integration.py --test-conn
+
+# アラート送信テスト
+python surveillance/tests/test_slack_integration.py --test-alert
+
+# 完全テストスイート
+python surveillance/tests/test_slack_integration.py
 ```
 
 ## セキュリティ
@@ -278,6 +317,17 @@ python surveillance/alerting/severity_engine.py
 
 ## 変更履歴
 
+### v2.2.0 (2025-11-15)
+- ✅ **Slack通知統合実装**
+  - Bot API + Webhook対応
+  - 重要度別チャンネルルーティング
+  - Block Kit形式のリッチメッセージ
+  - アクションボタン（Critical アラート）
+  - 日次サマリー通知
+  - 包括的テストスイート
+  - セットアップ自動化スクリプト
+- 詳細ドキュメント: `surveillance/docs/SLACK_SETUP.md`
+
 ### v1.1.0 (2024-11-14)
 - ✅ J-STAGE Webスクレイピング実装
 - 日本語・英語検索対応
@@ -296,7 +346,7 @@ python surveillance/alerting/severity_engine.py
 ## 今後の拡張
 
 - [x] J-STAGE Web スクレイピング統合 ✅
-- [ ] Slack通知実装
+- [x] Slack通知実装 ✅
 - [ ] 機械学習ベースのトレンド予測
 - [ ] 地理的ヒートマップ
 - [ ] モバイルアプリ対応

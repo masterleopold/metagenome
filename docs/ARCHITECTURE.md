@@ -164,6 +164,7 @@ Severity Engine
       ↓
 Notification Router
    ├─ SNS/SES (Email/SMS)
+   ├─ Slack (Bot API + Webhooks)
    ├─ Streamlit Dashboard
    └─ REST API
 ```
@@ -180,7 +181,8 @@ surveillance/
 │   └── pipeline_listener.py # Phase 4 result monitoring
 ├── alerting/              # Notification system
 │   ├── severity_engine.py      # 4-level classification
-│   └── notification_router.py  # Multi-channel alerts
+│   ├── notification_router.py  # Multi-channel alerts
+│   └── slack_client.py         # Slack Bot API integration
 ├── dashboard/             # Streamlit real-time UI
 │   └── app.py
 ├── api/                   # REST API (FastAPI)
@@ -188,9 +190,13 @@ surveillance/
 ├── lambda/                # Lambda functions
 │   ├── external_collector/ # Daily external data collection
 │   └── pipeline_listener/  # Real-time internal monitoring
-└── config/
-    ├── severity_rules.yaml # Classification rules
-    └── config.yaml         # System configuration
+├── config/
+│   ├── severity_rules.yaml # Classification rules
+│   └── config.yaml         # System configuration
+├── tests/
+│   └── test_slack_integration.py # Slack notification tests
+└── docs/
+    └── SLACK_SETUP.md      # Slack integration guide
 ```
 
 ### Data Flow
@@ -280,9 +286,9 @@ s3://surveillance-data/
 
 | Level | Response Time | Notification Channels | Example Criteria |
 |-------|---------------|----------------------|------------------|
-| CRITICAL | < 5 min | SNS + SMS + Dashboard Flash | Spumavirus >500 copies/mL, ANY EEEV |
-| HIGH | < 30 min | SNS + Email + Dashboard | Hantavirus >100, Polyomavirus >100 |
-| MEDIUM | < 2 hours | Email + Dashboard | External keyword match |
+| CRITICAL | < 5 min | SNS + SMS + Slack + Dashboard Flash | Spumavirus >500 copies/mL, ANY EEEV |
+| HIGH | < 30 min | SNS + Email + Slack + Dashboard | Hantavirus >100, Polyomavirus >100 |
+| MEDIUM | < 2 hours | Email + Slack + Dashboard | External keyword match |
 | LOW | < 24 hours | Dashboard only | Academic publications |
 
 **Engine Features**:
@@ -317,6 +323,56 @@ GET  /api/v1/alerts/active        # Active alerts summary
 GET  /api/v1/external/daily-updates  # External source updates
 GET  /api/v1/statistics/trends    # Detection trends
 POST /api/v1/webhooks             # External system integration
+```
+
+#### Slack Integration (v2.2.0+)
+
+**Implementation**: `surveillance/alerting/slack_client.py`
+
+**Features**:
+- **Dual Delivery Methods**: Bot API (primary) + Incoming Webhooks (fallback)
+- **Rich Formatting**: Block Kit with severity-based colors and emojis
+- **Channel Routing**: Automatic routing based on severity level
+- **Action Buttons**: Critical alerts include "View Dashboard" and "Acknowledge" buttons
+- **Daily Summaries**: Automated daily report to #pathogen-monitoring
+
+**Channel Routing**:
+| Severity | Slack Channel |
+|----------|--------------|
+| CRITICAL | #critical-alerts |
+| HIGH | #pathogen-alerts |
+| MEDIUM | #pathogen-monitoring |
+| Daily Summary | #pathogen-monitoring |
+
+**Configuration** (`surveillance/config/config.yaml`):
+```yaml
+slack:
+  enabled: true
+  app_id: A09TVLTGDSL
+  # Credentials via environment variables:
+  # - SLACK_BOT_TOKEN (xoxb-...)
+  # - SLACK_SIGNING_SECRET
+  # - SLACK_CLIENT_SECRET
+  channels:
+    critical: "#critical-alerts"
+    high: "#pathogen-alerts"
+    medium: "#pathogen-monitoring"
+```
+
+**Required Slack Scopes**:
+- `chat:write` - Post messages to channels
+- `chat:write.public` - Post to channels without invitation
+- `channels:read` - List channels
+
+**Setup**: See `surveillance/docs/SLACK_SETUP.md` for complete configuration guide
+
+**Testing**:
+```bash
+# Test connection
+python surveillance/tests/test_slack_integration.py --test-conn
+
+# Send test alerts
+python surveillance/tests/test_slack_integration.py --test-alert
 ```
 
 ### Integration with Main Pipeline

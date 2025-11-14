@@ -13,6 +13,7 @@ import {
   BarChartIcon,
   SearchIcon,
   ClockIcon,
+  MessageSquareIcon,
 } from "lucide-react";
 
 const targetViruses = [
@@ -94,21 +95,21 @@ const severityLevels = [
     level: "CRITICAL",
     color: "bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400",
     response: "< 5 min",
-    actions: ["SNS Immediate Alert", "SMS to Key Personnel", "Dashboard Flashing", "Pipeline Pause"],
+    actions: ["SNS Immediate Alert", "SMS to Key Personnel", "Slack #critical-alerts", "Dashboard Flashing", "Pipeline Pause"],
     criteria: "Spumavirus >500 copies/mL, ANY EEEV detection",
   },
   {
     level: "HIGH",
     color: "bg-orange-50 dark:bg-orange-900/10 text-orange-600 dark:text-orange-400",
     response: "< 30 min",
-    actions: ["SNS Notification", "Email Alert", "Dashboard Warning"],
+    actions: ["SNS Notification", "Email Alert", "Slack #pathogen-alerts", "Dashboard Warning"],
     criteria: "Hantavirus >100 copies/mL, Polyomavirus >100 copies/mL",
   },
   {
     level: "MEDIUM",
     color: "bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400",
     response: "< 2 hours",
-    actions: ["Email Notification", "Dashboard Display"],
+    actions: ["Email Notification", "Slack #pathogen-monitoring", "Dashboard Display"],
     criteria: "External keyword match, Low-level detections",
   },
   {
@@ -318,6 +319,7 @@ Severity Engine
       ↓
 Notification Router
    ├─ SNS/SES (Email/SMS)
+   ├─ Slack (Bot API + Webhooks)
    ├─ Streamlit Dashboard
    └─ REST API`}
                   />
@@ -329,7 +331,7 @@ Notification Router
             <section className="mb-12">
               <h2 className="text-2xl font-semibold mb-6">System Components</h2>
 
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                   <CardHeader>
                     <BellIcon className="h-8 w-8 text-primary mb-2" />
@@ -340,6 +342,19 @@ Notification Router
                     <p>• SES Email Templates</p>
                     <p>• SMS for Critical</p>
                     <p>• Deduplication (1h)</p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <MessageSquareIcon className="h-8 w-8 text-primary mb-2" />
+                    <CardTitle className="text-base">Slack Integration</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm space-y-1">
+                    <p>• Bot API + Webhooks</p>
+                    <p>• Rich Block Kit Format</p>
+                    <p>• Channel Routing</p>
+                    <p>• Daily Summaries</p>
                   </CardContent>
                 </Card>
 
@@ -401,7 +416,7 @@ Notification Router
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="mb-4">
                 <CardHeader>
                   <CardTitle>Manual Collection Test</CardTitle>
                 </CardHeader>
@@ -416,6 +431,26 @@ python -m surveillance.external.maff_scraper
 
 # Test E-Stat API
 python -m surveillance.external.estat_client`}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Slack Notification Setup</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CodeBlock
+                    language="bash"
+                    code={`# Configure Slack credentials
+cp surveillance/.env.template surveillance/.env
+# Edit .env with your Slack Bot Token
+
+# Test Slack connection
+python surveillance/tests/test_slack_integration.py --test-conn
+
+# Send test alerts
+python surveillance/tests/test_slack_integration.py --test-alert`}
                   />
                 </CardContent>
               </Card>

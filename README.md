@@ -6,13 +6,15 @@ PMDA-compliant metagenomic analysis pipeline for xenotransplantation donor pig s
 
 This pipeline provides comprehensive pathogen detection for 91 PMDA-designated pathogens in donor pigs intended for xenotransplantation. The system uses Oxford Nanopore long-read sequencing technology combined with AWS cloud infrastructure for scalable, cost-effective analysis.
 
-**Latest Update (v2.1)**: Protocol 12 now includes circular and single-stranded DNA virus detection, achieving TRUE 100% pathogen coverage.
+**Latest Updates**:
+- **v2.2.0 (2025-11-15)**: Added Slack notification integration to 4-Virus Surveillance System with real-time alerts
+- **v2.1.0 (2025-11-14)**: Protocol 12 now includes circular and single-stranded DNA virus detection, achieving TRUE 100% pathogen coverage
 
 ## Key Features
 
 - **PMDA Compliance**: Full coverage of 91 designated pathogens
 - **PERV Detection**: Critical detection of Porcine Endogenous Retroviruses (PERV-A, B, C)
-- **4-Virus Surveillance**: Real-time monitoring of Hantavirus, Polyomavirus, Spumavirus, and EEEV with external data integration (MAFF, E-Stat, PubMed, J-STAGE)
+- **4-Virus Surveillance**: Real-time monitoring of Hantavirus, Polyomavirus, Spumavirus, and EEEV with external data integration (MAFF, E-Stat, PubMed, J-STAGE) and Slack notifications
 - **Real-time Analysis**: Streaming analysis capability with MinION
 - **Cloud-Native**: Serverless architecture on AWS (Lambda + EC2 on-demand)
 - **Automated Workflow**: End-to-end automation from basecalling to reporting

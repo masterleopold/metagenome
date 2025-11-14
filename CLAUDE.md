@@ -146,9 +146,10 @@ if not Path(f"{bam_file}.bai").exists():
 ## Important Notes
 
 - **Protocol 12 v2.1**: Includes Step 2.5 for circular/ssDNA virus support (PCV2, PCV3, TTV, PPV)
-- **4-Virus Surveillance** (NEW): Dual-source monitoring system (external: MAFF/E-Stat/PubMed/J-STAGE + internal: Phase 4 results)
+- **4-Virus Surveillance** (v2.2.0): Dual-source monitoring system (external: MAFF/E-Stat/PubMed/J-STAGE + internal: Phase 4 results)
   - Daily collection @ 11:00 JST, real-time internal monitoring
-  - 4-level severity (CRITICAL/HIGH/MEDIUM/LOW), multi-channel alerts (SNS/SES/SMS/Dashboard)
+  - 4-level severity (CRITICAL/HIGH/MEDIUM/LOW), multi-channel alerts (SNS/SES/SMS/Slack/Dashboard)
+  - **Slack Integration**: Bot API + Webhooks, severity-based channel routing (#critical-alerts, #pathogen-alerts, #pathogen-monitoring)
   - Cost: ~$7.40/month, DynamoDB + Lambda + S3
 - **Test Pattern**: Use pytest with moto for AWS service mocking
 - **Error Handling**: Always validate file existence/size before processing
@@ -156,15 +157,25 @@ if not Path(f"{bam_file}.bai").exists():
 - **Spot Instances**: 70% cost savings, handled by orchestrator
 - **RDS Schema**: Aurora Serverless v2 for pipeline metadata
 
-## Recent Updates (2025-11-14)
+## Recent Updates (2025-11-15)
 
-### 4-Virus Surveillance System Implementation (v2.2.0) - ZERO BUG CERTIFIED
+### Slack Notification Integration for 4-Virus Surveillance (v2.2.0)
+- **Implementation**: `surveillance/alerting/slack_client.py` - Dual delivery (Bot API + Webhooks)
+- **Features**: Rich Block Kit formatting, severity-based channel routing, action buttons for critical alerts
+- **Channel Routing**: CRITICAL → #critical-alerts, HIGH → #pathogen-alerts, MEDIUM → #pathogen-monitoring
+- **Setup**: `surveillance/docs/SLACK_SETUP.md` (complete guide), `surveillance/.env.template` (credentials)
+- **Testing**: `surveillance/tests/test_slack_integration.py` - Connection, alerts, daily summaries
+- **Deployment**: `surveillance/scripts/setup_lambda_env.sh` - Automated Lambda environment setup
+- **Slack App**: App ID: A09TVLTGDSL, Scopes: `chat:write`, `chat:write.public`, `channels:read`
+- **Security**: All credentials via environment variables (SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET)
+- **Cost**: Zero additional cost (Slack free tier)
+- **Documentation**: Updated ARCHITECTURE.md, CHANGELOG.md, RECENT_UPDATES.md, surveillance README, portal page
+
+### 4-Virus Surveillance System Implementation (v2.1.0) - 2025-11-14
 - **Target viruses**: Hantavirus, Polyomavirus, Spumavirus (MHLW Special Management #5), EEEV
 - **External collectors**: `surveillance/external/` (MAFF, E-Stat APP_ID: bae1f981a6d093a9676b03c8eea37324b8de421b, PubMed, J-STAGE web scraping)
 - **Internal listener**: `surveillance/internal/pipeline_listener.py` monitors Phase 4 results
 - **Alerting**: `surveillance/alerting/severity_engine.py` with YAML rules, notification_router.py for multi-channel
 - **UIs**: Streamlit dashboard (8501), FastAPI (8000)
 - **Infrastructure**: 3 DynamoDB tables, S3 data lake, Lambda functions, EventBridge schedule
-- **Documentation**: Added comprehensive sections to ARCHITECTURE.md, created non-engineer guide, updated all /docs files
 - **Quality Assurance**: Ultra-thorough 7-layer audit - 4 bugs found and fixed, ZERO bugs remaining
-- **Commits**: `2643c58` (main feature), `08151cc`, `696c048`, `bd57e34` (bug fixes), `d54249e` (final audit)

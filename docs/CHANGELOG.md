@@ -2,6 +2,41 @@
 
 ## Recent Updates
 
+### 2025-11-15: Slack Notification Integration for 4-Virus Surveillance (v2.2.0)
+**Real-time Slack notifications with rich formatting and severity-based routing**
+- **Core Implementation**: Comprehensive Slack client (`surveillance/alerting/slack_client.py`, 580 lines)
+  - **Dual Delivery Methods**: Bot API (primary) + Incoming Webhooks (fallback)
+  - **Rich Block Kit Formatting**: Color-coded messages with severity emojis (🚨/⚠️/ℹ️/📝)
+  - **Channel Routing**: Automatic routing to `#critical-alerts`, `#pathogen-alerts`, `#pathogen-monitoring`
+  - **Interactive Elements**: Action buttons for critical alerts (View Dashboard, Acknowledge)
+  - **Daily Summaries**: Automated reporting with detection stats and external source updates
+- **Integration**:
+  - Updated `notification_router.py` with Slack client initialization and multi-channel routing
+  - Graceful fallback handling when Slack unavailable
+  - Environment-based configuration (SLACK_BOT_TOKEN, SLACK_APP_ID, etc.)
+- **Testing & Deployment**:
+  - Comprehensive test suite: `test_slack_integration.py` (460 lines)
+    - Connection testing, alert sending (critical/high/medium), daily summaries
+  - Lambda deployment script: `setup_lambda_env.sh` with automated environment setup
+  - Environment template: `.env.template` with all required Slack credentials
+- **Configuration Files**:
+  - Updated `config/config.yaml` with Slack settings and channel routing
+  - Updated `severity_rules.yaml` with Slack channels in alert routing
+- **Documentation** (1,300+ lines total):
+  - `surveillance/docs/SLACK_SETUP.md` - Complete setup guide (550 lines)
+  - `surveillance/SLACK_QUICKSTART.md` - Quick start reference (150 lines)
+  - Updated `surveillance/README.md` with Slack sections
+  - Updated `docs/ARCHITECTURE.md` with Slack integration architecture
+  - Updated `docs-portal/src/app/surveillance/page.tsx` with Slack UI components
+- **Slack App Details**:
+  - App ID: A09TVLTGDSL, Client ID: 580133244533.9947707557904
+  - Required Scopes: `chat:write`, `chat:write.public`, `channels:read`
+  - Security: All credentials via environment variables, no hardcoded secrets
+- **Cost Impact**: Zero additional cost (Slack free tier, unlimited messages)
+- **Message Examples**: Critical alerts with validation steps, daily summaries with statistics
+- **Files Created**: 6 new files (slack_client.py, .env.template, setup_lambda_env.sh, test_slack_integration.py, SLACK_SETUP.md, SLACK_QUICKSTART.md)
+- **Files Modified**: 6 files (notification_router.py, config.yaml, severity_rules.yaml, surveillance README, ARCHITECTURE.md, portal page)
+
 ### 2025-11-14: 4-Virus Surveillance System Implementation
 **Comprehensive dual-source monitoring system for 4 target viruses**
 - **Target Viruses**: Hantavirus, Polyomavirus, Spumavirus (MHLW Special Management #5), EEEV

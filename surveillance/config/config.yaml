@@ -87,6 +87,27 @@ ses:
   sender_name: "MinION 4-Virus Surveillance"
   reply_to: noreply@example.com
 
+# Slack Configuration
+slack:
+  enabled: true
+  app_id: A09TVLTGDSL
+  client_id: "580133244533.9947707557904"
+  # SECURITY: Store these in environment variables, not here
+  # client_secret: Set via SLACK_CLIENT_SECRET env var
+  # signing_secret: Set via SLACK_SIGNING_SECRET env var
+  # bot_token: Set via SLACK_BOT_TOKEN env var (xoxb-...)
+  # webhook_url: Set via SLACK_WEBHOOK_URL env var (optional fallback)
+
+  # Channel routing (matches severity_rules.yaml)
+  channels:
+    critical: "#critical-alerts"
+    high: "#pathogen-alerts"
+    medium: "#pathogen-monitoring"
+    daily_summary: "#pathogen-monitoring"
+
+  # Dashboard URL for action buttons
+  dashboard_url: "http://localhost:8501"  # UPDATE for production
+
 # Dashboard Configuration
 dashboard:
   streamlit:
@@ -138,7 +159,7 @@ features:
   external_estat: true
   external_academic: true
   internal_pipeline: true
-  slack_notifications: false  # Not yet implemented
+  slack_notifications: true   # ✅ Implemented (Bot API + Webhooks)
   jstage_monitoring: true     # ✅ Implemented (Web scraping)
 
 # Performance Tuning

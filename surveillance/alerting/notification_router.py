@@ -14,6 +14,9 @@ from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
 
+# Import Slack client
+from .slack_client import SlackClient
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,10 +45,15 @@ class NotificationRouter:
         self.ses_client = boto3.client('ses', region_name=region)
         self.dynamodb = boto3.resource('dynamodb', region_name=region)
 
+        # Initialize Slack client
+        self.slack_client = SlackClient()
+
         # Notification history for deduplication
         self.notification_history: List[Dict[str, Any]] = []
 
-        logger.info("Initialized Notification Router")
+        logger.info("Initialized Notification Router (Slack: {})".format(
+            "enabled" if self.slack_client.enabled else "disabled"
+        ))
 
     def route_alert(self, detection: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -260,24 +268,31 @@ class NotificationRouter:
 
     def _send_slack(self, detection: Dict[str, Any], channel: str) -> Dict[str, str]:
         """
-        Send Slack notification (requires webhook or API)
+        Send Slack notification using Slack client
 
         Args:
             detection: Detection record
-            channel: Slack channel name
+            channel: Slack channel name (e.g., #critical-alerts)
 
         Returns:
             Delivery status
         """
-        # Note: This requires Slack webhook URL or Bot API token
-        # Placeholder implementation
-        logger.warning(f"Slack integration not yet implemented for channel: {channel}")
+        if not self.slack_client.enabled:
+            logger.warning(f"Slack client disabled - skipping notification to {channel}")
+            return {
+                'status': 'disabled',
+                'channel': channel,
+                'timestamp': datetime.now().isoformat()
+            }
 
-        return {
-            'status': 'not_implemented',
-            'channel': channel,
-            'timestamp': datetime.now().isoformat()
-        }
+        try:
+            result = self.slack_client.send_alert(detection, channel)
+            logger.info(f"Slack notification sent to {channel}: {result.get('status')}")
+            return result
+
+        except Exception as e:
+            logger.error(f"Failed to send Slack notification to {channel}: {e}")
+            raise
 
     def _format_subject(self, detection: Dict[str, Any]) -> str:
         """
@@ -460,16 +475,22 @@ Generated: {datetime.now().isoformat()}
 
     def send_daily_summary(self, summary_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Send daily summary email
+        Send daily summary via email and Slack
 
         Args:
             summary_data: Summary of daily surveillance activities
 
         Returns:
-            Delivery status
+            Delivery status for each channel
         """
-        logger.info("Sending daily summary email")
+        logger.info("Sending daily summary")
 
+        delivery_status = {
+            'timestamp': datetime.now().isoformat(),
+            'channels': {}
+        }
+
+        # Send email summary
         recipients = ['surveillance-team@example.com']  # Configure
         subject = f"Daily 4-Virus Surveillance Summary - {datetime.now().strftime('%Y-%m-%d')}"
 
@@ -489,15 +510,29 @@ Generated: {datetime.now().isoformat()}
                 }
             )
 
-            return {
+            delivery_status['channels']['email'] = {
                 'status': 'sent',
-                'message_id': response['MessageId'],
-                'timestamp': datetime.now().isoformat()
+                'message_id': response['MessageId']
             }
 
         except ClientError as e:
-            logger.error(f"Failed to send daily summary: {e}")
-            raise
+            logger.error(f"Failed to send email summary: {e}")
+            delivery_status['channels']['email'] = {'error': str(e)}
+
+        # Send Slack summary
+        if self.slack_client.enabled:
+            try:
+                slack_result = self.slack_client.send_daily_summary(
+                    summary_data,
+                    channel='#pathogen-monitoring'
+                )
+                delivery_status['channels']['slack'] = slack_result
+
+            except Exception as e:
+                logger.error(f"Failed to send Slack summary: {e}")
+                delivery_status['channels']['slack'] = {'error': str(e)}
+
+        return delivery_status
 
     def _format_daily_summary_text(self, summary: Dict[str, Any]) -> str:
         """Format daily summary as plain text"""

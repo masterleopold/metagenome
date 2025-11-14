@@ -262,4 +262,4 @@ compliance_reports/
 
 # Keep empty directories
 !.gitkeep
-!*/.gitkeep
+!*/.gitkeep*.backup.*

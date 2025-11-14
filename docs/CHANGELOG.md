@@ -2,6 +2,16 @@
 
 ## Recent Updates
 
+### 2025-11-15: CLAUDE.md Optimization
+**Performance improvement for Claude Code**
+- **Optimization**: Reduced CLAUDE.md from 180 lines (12KB) to 79 lines (4KB) - 67% size reduction
+- **Strategy**: Progressive disclosure - essentials in CLAUDE.md, detailed reference in new CLAUDE_REFERENCE.md
+- **Content**: All information preserved in organized structure
+  - Critical constraints, quick commands, and key files in CLAUDE.md
+  - Complete architecture, patterns, implementation history in CLAUDE_REFERENCE.md (283 lines)
+- **Benefits**: Faster loading, better focus, reduced cognitive load, improved Claude Code performance
+- **Files**: Created CLAUDE_REFERENCE.md, updated CLAUDE.md, backup saved as CLAUDE.md.backup.20251115-042300
+
 ### 2025-11-15: Slack Notification Integration for 4-Virus Surveillance (v2.2.0)
 **Real-time Slack notifications with rich formatting and severity-based routing**
 - **Core Implementation**: Comprehensive Slack client (`surveillance/alerting/slack_client.py`, 580 lines)

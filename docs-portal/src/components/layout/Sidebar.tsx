@@ -12,6 +12,7 @@ import {
   ShieldCheckIcon,
   BookOpenIcon,
   ActivityIcon,
+  SparklesIcon,
 } from "lucide-react"
 
 const navigation = [
@@ -52,6 +53,11 @@ const navigation = [
         title: "API Reference",
         href: "/api-reference" as const,
         icon: Code2Icon,
+      },
+      {
+        title: "v2.0 Patterns",
+        href: "/v2-patterns" as const,
+        icon: SparklesIcon,
       },
       {
         title: "Deployment",

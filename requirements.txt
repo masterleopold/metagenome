@@ -54,6 +54,10 @@ alembic>=1.10.0
 aws-lambda-powertools>=2.15.0
 aws-cdk-lib>=2.80.0
 
+# Type safety and validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
 # Utilities
 python-dotenv>=1.0.0
 requests>=2.30.0

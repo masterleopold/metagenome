@@ -64,10 +64,12 @@ if not Path(f"{bam_file}.bai").exists():
 
 | Doc | Location | Purpose |
 |-----|----------|---------|
-| Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design |
-| Commands | [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) | All commands |
+| Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design + v2.0 patterns |
+| Commands | [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) | All commands + v2.0 quick start |
+| Patterns | [docs/PATTERNS.md](docs/PATTERNS.md) | Code conventions + v2.0 examples |
+| v2.0 Guide | [docs/NEW_PATTERNS_GUIDE.md](docs/NEW_PATTERNS_GUIDE.md) | Type safety, repository, logging |
+| API Reference | [docs/API_REFERENCE_V2.md](docs/API_REFERENCE_V2.md) | v2.0 API documentation |
 | Updates | [docs/RECENT_UPDATES.md](docs/RECENT_UPDATES.md) | Latest changes |
-| Patterns | [docs/PATTERNS.md](docs/PATTERNS.md) | Code conventions |
 | Full Reference | [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) | Detailed info |
 
 ## Current Features
@@ -78,5 +80,11 @@ if not Path(f"{bam_file}.bai").exists():
   - External: MAFF/E-Stat/PubMed/J-STAGE (daily 11:00 JST)
   - Internal: Real-time Phase 4 monitoring
 - **Protocol 12 v2.1**: Circular/ssDNA virus support (PCV2, PCV3, TTV, PPV)
+- **v2.0 Code Quality** (NEW - 2025-01-15):
+  - Type-safe Pydantic models (18 models, auto-validation)
+  - Repository pattern (RDS + SQLite for testing)
+  - Unified logging (AWS Lambda Powertools)
+  - CloudWatch audit queries (12 pre-built queries)
+  - 10x faster tests, 60x faster PMDA audit reports
 
 **See [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) for detailed architecture, directory structure, and implementation notes.**

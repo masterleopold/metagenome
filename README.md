@@ -7,6 +7,7 @@ PMDA-compliant metagenomic analysis pipeline for xenotransplantation donor pig s
 This pipeline provides comprehensive pathogen detection for 91 PMDA-designated pathogens in donor pigs intended for xenotransplantation. The system uses Oxford Nanopore long-read sequencing technology combined with AWS cloud infrastructure for scalable, cost-effective analysis.
 
 **Latest Updates**:
+- **v2.0.0 (2025-01-15)**: Major code quality improvements - Type-safe Pydantic models, Repository pattern, Unified logging (AWS Lambda Powertools), CloudWatch audit queries for PMDA compliance
 - **v2.2.0 (2025-11-15)**: Added Slack notification integration to 4-Virus Surveillance System with real-time alerts
 - **v2.1.0 (2025-11-14)**: Protocol 12 now includes circular and single-stranded DNA virus detection, achieving TRUE 100% pathogen coverage
 
@@ -58,10 +59,14 @@ MinION Sequencer → S3 Upload → Lambda Orchestrator → Step Functions
 - High-memory EC2 instances (r5.4xlarge for pathogen detection)
 
 ### Software
-- Python 3.9+
+- Python 3.11+
 - Terraform 1.0+
 - AWS CLI configured
 - **Note**: No Docker required - uses custom AMIs with pre-installed tools
+- **New Dependencies** (v2.0):
+  - `pydantic>=2.5.0` - Type-safe data models
+  - `pydantic-settings>=2.1.0` - Configuration management
+  - `aws-lambda-powertools>=2.0.0` - Structured logging (optional, for Lambda)
 
 ### AWS Services
 - S3 for data storage

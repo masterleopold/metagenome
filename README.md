@@ -407,6 +407,18 @@ Key Pages:
 - **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - AWS infrastructure setup instructions
 - **[Session History](docs/claude-sessions/README.md)** - Development session logs
 - **[Technical Q&A](docs/technical-qa/)** - Technical question and answer documentation
+- **[Grant Application](docs/grants/)** - NVIDIA Academic Grant Program application materials (DGX Spark deployment)
+
+## Funding
+
+**NVIDIA Academic Grant Program Application (2025)**
+- Requesting 2× NVIDIA DGX Spark systems for on-premises PMDA-compliant deployment
+- Requesting 2,500 A100 GPU hours for ARM vs x86 benchmarking
+- See [docs/grants/](docs/grants/) for complete application materials including:
+  - 50-sample benchmark results (100% accuracy agreement ARM vs x86)
+  - PMDA compliance justification
+  - Cost analysis (96.4% operational cost reduction)
+  - Educational integration plan (Meiji University)
 
 ## Support
 

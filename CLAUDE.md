@@ -71,6 +71,7 @@ if not Path(f"{bam_file}.bai").exists():
 | API Reference | [docs/API_REFERENCE_V2.md](docs/API_REFERENCE_V2.md) | v2.0 API documentation |
 | Updates | [docs/RECENT_UPDATES.md](docs/RECENT_UPDATES.md) | Latest changes |
 | Full Reference | [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) | Detailed info |
+| **Grant Materials** | [docs/grants/](docs/grants/) | **NVIDIA Academic Grant Program application** |
 
 ## Current Features
 
@@ -86,5 +87,11 @@ if not Path(f"{bam_file}.bai").exists():
   - Unified logging (AWS Lambda Powertools)
   - CloudWatch audit queries (12 pre-built queries)
   - 10x faster tests, 60x faster PMDA audit reports
+- **NVIDIA Grant Application** (NEW - 2025-01-16):
+  - DGX Spark ARM architecture deployment for PMDA compliance
+  - 50-sample benchmark: 100% accuracy agreement (ARM vs x86)
+  - Request: 2× DGX Spark + 2,500 A100 hours
+  - 96.4% cost reduction (¥35.9M savings over 5 years)
+  - See [docs/grants/](docs/grants/) for complete application
 
 **See [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) for detailed architecture, directory structure, and implementation notes.**

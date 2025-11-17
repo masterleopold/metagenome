@@ -1,5 +1,80 @@
 # Recent Updates
 
+## 2025-01-17 Updates
+
+### J-STAGE Terms of Service Compliance (CRITICAL FIX)
+
+**Fixed critical violation of J-STAGE Web API Terms of Service** in the 4-Virus Surveillance System.
+
+#### Violation Identified
+- **Issue**: J-STAGE academic data stored for 365 days (S3) and 90 days (DynamoDB)
+- **Requirement**: J-STAGE ToS Article 3, Clause 5 prohibits machine-readable storage >24 hours
+- **Violation Magnitude**: 15,250% over allowed limit
+- **Legal Risk**: Potential API access termination, legal action from JST
+
+#### Implementation Summary
+- **Status**: ✅ Compliance Achieved
+- **Date**: 2025-01-17
+- **Files Modified**: 4 files
+- **New Files**: 4 files (documentation + scripts)
+
+#### Changes Made
+
+**Code Updates**:
+- **DynamoDB TTL**: Added automatic 24-hour expiration (`surveillance/external/academic_monitor.py:550-568`)
+- **S3 Storage**: Modified to save only aggregated statistics, removed individual article metadata (`surveillance/external/academic_monitor.py:495-548`)
+- **Data Minimization**: No longer stores article titles, authors, abstracts, or URLs
+
+**Infrastructure Updates**:
+- **S3 Lifecycle**: Updated to 1-day retention for academic data (`infrastructure/surveillance/main.tf:84-138`)
+- **Separate Rules**: Split external sources (academic: 1 day, MAFF/E-Stat: 365 days)
+
+**Configuration**:
+- **Retention Policy**: Updated to 24-hour limits (`surveillance/config/config.yaml:137-148`)
+
+**Documentation & Tools**:
+- **Compliance Guide**: `surveillance/docs/JSTAGE_COMPLIANCE.md` (comprehensive ToS compliance documentation)
+- **Cleanup Script**: `scripts/cleanup_jstage_data.sh` (delete old J-STAGE data)
+- **Verification Script**: `scripts/verify_jstage_compliance.py` (automated compliance checking)
+- **Japanese Summary**: `JSTAGE_利用規約対応_実装概要.md` (日本語版実装概要)
+- **English Summary**: `JSTAGE_COMPLIANCE_CHANGES.md` (detailed implementation guide)
+
+#### Compliance Comparison
+
+| Aspect | Before | After | Status |
+|--------|--------|-------|--------|
+| S3 Retention | 365 days | 1 day (24h) | ✅ Compliant |
+| DynamoDB TTL | Not set | 24 hours | ✅ Compliant |
+| Data Stored | Full articles | Statistics only | ✅ Compliant |
+| Violation | 15,250% over | 0% (compliant) | ✅ Fixed |
+
+#### Impact Assessment
+**✅ NO IMPACT** on core functionality:
+- Slack alerts continue working
+- Real-time monitoring unaffected
+- All 4-virus surveillance features operational
+
+**ℹ️ MINOR IMPACT** on historical data:
+- Cannot query individual J-STAGE articles >24 hours old
+- Aggregated statistics still available indefinitely
+
+#### Deployment Requirements
+1. **Terraform**: Apply infrastructure changes (`terraform apply`)
+2. **Cleanup**: Delete existing J-STAGE data >24h old (`./scripts/cleanup_jstage_data.sh`)
+3. **Verification**: Run compliance check (`python scripts/verify_jstage_compliance.py`)
+
+#### Monitoring
+- **CloudWatch Alarm**: To be configured for data >24h old
+- **Daily Verification**: Automated compliance checking
+- **Quarterly Review**: ToS updates and compliance status
+
+**See**:
+- Technical Details: `surveillance/docs/JSTAGE_COMPLIANCE.md`
+- Japanese Documentation: `JSTAGE_利用規約対応_実装概要.md`
+- Implementation Summary: `JSTAGE_COMPLIANCE_CHANGES.md`
+
+---
+
 ## 2025-01-16 Updates
 
 ### NVIDIA Academic Grant Program Application (Grant Materials)

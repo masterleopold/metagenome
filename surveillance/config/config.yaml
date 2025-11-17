@@ -137,11 +137,14 @@ schedules:
 # Data Retention
 retention:
   s3:
-    external_sources: 365  # days
+    # J-STAGE ToS compliance: Article 3, Clause 5 (no storage >24h)
+    academic_sources: 1  # day (24 hours) - J-STAGE Terms of Service
+    external_sources: 365  # days (MAFF, E-Stat)
     internal_detections: 730  # days
 
   dynamodb:
-    external_updates_ttl: 90  # days
+    # J-STAGE ToS compliance: Article 3, Clause 5 (no storage >24h)
+    external_updates_ttl: 1  # day (24 hours) - J-STAGE Terms of Service
     notifications_ttl: 90  # days
 
 # Logging Configuration

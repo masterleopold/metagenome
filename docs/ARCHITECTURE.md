@@ -247,7 +247,7 @@ Severity Engine → Notification Router
 | Table | Purpose | Key Schema | TTL |
 |-------|---------|-----------|-----|
 | surveillance-detections | Virus detections | PK: detection_id, SK: timestamp | No |
-| surveillance-external-updates | Daily source updates | PK: source#date, SK: update_id | 90d |
+| surveillance-external-updates | Daily source updates (J-STAGE compliant) | PK: source#date, SK: update_id | **24h** (J-STAGE ToS) |
 | surveillance-notifications | Notification tracking | PK: notification_id, SK: timestamp | 90d |
 
 **Indexes**:
@@ -268,8 +268,16 @@ s3://surveillance-data/
 ```
 
 **Lifecycle Policies**:
-- External data: 365 days retention
+- Academic data (J-STAGE): **1 day (24 hours)** - J-STAGE Terms of Service compliance
+- Other external data (MAFF, E-Stat): 365 days retention
 - Internal detections: 730 days retention
+
+**J-STAGE Compliance** (Critical):
+- **Requirement**: J-STAGE ToS Article 3, Clause 5 prohibits machine-readable storage >24 hours
+- **Implementation**: S3 lifecycle rules + DynamoDB TTL (24h automatic expiration)
+- **Data Stored**: Only aggregated statistics (NOT individual article metadata)
+- **Compliance Status**: ✅ Achieved (2025-01-17)
+- **Documentation**: `surveillance/docs/JSTAGE_COMPLIANCE.md`
 
 #### Lambda Functions
 

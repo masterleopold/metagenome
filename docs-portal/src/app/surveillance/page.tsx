@@ -86,7 +86,7 @@ const externalSources = [
     url: "www.jstage.jst.go.jp",
     frequency: "Daily",
     method: "Web Scraping",
-    dataType: "Japanese Publications",
+    dataType: "Japanese Publications (ToS Compliant)",
   },
 ];
 
@@ -379,7 +379,7 @@ Notification Router
                   <CardContent className="text-sm space-y-1">
                     <p>• DynamoDB Tables (3)</p>
                     <p>• S3 Data Lake</p>
-                    <p>• TTL: 90 days</p>
+                    <p>• TTL: 24h (J-STAGE ToS)</p>
                     <p>• Point-in-Time Recovery</p>
                   </CardContent>
                 </Card>
@@ -525,6 +525,14 @@ python surveillance/tests/test_slack_integration.py --test-alert`}
                 <AlertTitle>Spumavirus Priority</AlertTitle>
                 <AlertDescription>
                   Spumavirus is designated as MHLW Special Management Pathogen #5. No porcine reference genome exists - detection uses cross-genus comparison.
+                </AlertDescription>
+              </Alert>
+
+              <Alert className="mt-4">
+                <CheckCircleIcon className="h-4 w-4" />
+                <AlertTitle>J-STAGE Terms of Service Compliance</AlertTitle>
+                <AlertDescription>
+                  J-STAGE academic data is stored for only 24 hours (aggregated statistics only) to comply with J-STAGE Web API Terms of Service Article 3, Clause 5. Individual article metadata is not retained.
                 </AlertDescription>
               </Alert>
             </section>

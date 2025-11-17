@@ -291,6 +291,28 @@ python surveillance/tests/test_slack_integration.py --test-alert
 python surveillance/tests/test_slack_integration.py
 ```
 
+## データ保持ポリシー
+
+### J-STAGE利用規約準拠（重要）
+- **J-STAGE データ**: 24時間（利用規約第3条第5項準拠）
+  - S3ライフサイクルルール: 1日後自動削除
+  - DynamoDB TTL: 24時間後自動削除
+  - 保存データ: 集計統計のみ（個別論文メタデータは保存しない）
+- **その他外部ソース**:
+  - MAFF/E-Stat: 365日保持
+- **内部検出データ**: 730日保持
+
+### コンプライアンス検証
+```bash
+# コンプライアンスチェック実行
+python scripts/verify_jstage_compliance.py
+
+# 古いデータのクリーンアップ
+./scripts/cleanup_jstage_data.sh
+```
+
+詳細: `surveillance/docs/JSTAGE_COMPLIANCE.md`
+
 ## セキュリティ
 
 - S3暗号化: AES256（デフォルト有効）
@@ -316,6 +338,17 @@ python surveillance/tests/test_slack_integration.py
 - **Slack**: #surveillance-tech
 
 ## 変更履歴
+
+### v2.3.0 (2025-01-17)
+- ✅ **J-STAGE利用規約対応（重要）**
+  - 24時間データ保持制限実装（第3条第5項準拠）
+  - DynamoDB自動TTL設定（24時間後削除）
+  - S3ライフサイクルルール更新（1日保持）
+  - 集計統計のみ保存（個別論文メタデータは保存しない）
+  - コンプライアンスガイド作成: `surveillance/docs/JSTAGE_COMPLIANCE.md`
+  - 検証スクリプト: `scripts/verify_jstage_compliance.py`
+  - クリーンアップスクリプト: `scripts/cleanup_jstage_data.sh`
+- 詳細: `JSTAGE_利用規約対応_実装概要.md`
 
 ### v2.2.0 (2025-11-15)
 - ✅ **Slack通知統合実装**

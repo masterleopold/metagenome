@@ -81,12 +81,41 @@ resource "aws_s3_bucket_versioning" "surveillance_data" {
 resource "aws_s3_bucket_lifecycle_configuration" "surveillance_data" {
   bucket = aws_s3_bucket.surveillance_data.id
 
+  # J-STAGE ToS compliance: Article 3, Clause 5
+  # Academic data (includes J-STAGE) must be deleted after 24 hours
   rule {
-    id     = "expire-external-after-1-year"
+    id     = "expire-academic-after-24h"
     status = "Enabled"
 
     filter {
-      prefix = "external/"
+      prefix = "external/academic/"
+    }
+
+    expiration {
+      days = 1  # 24 hours (J-STAGE Terms of Service compliance)
+    }
+  }
+
+  # Other external sources (MAFF, E-Stat) - separate retention policy
+  rule {
+    id     = "expire-other-external-after-1-year"
+    status = "Enabled"
+
+    filter {
+      prefix = "external/maff/"
+    }
+
+    expiration {
+      days = 365
+    }
+  }
+
+  rule {
+    id     = "expire-estat-after-1-year"
+    status = "Enabled"
+
+    filter {
+      prefix = "external/estat/"
     }
 
     expiration {

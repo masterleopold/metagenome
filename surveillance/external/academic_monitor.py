@@ -494,7 +494,11 @@ class AcademicMonitor:
 
     def save_to_s3(self, bucket_name: str, results: Dict[str, Any]) -> List[str]:
         """
-        Save search results to S3
+        Save ONLY aggregated statistics to S3 (J-STAGE ToS compliant)
+
+        NOTE: Does NOT store individual article metadata to comply with
+        J-STAGE Terms of Service Article 3, Clause 5 (no machine-readable
+        storage >24h). Only aggregated counts and statistics are saved.
 
         Args:
             bucket_name: S3 bucket name
@@ -507,27 +511,36 @@ class AcademicMonitor:
         today = datetime.now()
 
         try:
-            # Save summary
+            # Create ToS-compliant summary (aggregated statistics only)
+            compliant_summary = {
+                'date': results['date'],
+                'source': results['source'],
+                'days_searched': results['days_searched'],
+                'viruses_checked': results['viruses_checked'],
+                'total_articles': results['total_articles'],
+                'articles_by_virus': results.get('articles_by_virus', {}),
+                'pubmed_articles': results.get('pubmed_articles', 0),
+                'jstage_articles': results.get('jstage_articles', 0),
+                # DO NOT include 'new_publications' array (individual article metadata)
+                'metadata': {
+                    'collection_time': today.isoformat(),
+                    'compliance_note': 'Individual article metadata not stored per J-STAGE ToS Article 3.5',
+                    'retention_period': '24 hours'
+                }
+            }
+
+            # Save aggregated summary only
             summary_key = f"external/academic/{today.year}/{today.month:02d}/{today.day:02d}/summary_{results['date']}.json"
             self.s3_client.put_object(
                 Bucket=bucket_name,
                 Key=summary_key,
-                Body=json.dumps(results, ensure_ascii=False, indent=2),
+                Body=json.dumps(compliant_summary, ensure_ascii=False, indent=2),
                 ContentType="application/json"
             )
             s3_paths.append(f"s3://{bucket_name}/{summary_key}")
 
-            # Save individual articles
-            for article in results.get('new_publications', []):
-                article_key = f"external/academic/{today.year}/{today.month:02d}/{today.day:02d}/articles/{article['virus_type']}_{article['pmid']}.json"
-                self.s3_client.put_object(
-                    Bucket=bucket_name,
-                    Key=article_key,
-                    Body=json.dumps(article, ensure_ascii=False, indent=2),
-                    ContentType="application/json"
-                )
-
-            logger.info(f"Saved {len(results.get('new_publications', []))} articles to S3")
+            # DO NOT save individual articles (J-STAGE ToS compliance)
+            logger.info(f"Saved aggregated statistics for {results['total_articles']} articles to S3 (ToS compliant - no individual metadata)")
 
         except ClientError as e:
             logger.error(f"Failed to save to S3: {e}")
@@ -538,15 +551,22 @@ class AcademicMonitor:
         """
         Save search results summary to DynamoDB
 
+        NOTE: TTL set to 24 hours for J-STAGE Terms of Service compliance
+        (Article 3, Clause 5: No storage >24h in machine-readable format)
+
         Args:
             results: Search results
         """
         try:
             table = self.dynamodb.Table('surveillance-external-updates')
 
+            # Calculate TTL: current time + 24 hours (J-STAGE ToS compliance)
+            now = datetime.now()
+            ttl_timestamp = int((now + timedelta(hours=24)).timestamp())
+
             table.put_item(Item={
                 'source#date': f"academic#{results['date']}",
-                'update_id': datetime.now().isoformat(),
+                'update_id': now.isoformat(),
                 'source': results['source'],
                 'update_date': results['date'],
                 'days_searched': results['days_searched'],
@@ -556,10 +576,11 @@ class AcademicMonitor:
                 'new_items_count': results['total_articles'],
                 'jstage_articles': results.get('jstage_articles', 0),
                 'pubmed_articles': results.get('pubmed_articles', 0),
-                'timestamp': int(datetime.now().timestamp())
+                'timestamp': int(now.timestamp()),
+                'ttl': ttl_timestamp  # Auto-delete after 24 hours (J-STAGE ToS compliance)
             })
 
-            logger.info(f"Saved academic update to DynamoDB: academic#{results['date']}")
+            logger.info(f"Saved academic update to DynamoDB: academic#{results['date']} (TTL: 24h)")
 
         except ClientError as e:
             logger.error(f"Failed to save to DynamoDB: {e}")

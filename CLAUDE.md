@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ⚠️ **PERV Detection**: ANY PERV-A/B/C → Immediate SNS alert (`scripts/phase4_pathogen/perv_typing.py:34`)
 ⚠️ **PMDA Compliance**: 91 pathogen coverage, PPA >95%, NPA >98% (`templates/config/pmda_pathogens.json`)
+⚠️ **J-STAGE Compliance**: 24h max storage (ToS Article 3.5) - stats only, no article metadata (`surveillance/docs/JSTAGE_COMPLIANCE.md`)
 ⚠️ **Data Security**: No patient data in git, encrypted S3 only
 ⚠️ **AWS Region**: Always use `ap-northeast-1` (Tokyo)
 
@@ -76,10 +77,11 @@ if not Path(f"{bam_file}.bai").exists():
 ## Current Features
 
 - **7-Phase Pipeline**: Containerless AWS (Lambda → EC2 AMIs)
-- **4-Virus Surveillance** (v2.2.0): Hantavirus/Polyomavirus/Spumavirus/EEEV
+- **4-Virus Surveillance** (v2.3.0): Hantavirus/Polyomavirus/Spumavirus/EEEV
   - Slack alerts to #critical-alerts, #pathogen-alerts, #pathogen-monitoring
   - External: MAFF/E-Stat/PubMed/J-STAGE (daily 11:00 JST)
   - Internal: Real-time Phase 4 monitoring
+  - **J-STAGE Compliance**: 24h data retention (ToS Article 3.5) - aggregated stats only
 - **Protocol 12 v2.1**: Circular/ssDNA virus support (PCV2, PCV3, TTV, PPV)
 - **v2.0 Code Quality** (NEW - 2025-01-15):
   - Type-safe Pydantic models (18 models, auto-validation)

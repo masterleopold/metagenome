@@ -8,9 +8,16 @@ This pipeline provides comprehensive pathogen detection for 91 PMDA-designated p
 
 **Latest Updates**:
 - **v2.3.0 (2025-01-17)**: J-STAGE Terms of Service compliance - 24h data retention limit, DynamoDB TTL, S3 lifecycle rules, aggregated statistics only
-- **v2.0.0 (2025-01-15)**: Major code quality improvements - Type-safe Pydantic models, Repository pattern, Unified logging (AWS Lambda Powertools), CloudWatch audit queries for PMDA compliance
+- **v2.0.0 (2025-01-15)**: Major code quality improvements:
+  - Type-safe Pydantic models (18 models with auto-validation)
+  - Repository pattern (RDS + SQLite for testing)
+  - Unified logging with AWS Lambda Powertools
+  - CloudWatch audit queries (12 pre-built queries)
+  - 10x faster tests, 60x faster PMDA audit reports
 - **v2.2.0 (2025-11-15)**: Added Slack notification integration to 4-Virus Surveillance System with real-time alerts
 - **v2.1.0 (2025-11-14)**: Protocol 12 now includes circular and single-stranded DNA virus detection, achieving TRUE 100% pathogen coverage
+
+See [docs/RECENT_UPDATES.md](docs/RECENT_UPDATES.md) for complete changelog.
 
 ## Key Features
 
@@ -77,6 +84,17 @@ MinION Sequencer → S3 Upload → Lambda Orchestrator → Step Functions
 - RDS Aurora Serverless for metadata
 - EFS for reference databases
 - SNS for notifications
+
+## Documentation
+
+- **[Quick Start Guide](docs/QUICK_REFERENCE.md)** - Commands and usage
+- **[Architecture Overview](docs/ARCHITECTURE.md)** - System design and components
+- **[Code Patterns](docs/PATTERNS.md)** - Development patterns and conventions
+- **[v2.0 Patterns Guide](docs/NEW_PATTERNS_GUIDE.md)** - Type safety, repository pattern, logging
+- **[API Reference](docs/API_REFERENCE_V2.md)** - v2.0 API documentation
+- **[Recent Updates](docs/RECENT_UPDATES.md)** - Changelog and version history
+- **[Full Technical Reference](CLAUDE_REFERENCE.md)** - Detailed implementation notes
+- **[NVIDIA Grant Materials](docs/grants/)** - Academic grant application (DGX Spark ARM)
 
 ## Installation
 

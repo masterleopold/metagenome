@@ -2,98 +2,202 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**Project**: MinION Pathogen Screening Pipeline - PMDA xenotransplantation screening (91 pathogens)
+**Project**: MinION Pathogen Screening Pipeline for PMDA xenotransplantation donor screening (91 pathogens)
 
 ## Critical Constraints
 
-⚠️ **PERV Detection**: ANY PERV-A/B/C → Immediate SNS alert (`scripts/phase4_pathogen/perv_typing.py:34`)
+⚠️ **PERV Detection**: ANY PERV-A/B/C detection triggers immediate SNS alert (`scripts/phase4_pathogen/perv_typing.py`)
 ⚠️ **PMDA Compliance**: 91 pathogen coverage, PPA >95%, NPA >98% (`templates/config/pmda_pathogens.json`)
-⚠️ **J-STAGE Compliance**: 24h max storage (ToS Article 3.5) - stats only, no article metadata (`surveillance/docs/JSTAGE_COMPLIANCE.md`)
-⚠️ **Data Security**: No patient data in git, encrypted S3 only
-⚠️ **AWS Region**: Always use `ap-northeast-1` (Tokyo)
+⚠️ **J-STAGE ToS**: 24h max retention - aggregated stats only (`surveillance/docs/JSTAGE_COMPLIANCE.md`)
+⚠️ **AWS Region**: ALWAYS `ap-northeast-1` (Tokyo) - hardcoded for regulatory compliance
+⚠️ **Security**: NO patient data in git, encrypted S3 only
 
-## Quick Commands
+## Commands
 
 ```bash
 # Testing
-pytest tests/                           # Run all tests
-pytest tests/ --cov=scripts --cov=lambda # With coverage
+pytest tests/                                    # All tests
+pytest tests/integration/test_new_patterns.py -v # v2.0 patterns (Pydantic + Repository)
+pytest tests/ --cov=scripts --cov=lambda        # With coverage
 
-# Code Quality
-black scripts/ lambda/ tools/           # Format
-flake8 scripts/ lambda/                 # Lint
+# Code quality
+black scripts/ lambda/ tools/ lib/              # Format
+flake8 scripts/ lambda/ lib/                    # Lint
 
-# Pipeline
-./tools/workflow_cli.py start --run-id RUN-001 --bucket minion-data
+# Pipeline execution
+./tools/workflow_cli.py start --run-id RUN-001 --bucket minion-data --input-prefix runs/RUN-001/fast5/
 ./tools/workflow_cli.py status --run-id RUN-001 --watch
+./tools/workflow_cli.py metrics --run-id RUN-001
+
+# Surveillance dashboard
+cd surveillance/dashboard && streamlit run app.py  # Port 8501
+cd surveillance/api && uvicorn main:app           # Port 8000
+```
+
+## Architecture Overview
+
+**7-Phase Containerless Pipeline**: Lambda orchestrates EC2 instances with custom AMIs (no Docker)
+
+```
+S3 Upload → Lambda Orchestrator → Step Functions → EC2 per phase (auto-terminate)
+                                                      ↓
+Phase 0: Sample Prep Routing (t3.small)
+Phase 1: Basecalling (g4dn.xlarge, GPU Dorado duplex)
+Phase 2: QC (t3.large, NanoPlot/PycoQC/RIN)
+Phase 3: Host Removal (r5.4xlarge, 128GB RAM, Minimap2)
+Phase 4: Pathogen Detection (4x parallel EC2, Kraken2/BLAST/PMDA)
+Phase 5: Quantification (t3.large, copies/mL)
+Phase 6: PMDA Reports (t3.large, PDF + JSON)
+```
+
+**Key AWS Services**:
+- Lambda + Step Functions for orchestration
+- EC2 Spot Instances (70% cost savings)
+- EFS for databases (`/mnt/efs/databases/kraken2`, `/blast`, `/perv`)
+- RDS Aurora Serverless v2 (PostgreSQL) for metadata
+- S3 for data storage with lifecycle policies
+- SNS for PERV alerts, SES for reports
+
+## Code Architecture (v2.0)
+
+**Type-Safe Data Models** (`lib/models/`):
+- Pydantic v2 models with auto-validation
+- `pathogen.py`: PERV detection, 91 pathogens, confidence levels
+- `workflow.py`: Workflow execution, QC metrics, phase status
+- `database.py`: Database records for repositories
+
+**Repository Pattern** (`lib/repositories/`):
+- `interfaces.py`: Protocol-based contracts (typing.Protocol)
+- `rds_repository.py`: Production (RDS Data API, PostgreSQL)
+- `sqlite_repository.py`: Testing (local SQLite)
+- `dynamodb_repository.py`: Surveillance system state
+
+**Unified Logging** (`lib/logging/`):
+- AWS Lambda Powertools (Logger, Tracer, Metrics)
+- Structured JSON logs for CloudWatch Insights
+- 12 pre-built audit queries for PMDA compliance
+
+## Critical Implementation Patterns
+
+### File Validation (REQUIRED)
+```python
+from pathlib import Path
+
+file = Path(file_path)
+if not file.exists():
+    raise FileNotFoundError(f"File not found: {file}")
+if file.stat().st_size == 0:
+    raise ValueError(f"Empty file: {file}")
+```
+
+### BAM File Indexing (REQUIRED)
+```python
+import pysam
+from pathlib import Path
+
+bam_path = Path(bam_file)
+if not Path(f"{bam_path}.bai").exists():
+    pysam.index(str(bam_path))
+```
+
+### AWS Client Initialization (REQUIRED)
+```python
+import boto3
+
+# ALWAYS use Tokyo region for regulatory compliance
+s3 = boto3.client('s3', region_name='ap-northeast-1')
+ec2 = boto3.client('ec2', region_name='ap-northeast-1')
+```
+
+### Type-Safe Workflows (v2.0)
+```python
+from lib.models.workflow import WorkflowExecution, WorkflowStatus
+from lib.repositories.rds_repository import RDSWorkflowRepository
+
+# Create workflow with validation
+workflow = WorkflowExecution(
+    run_id="RUN-001",
+    status=WorkflowStatus.PENDING,
+    input_bucket="minion-data",
+    input_prefix="runs/RUN-001/fast5/"
+)
+
+# Repository pattern with automatic backend selection
+repo = RDSWorkflowRepository()  # Production: RDS PostgreSQL
+# repo = SQLiteWorkflowRepository()  # Testing: Local SQLite
+
+repo.create(workflow)
+repo.update_status("RUN-001", WorkflowStatus.RUNNING)
+```
+
+### PERV Detection with Type Safety (v2.0)
+```python
+from lib.models.pathogen import PERVDetectionResult, PERVSubtype, PathogenConfidence
+
+result = PERVDetectionResult(
+    subtype=PERVSubtype.PERV_A,
+    reads_aligned=15,
+    coverage=0.92,
+    specific_motifs_found=['ATGGCAGCCACCACAGC'],
+    mean_identity=96.5,
+    confidence=PathogenConfidence.HIGH
+)
+
+# Auto-validation: requires_alert property
+if result.requires_alert:  # True for confidence >= MEDIUM
+    send_sns_alert(result)
 ```
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `scripts/phase4_pathogen/perv_typing.py` | PERV detection - CRITICAL |
-| `templates/config/pmda_pathogens.json` | 91 pathogen definitions |
-| `lambda/orchestration/pipeline_orchestrator.py` | Main orchestration |
-| `surveillance/alerting/slack_client.py` | Slack notifications |
-| `surveillance/config/severity_rules.yaml` | Alert severity rules |
+| File | Purpose | DO NOT MODIFY WITHOUT |
+|------|---------|----------------------|
+| `scripts/phase4_pathogen/perv_typing.py` | PERV detection logic | PMDA validation |
+| `templates/config/pmda_pathogens.json` | 91 pathogen definitions | Regulatory review |
+| `lambda/orchestration/pipeline_orchestrator.py` | Main workflow orchestration | Integration testing |
+| `lib/models/pathogen.py` | Type-safe PERV/pathogen models | Breaking change review |
+| `lib/repositories/interfaces.py` | Repository contracts | All implementations |
 
-## Key Patterns
+## Surveillance System (4-Virus v2.3.0)
 
+**Target Viruses**: Hantavirus, Polyomavirus, Spumavirus, EEEV
+
+**Components**:
+- `surveillance/external/`: MAFF scraper, E-Stat API, PubMed/J-STAGE monitor
+- `surveillance/internal/`: Real-time Phase 4 result listener
+- `surveillance/alerting/`: Severity engine (4 levels), Slack Bot API + Webhooks
+- `surveillance/lambda/external_collector/`: Daily at 11:00 JST (cron: 0 2 * * ? *)
+
+**Slack Integration**:
+- Channels: #critical-alerts, #pathogen-alerts, #pathogen-monitoring
+- Rich Block Kit formatting with action buttons
+- Daily summary notifications
+
+## Testing Strategy
+
+**Integration Tests** (`tests/integration/test_new_patterns.py`):
+- Validates Pydantic models with edge cases
+- Tests repository pattern with SQLite backend
+- Verifies type-safe workflows end-to-end
+
+**Mocking AWS Services**:
 ```python
-# ALWAYS validate files
-from pathlib import Path
-file = Path(file_path)
-if not file.exists(): raise FileNotFoundError(f"File not found: {file}")
-if file.stat().st_size == 0: raise ValueError(f"Empty file: {file}")
+from moto import mock_s3, mock_lambda, mock_dynamodb
 
-# ALWAYS use Tokyo region
-s3 = boto3.client('s3', region_name='ap-northeast-1')
-
-# ALWAYS check BAM index
-if not Path(f"{bam_file}.bai").exists():
-    pysam.index(str(bam_file))
+@mock_s3
+@mock_dynamodb
+def test_pipeline():
+    # AWS services are mocked
+    pass
 ```
-
-## Database Paths (EFS)
-
-- Kraken2: `/mnt/efs/databases/kraken2/pmda_2024/`
-- BLAST: `/mnt/efs/databases/blast/nt_2024/`
-- PERV: `/mnt/efs/databases/perv/references/`
 
 ## Documentation
 
-| Doc | Location | Purpose |
-|-----|----------|---------|
-| Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design + v2.0 patterns |
-| Commands | [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) | All commands + v2.0 quick start |
-| Patterns | [docs/PATTERNS.md](docs/PATTERNS.md) | Code conventions + v2.0 examples |
-| v2.0 Guide | [docs/NEW_PATTERNS_GUIDE.md](docs/NEW_PATTERNS_GUIDE.md) | Type safety, repository, logging |
-| API Reference | [docs/API_REFERENCE_V2.md](docs/API_REFERENCE_V2.md) | v2.0 API documentation |
-| Updates | [docs/RECENT_UPDATES.md](docs/RECENT_UPDATES.md) | Latest changes |
-| Full Reference | [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) | Detailed info |
-| **Grant Materials** | [docs/grants/](docs/grants/) | **NVIDIA Academic Grant Program application** |
-
-## Current Features
-
-- **7-Phase Pipeline**: Containerless AWS (Lambda → EC2 AMIs)
-- **4-Virus Surveillance** (v2.3.0): Hantavirus/Polyomavirus/Spumavirus/EEEV
-  - Slack alerts to #critical-alerts, #pathogen-alerts, #pathogen-monitoring
-  - External: MAFF/E-Stat/PubMed/J-STAGE (daily 11:00 JST)
-  - Internal: Real-time Phase 4 monitoring
-  - **J-STAGE Compliance**: 24h data retention (ToS Article 3.5) - aggregated stats only
-- **Protocol 12 v2.1**: Circular/ssDNA virus support (PCV2, PCV3, TTV, PPV)
-- **v2.0 Code Quality** (NEW - 2025-01-15):
-  - Type-safe Pydantic models (18 models, auto-validation)
-  - Repository pattern (RDS + SQLite for testing)
-  - Unified logging (AWS Lambda Powertools)
-  - CloudWatch audit queries (12 pre-built queries)
-  - 10x faster tests, 60x faster PMDA audit reports
-- **NVIDIA Grant Application** (NEW - 2025-01-16):
-  - DGX Spark ARM architecture deployment for PMDA compliance
-  - 50-sample benchmark: 100% accuracy agreement (ARM vs x86)
-  - Request: 2× DGX Spark + 2,500 A100 hours
-  - 96.4% cost reduction (¥35.9M savings over 5 years)
-  - See [docs/grants/](docs/grants/) for complete application
-
-**See [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) for detailed architecture, directory structure, and implementation notes.**
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System design, v2.0 improvements
+- [QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) - Commands, troubleshooting
+- [PATTERNS.md](docs/PATTERNS.md) - Code conventions
+- [NEW_PATTERNS_GUIDE.md](docs/NEW_PATTERNS_GUIDE.md) - v2.0 patterns (Pydantic, Repository, Logging)
+- [API_REFERENCE_V2.md](docs/API_REFERENCE_V2.md) - v2.0 API docs
+- [RECENT_UPDATES.md](docs/RECENT_UPDATES.md) - Changelog
+- [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) - Detailed reference
+- [docs/grants/](docs/grants/) - NVIDIA Academic Grant (DGX Spark ARM deployment)

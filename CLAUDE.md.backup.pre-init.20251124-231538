@@ -1,0 +1,44 @@
+# CLAUDE.md
+
+MinION Pathogen Screening Pipeline - PMDA xenotransplantation (91 pathogens)
+
+## ⚠️ CRITICAL CONSTRAINTS
+- **PERV Detection**: ANY PERV-A/B/C → Immediate SNS alert (`scripts/phase4_pathogen/perv_typing.py`)
+- **PMDA Compliance**: 91 pathogens, PPA >95%, NPA >98% (`templates/config/pmda_pathogens.json`)
+- **J-STAGE**: 24h retention only - stats, no metadata (`surveillance/docs/JSTAGE_COMPLIANCE.md`)
+- **Security**: NO patient data in git, encrypted S3 only
+- **AWS**: ALWAYS use `ap-northeast-1` (Tokyo)
+
+## Quick Start
+```bash
+# Test: pytest tests/ --cov=scripts --cov=lambda
+# Lint: black scripts/ lambda/ && flake8 scripts/ lambda/
+# Run:  ./tools/workflow_cli.py start --run-id RUN-001 --bucket minion-data
+```
+
+## Critical Files
+| File | Purpose |
+|------|---------|
+| `scripts/phase4_pathogen/perv_typing.py` | PERV detection |
+| `lambda/orchestration/pipeline_orchestrator.py` | Main orchestration |
+| `surveillance/alerting/slack_client.py` | Slack alerts |
+
+## Essential Patterns
+```python
+# ALWAYS validate files
+if not Path(file_path).exists(): raise FileNotFoundError(f"File not found: {file_path}")
+if Path(file_path).stat().st_size == 0: raise ValueError(f"Empty file: {file_path}")
+
+# ALWAYS use Tokyo region
+s3 = boto3.client('s3', region_name='ap-northeast-1')
+```
+
+## Documentation
+- **Architecture**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Commands**: [docs/QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md)
+- **Patterns**: [docs/PATTERNS.md](docs/PATTERNS.md), [docs/NEW_PATTERNS_GUIDE.md](docs/NEW_PATTERNS_GUIDE.md)
+- **Updates**: [docs/RECENT_UPDATES.md](docs/RECENT_UPDATES.md)
+- **Full Reference**: [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md)
+- **NVIDIA Grant**: [docs/grants/](docs/grants/)
+
+**See [CLAUDE_REFERENCE.md](CLAUDE_REFERENCE.md) for detailed information.**

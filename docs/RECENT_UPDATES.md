@@ -1,5 +1,38 @@
 # Recent Updates
 
+## 2025-12-07 Updates
+
+### Security Patch: CVE-2025-55182 (CRITICAL)
+
+**Patched critical RCE vulnerability** in Next.js/React affecting the documentation portal.
+
+#### Vulnerability Details
+- **CVE**: CVE-2025-55182 (React), CVE-2025-66478 (Next.js duplicate)
+- **Severity**: CVSS 10.0 (Critical)
+- **Type**: Remote Code Execution via unsafe Flight request deserialization
+- **Status**: Actively exploited in the wild since Dec 3, 2025
+
+#### Packages Updated
+| Package | Before | After | Status |
+|---------|--------|-------|--------|
+| `next` | 15.1.0 | **15.1.9** | Patched |
+| `react` | 19.0.0 | **19.2.1** | Patched |
+| `react-dom` | 19.0.0 | **19.2.1** | Patched |
+
+#### Files Modified
+- `docs-portal/package.json` - Updated dependencies
+
+#### Commit
+- **Hash**: `896ecd2`
+- **Message**: `security: patch CVE-2025-55182 (Next.js/React RCE vulnerability)`
+
+#### References
+- [Next.js Security Advisory](https://nextjs.org/blog/CVE-2025-66478)
+- [React Security Announcement](https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components)
+- [Vercel CVE Summary](https://vercel.com/changelog/cve-2025-55182)
+
+---
+
 ## 2025-01-17 Updates
 
 ### J-STAGE Terms of Service Compliance (CRITICAL FIX)
